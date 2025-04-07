@@ -10,9 +10,6 @@ var websocket = new WebSocket();
 var MQTT_APP = require('../../MQTT_APP.js');
 var mqtt_app = new MQTT_APP();
 
-var Analyze_MGR = require('../../../Util/Analyze_MGR.js');
-var analyze_mgr = new Analyze_MGR();
-
 var Power_Meter_MQTT = function () {
     var self = this;
 
@@ -106,8 +103,6 @@ var Power_Meter_MQTT = function () {
                         }
                         websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Electrical', ws_report_cmd);
                         
-                        await analyze_mgr.Analyze_Device_Record_This_Hour(device_ID, analyze_attribute_list);
-
                         break;
                 case "report power meter status change":
 

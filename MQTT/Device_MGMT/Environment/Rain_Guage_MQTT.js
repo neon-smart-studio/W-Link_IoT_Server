@@ -7,9 +7,6 @@ var rain_guage_api = new Rain_Guage_API();
 var WebSocket = require('../../../Web/WebSocket.js');
 var websocket = new WebSocket();
 
-var Traffic_APP = require('../../../Application/Traffic/Traffic_APP.js');
-var traffic_app = new Traffic_APP();
-
 var Rain_Guage_MQTT = function () {
     var self = this;
 

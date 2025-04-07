@@ -15,8 +15,6 @@ var Air_Quality_MQTT = require('./AirQuality/Air_Quality_MQTT.js');
 var air_quality_mqtt = new Air_Quality_MQTT();
 var Weather_MQTT = require('./Weather/Weather_MQTT.js');
 var weather_mqtt = new Weather_MQTT();
-var Traffic_MQTT = require('./Traffic/Traffic_MQTT.js');
-var traffic_mqtt = new Traffic_MQTT();
 var Accessories_MQTT = require('./Accessories/Accessories_MQTT.js');
 var accessories_mqtt = new Accessories_MQTT();
 

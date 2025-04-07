@@ -1,11 +1,5 @@
 {
-  "support_SSL_Web": true,
-  "config_MQTT":{
-    "buildIn_broker": true,
-    "broker_URL": "192.168.0.107",
-    "client_username": "root",
-    "client_password": ""
-  },
+  "support_SSL_Web": false,
   "config_Zigbee": {
     "config_port":{
       "baudrate": 115200,

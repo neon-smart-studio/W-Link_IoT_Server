@@ -53,41 +53,14 @@
             <div style="background: #50505080;height: 100%;">
                 <div class="container-fluid start-screen h-100">
                     <h1 class="start-screen-title">開始</h1>
-                    <% if(username!="everyone"){ %>
-                    <div class="start-screen-controls">
-                        <a href="./account/profile" class="button light">
-                            <span class="mif-user icon"></span>
-                            <span class="caption"><%=username%></span>
-                        </a>
-                        <a href="./account/logout" class="button light">
-                            <span class="mif-exit icon"></span>
-                            <span class="caption">登出</span>
-                        </a>
-                    </div>
-                    <% } %>
                     <div class="tiles-area clear">
 
                         <% for(var i = 0; i<nav_page_info.page_group_list.length; i++){
-                            if(nav_page_info.page_group_list[i].page_group_topic=="Account")
-                            {
-                                if(username=="everyone"){
-                                    continue;
-                                }
-                            }
                             %>
 
                             <div class="tiles-grid tiles-group <%=nav_page_info.page_group_list[i].page_tiles_group_width%> fg-white" data-group-title="<%=nav_page_info.page_group_list[i].page_group_name%>">
 
                             <% for(var j = 0; j<nav_page_info.page_group_list[i].page_list.length; j++){
-                                if(nav_page_info.page_group_list[i].page_group_topic=="Network MGMT")
-                                {
-                                    if(nav_page_info.page_group_list[i].page_list[j].page_topic=="Zigbee"){
-                                        if(support_zigbee==false) {continue;}
-                                    }
-                                    if(nav_page_info.page_group_list[i].page_list[j].page_topic=="Bluetooth"){
-                                        if(support_ble==false) {continue;}
-                                    }
-                                }
 
                                 var tile_text_color = "";
                                 if(nav_page_info.page_group_list[i].page_list[j].tile_text_color!=null)

@@ -48,14 +48,10 @@ function Web_UI_Init(web_express)
   // Parse Server plays nicely with the rest of your web routes
   web_express.get('/', async function (req, res) {
     var index_page_params = {};
-    var username = "everyone";
     
     index_page_params['session_token'] = req.session.id;
     index_page_params['language'] = "Chinese";
     index_page_params['background_img_file'] = "default.jpg";
-    index_page_params['username'] = username;
-    index_page_params['support_zigbee'] = config.get('support_Zigbee');
-    index_page_params['support_ble'] = config.get('support_BLE');
     
     index_page_params['nav_page_info'] = JSON.parse(fs.readFileSync(html_asolute_path + "/website_map.json", "utf8"));
     res.render(html_asolute_path + '/index', index_page_params);
@@ -65,9 +61,7 @@ function Web_UI_Init(web_express)
   web_express.use('/Device_MGMT', require('./Device_MGMT/Device_MGMT.js'));
   web_express.use('/Service', require('./Service/Service.js'));
 
-  web_express.get('/*', function (req, res) {
-    res.sendFile(path.join(html_asolute_path, req.url));
-  });
+  web_express.use(express.static(html_asolute_path));
 }
 
 var Web = function () {

@@ -10,9 +10,6 @@ var websocket = new WebSocket();
 var MQTT_APP = require('../../MQTT_APP.js');
 var mqtt_app = new MQTT_APP();
 
-var Analyze_MGR = require('../../../Util/Analyze_MGR.js');
-var analyze_mgr = new Analyze_MGR();
-
 var Weather_Station_MQTT = function () {
     var self = this;
 
@@ -61,8 +58,6 @@ var Weather_Station_MQTT = function () {
                         
                         websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Weather', ws_report_cmd);
                         
-                        await analyze_mgr.Analyze_Device_Record_This_Hour(device_ID, analyze_attribute_list);
-
                         break;
                     case "report weather station status change":
                         

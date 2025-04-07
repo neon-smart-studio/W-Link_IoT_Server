@@ -66,7 +66,6 @@ var WebSocket_APP = function () {
             websocket.Register_WebSocket_Topic_And_Callbacks("Accessories", accessories_websocket.Process_Accessories_Topic_WebSocket_POST_Message, accessories_websocket.Process_Accessories_Topic_WebSocket_GET_Message);
             websocket.Register_WebSocket_Topic_And_Callbacks("Water", water_websocket.Process_Water_Topic_WebSocket_POST_Message, water_websocket.Process_Water_Topic_WebSocket_GET_Message);
             websocket.Register_WebSocket_Topic_And_Callbacks("Lighting", lighting_websocket.Process_Lighting_Topic_WebSocket_POST_Message, lighting_websocket.Process_Lighting_Topic_WebSocket_GET_Message);
-            websocket.Register_WebSocket_Topic_And_Callbacks("FairyLight", fairylight_websocket.Process_Fairy_Light_Topic_WebSocket_POST_Message, fairylight_websocket.Process_Fairy_Light_Topic_WebSocket_GET_Message);
             websocket.Register_WebSocket_Topic_And_Callbacks("Gas", gas_websocket.Process_Gas_Topic_WebSocket_POST_Message, gas_websocket.Process_Gas_Topic_WebSocket_GET_Message);
             websocket.Register_WebSocket_Topic_And_Callbacks("Environment", environment_websocket.Process_Environment_Topic_WebSocket_POST_Message, environment_websocket.Process_Environment_Topic_WebSocket_GET_Message);
             websocket.Register_WebSocket_Topic_And_Callbacks("Electrical", electricpower_websocket.Process_Electric_Power_Topic_WebSocket_POST_Message, electricpower_websocket.Process_Electric_Power_Topic_WebSocket_GET_Message);

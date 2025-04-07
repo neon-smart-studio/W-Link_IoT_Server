@@ -9,6 +9,8 @@ var web = new Web();
 
 var MQTT = require('./MQTT/MQTT.js');
 var mqtt = new MQTT();
+var MQTT_Event = require('./MQTT/MQTT_Event.js');
+var mqtt_event = new MQTT_Event();
 
 var WebSocket_APP = require('./Web/WebSocket_APP.js');
 var websocket_app = new WebSocket_APP();
@@ -36,12 +38,6 @@ process.on('uncaughtException', err => {
 
 async function main()
 {
-  await zigbee.Zigbee_Start();
-  zigbee_event.Zigbee_Event_Init();
-  
-  await ble.BLE_Start();
-  ble_event.Zigbee_Event_Init();
-
   web.Web_Init();
 
   websocket_app.WebSocket_APP_Init();
@@ -50,6 +46,12 @@ async function main()
   mqtt_event.MQTT_Event_Init();
 
   web.Web_Start();
+
+  await ble.BLE_Start();
+  ble_event.BLE_Event_Init();
+
+  await zigbee.Zigbee_Start();
+  zigbee_event.Zigbee_Event_Init();
 }
 
 main();

@@ -3,11 +3,8 @@ var debug = require('debug')(require('path').basename(__filename));
 
 const config = require('config');
 
-if(config.get('config_MQTT.buildIn_broker')==true)
-{
-    var MQTT_Broker = require('./MQTT_Broker.js');
-    var mqtt_broker = new MQTT_Broker();
-}
+var MQTT_Broker = require('./MQTT_Broker.js');
+var mqtt_broker = new MQTT_Broker();
 
 var MQTT_Client = require('./MQTT_Client.js');
 var mqtt_client = new MQTT_Client();
@@ -21,17 +18,6 @@ var registered_mqtt_data_channel_get_callback_list = [];
 var registered_mqtt_data_channel_get_rsp_callback_list = [];
 var registered_mqtt_data_channel_get_rsp_timeout_timer = [];
 
-function MQTT_Get_Username(device_ID)
-{
-    if(config.get('config_MQTT.buildIn_broker')==true)
-    {
-        return mqtt_broker.MQTT_Broker_Get_Connected_Client_Username(device_ID);
-    }
-    else{
-        return config.get('config_MQTT.client_username');
-    }
-}
-
 function MQTT_Build_Topic_Name(address_ID, dataChannelID)
 {
     return "/" + address_ID + "/" + dataChannelID;
@@ -41,36 +27,12 @@ async function MQTT_Proccess_DataChannel_Message(device_ID, dataChannelID, json_
     try {
         if (json_data.method == null) { return; }
         
-        var username = "everyone";
-        if(config.get('account_login')==true)
-        {
-            var success = await database.DataBase_Open(MQTT_DB_Name);
-            if(success==false)
-            {
-                return;
-            }
-    
-            var client_doc = await database.Database_Find(MQTT_DB_Name, MQTT_Client_Collection_Name, { 'device_ID': device_ID }, null);
-            if(client_doc==null || client_doc.length==0)
-            {
-                database.DataBase_Close(MQTT_DB_Name);
-                return;
-            }
-            
-            database.DataBase_Close(MQTT_DB_Name);
-
-            if (client_doc[0].user == null) {
-                return;
-            }
-            username = client_doc[0].user;
-        }
-
         switch (json_data.method) {
             case "POST":
                 for (i = 0; i < registered_mqtt_data_channel_list.length; i++) {
                     if (registered_mqtt_data_channel_list[i] == dataChannelID) {
                         if (registered_mqtt_data_channel_post_callback_list[i] != null) {
-                            registered_mqtt_data_channel_post_callback_list[i](username, device_ID, json_data);
+                            registered_mqtt_data_channel_post_callback_list[i](device_ID, json_data);
                             return;
                         }
                     }
@@ -80,11 +42,11 @@ async function MQTT_Proccess_DataChannel_Message(device_ID, dataChannelID, json_
                 for (i = 0; i < registered_mqtt_data_channel_list.length; i++) {
                     if (registered_mqtt_data_channel_list[i] == dataChannelID) {
                         if (registered_mqtt_data_channel_get_callback_list[i] != null) {
-                            registered_mqtt_data_channel_get_callback_list[i](username, device_ID, json_data, function (rsp_json) {
+                            registered_mqtt_data_channel_get_callback_list[i](device_ID, json_data, function (rsp_json) {
                                 if (rsp_json != null) {
                                     rsp_json.method = "GET_RSP";
                                     rsp_json.sender = "Client";
-                                    mqtt_client.MQTT_Client_Send_Message(MQTT_Get_Username(deviceID), MQTT_Build_Topic_Name(device_ID, dataChannelID), rsp_json);
+                                    mqtt_client.MQTT_Client_Send_Message(MQTT_Build_Topic_Name(device_ID, dataChannelID), rsp_json);
                                 }
                             });
                             return;
@@ -93,9 +55,7 @@ async function MQTT_Proccess_DataChannel_Message(device_ID, dataChannelID, json_
                 }
                 break;
             case "GET_RSP":
-                debug("registered_mqtt_data_channel_list.length = "+registered_mqtt_data_channel_list.length);
                 for (i = 0; i < registered_mqtt_data_channel_list.length; i++) {
-                    debug("registered_mqtt_data_channel_list[i] = "+registered_mqtt_data_channel_list[i]);
                     if (registered_mqtt_data_channel_list[i] == dataChannelID) {
                         if (registered_mqtt_data_channel_get_rsp_callback_list[i] != null) {
                             if(registered_mqtt_data_channel_get_rsp_timeout_timer[i] != null)
@@ -103,7 +63,7 @@ async function MQTT_Proccess_DataChannel_Message(device_ID, dataChannelID, json_
                                 clearTimeout(registered_mqtt_data_channel_get_rsp_timeout_timer[i]);
                                 registered_mqtt_data_channel_get_rsp_timeout_timer[i] = null;
                             }
-                            registered_mqtt_data_channel_get_rsp_callback_list[i](false, username, device_ID, json_data);
+                            registered_mqtt_data_channel_get_rsp_callback_list[i](false, device_ID, json_data);
                             registered_mqtt_data_channel_get_rsp_callback_list[i] = null;
                             return;
                         }
@@ -125,7 +85,7 @@ function doSend_MQTT_POST_Message(dataChannelID, deviceID, json_data)
     try {
         json_data.method = "POST";
         json_data.sender = "Server";
-        mqtt_client.MQTT_Client_Send_Message(MQTT_Get_Username(deviceID), MQTT_Build_Topic_Name(deviceID, dataChannelID), json_data);
+        mqtt_client.MQTT_Client_Send_Message(MQTT_Build_Topic_Name(deviceID, dataChannelID), json_data);
     }
     catch (e) {
         debug("[MQTT] doSend_MQTT_POST_Message() Error " + e);
@@ -154,7 +114,7 @@ function doSend_MQTT_GET_Message(dataChannelID, deviceID, json_data, callback)
             }
         }
         
-        mqtt_client.MQTT_Client_Send_Message(MQTT_Get_Username(deviceID), MQTT_Build_Topic_Name(deviceID, dataChannelID), json_data);
+        mqtt_client.MQTT_Client_Send_Message(MQTT_Build_Topic_Name(deviceID, dataChannelID), json_data);
     }
     catch (e) {
         debug("[MQTT] doSend_MQTT_GET_Message() Error " + e);
@@ -167,16 +127,7 @@ var MQTT = function () {
     self.MQTT_Init = function()
     {
         try{
-            if(config.get('config_MQTT.buildIn_broker')==true)
-            {
-                mqtt_broker.MQTT_Broker_Init();
-            }
-            else{
-                var username = config.get('config_MQTT.client_username');
-                var passwd = config.get('config_MQTT.client_password');
-                mqtt_client.MQTT_Client_Connect(username, passwd);
-                mqtt_client.MQTT_Client_Subscribe_Topic(username, '/Registration');
-            }
+            mqtt_broker.MQTT_Broker_Init();
         }
         catch (e) {
             debug("[MQTT] MQTT_Init() Error " + e);
@@ -190,11 +141,11 @@ var MQTT = function () {
             debug("[MQTT] MQTT_Handle_DataChannel_Message() Error " + e);
         };
     };
-    self.MQTT_Subscribe_All_DataChannel = function (username, device_ID) {
+    self.MQTT_Subscribe_All_DataChannel = function (device_ID) {
         try {
             for (var i = 0; i < registered_mqtt_data_channel_list.length; i++) {
-                mqtt_client.MQTT_Client_Subscribe_Topic(username, MQTT_Build_Topic_Name("Broadcast", registered_mqtt_data_channel_list[i]));
-                mqtt_client.MQTT_Client_Subscribe_Topic(username, MQTT_Build_Topic_Name(device_ID, registered_mqtt_data_channel_list[i]));
+                mqtt_client.MQTT_Client_Subscribe_Topic(MQTT_Build_Topic_Name("Broadcast", registered_mqtt_data_channel_list[i]));
+                mqtt_client.MQTT_Client_Subscribe_Topic(MQTT_Build_Topic_Name(device_ID, registered_mqtt_data_channel_list[i]));
             }
         }
         catch (e) {
@@ -203,7 +154,7 @@ var MQTT = function () {
     };
     self.MQTT_Data_Request = function (dataChannelID, deviceID, json_data) {
         try {
-            mqtt_client.MQTT_Client_Send_Message(MQTT_Get_Username(deviceID), MQTT_Build_Topic_Name(deviceID, dataChannelID), json_data);
+            mqtt_client.MQTT_Client_Send_Message(MQTT_Build_Topic_Name(deviceID, dataChannelID), json_data);
         }
         catch (e) {
             debug("[MQTT] MQTT_Data_Request() Error " + e);
@@ -222,19 +173,17 @@ var MQTT = function () {
             var response_data = {};
             const do_mqtt_send_get_message = function(dataChannelID, deviceID, json_data){
                 return new Promise(function(resolve, reject) {
-                    doSend_MQTT_GET_Message(dataChannelID, deviceID, json_data, function(timeout, username, device_ID, json_data){
+                    doSend_MQTT_GET_Message(dataChannelID, deviceID, json_data, function(timeout, device_ID, json_data){
                         if(timeout==true)
                         {
                             response_data = {
                                 timeout: true,
-                                username: '',
                                 device_ID: device_ID
                             }
                         }
                         else{
                             response_data = Object.assign({},{
                                 timeout: false,
-                                username: username,
                                 device_ID: device_ID
                             },json_data);
                         }

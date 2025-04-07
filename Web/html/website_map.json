@@ -88,38 +88,6 @@
                 }
             ]
         },
-        {
-            "page_group_name": "帳戶",
-            "page_group_topic": "Account",
-            "page_tiles_group_width": "size-2",
-            "page_list": 
-            [
-                {
-                    "page_name": "個人檔案",
-                    "page_URL": "/account/profile",
-                    "page_topic": "Profile",
-                    "page_icon_type": "css",
-                    "page_icon_css": "mif-pencil",
-                    "tile_size": "wide",
-                    "tile_background_type": "css",
-                    "tile_background_css": "bg-amber",
-                    "tile_icon_type": "css",
-                    "tile_icon_css": "mif-pencil"
-                },
-                {
-                    "page_name": "變更密碼",
-                    "page_URL": "/account/change_pswd",
-                    "page_topic": "Change Password",
-                    "page_icon_type": "css",
-                    "page_icon_css": "mif-key",
-                    "tile_size": "medium",
-                    "tile_background_type": "css",
-                    "tile_background_css": "bg-red",
-                    "tile_icon_type": "css",
-                    "tile_icon_css": "mif-key"
-                }
-            ]
-         },
          {
            "page_group_name": "服務",
            "page_group_topic": "Service",

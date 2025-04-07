@@ -12,53 +12,22 @@ var registered_mqtt_client_message_callback = null;
 var MQTT_Client = function () {
     var self = this;
 
-    self.MQTT_Client_Connect = function(username, password) {
+    self.MQTT_Client_Connect = function(password) {
         try {
-            var broker_url = "127.0.0.1";
-            
-            if(config.get('config_MQTT.buildIn_broker')==false)
-            {
-                var config_broker_url = config.get('config_MQTT.broker_URL');
-                if(config_broker_url!=null)
-                {
-                    broker_url = config_broker_url;
-                }
-            }
-
-            var login_cfg = {
-                username: username
-            }
-
-            if(password!=null)
-            {
-                login_cfg['password'] = password;
-            }
-
-            var mqtt_client = mqtt.connect('mqtt://'+broker_url, login_cfg);
-
-            mqtt_client.user = username;
+            var mqtt_client = mqtt.connect('mqtt://"127.0.0.1"', login_cfg);
 
             mqtt_client.on('connect', function () {
                 debug(mqtt_client.user + "'s MQTT Sender Receiver Started");
 
                 mqtt_client.on('message', (topic, message)=>{
-                    registered_mqtt_client_message_callback(username, topic, message)
+                    registered_mqtt_client_message_callback(topic, message)
                 });
     
-                var exist = false;
-                for (var i = 0; i < mqttClientList.length; i++) {
-                    if (mqttClientList[i].user == username) {
-                        exist = true;
-                        mqttClientList[i] = mqtt_client;
-                    }
-                }
-                if (!exist) {
-                    mqttClientList.push(mqtt_client);
-                }
+                mqttClientList.push(mqtt_client);
 
                 if(registered_mqtt_client_onconnect_callback!=null)
                 {
-                    registered_mqtt_client_onconnect_callback(username);
+                    registered_mqtt_client_onconnect_callback();
                 }
             });
         }
@@ -67,31 +36,13 @@ var MQTT_Client = function () {
         };
     };
     
-    self.MQTT_Client_Get_Session = function(username)
-    {
-        try {
-            for (var i = 0; i < mqttClientList.length; i++) {
-                if (mqttClientList[i].user == username) {
-                    return mqttClientList[i];
-                }
-            }
-            return null;
-        }
-        catch (e) {
-            debug("[MQTT_Client] MQTT_Client_Get_Session() Error " + e);
-        };
-    }
-
-    self.MQTT_Client_Subscribe_Topic = function(username, topic)
+    self.MQTT_Client_Subscribe_Topic = function(topic)
     {
         try {
             for (var i = 0; i < mqttClientList.length; i++) {
                 if (mqttClientList[i] == undefined) { continue; }
-                if (mqttClientList[i].user == undefined) { continue; }
     
-                if (mqttClientList[i].user == username) {
-                    mqttClientList[i].subscribe(topic);
-                }
+                mqttClientList[i].subscribe(topic);
             }
         }
         catch (e) {
@@ -99,16 +50,13 @@ var MQTT_Client = function () {
         };
     };
     
-    self.MQTT_Client_Send_Message = function(username, topic, json_data)
+    self.MQTT_Client_Send_Message = function(topic, json_data)
     {
         try {
             for (var i = 0; i < mqttClientList.length; i++) {
                 if (mqttClientList[i] == undefined) { continue; }
-                if (mqttClientList[i].user == undefined) { continue; }
     
-                if (mqttClientList[i].user == username) {
-                    mqttClientList[i].publish(topic, JSON.stringify(json_data));
-                }
+                mqttClientList[i].publish(topic, JSON.stringify(json_data));
             }
         }
         catch (e) {

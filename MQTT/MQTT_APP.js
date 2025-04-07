@@ -19,7 +19,7 @@ var MQTT_APP = function (){
     self.MQTT_APP_Trigger_Bind_Action = async function (device_type, device_ID, trigger_node_index, trigger_node_state) {
         try {
             var trigger_endpoint = bind_mgr.Bind_Unbind_Resolve_Endpoint_Name(trigger_node_index, trigger_node_state);
-            await bind_mgr.Trigger_Bind_Action(device_type, 'everyone', device_ID, trigger_endpoint, action.Execute_Action);
+            await bind_mgr.Trigger_Bind_Action(device_type, device_ID, trigger_endpoint, action.Execute_Action);
         }
         catch (e) {
             debug("[MQTT_APP] MQTT_APP_Trigger_Bind_Action() Error " + e);
@@ -56,7 +56,7 @@ var MQTT_APP = function (){
                     });
                 }
             }
-            await rule_mgr.Trigger_Rule_Action(device_type, 'everyone', device_ID, source_attribute_info_list, action.Execute_Action);
+            await rule_mgr.Trigger_Rule_Action(device_type, device_ID, source_attribute_info_list, action.Execute_Action);
         }
         catch (e) {
             debug("[MQTT_APP] MQTT_APP_Trigger_Rule_Action() Error " + e);

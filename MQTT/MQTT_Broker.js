@@ -162,24 +162,12 @@ async function MQTT_Broker_Handle_Client_Disconnect(client)
         var deviceID = client.id.substring(deviceID_maker_index + 1);
 
         var MQTT_Client_Info = {};
-        if(config.get('account_login')==true)
-        {
-            MQTT_Client_Info = {
-                device_Type: deviceType,
-                device_ID: deviceID,
-                user: client.user,
+        
+        MQTT_Client_Info = {
+            device_Type: deviceType,
+            device_ID: deviceID,
 
-                online: false
-            }
-        }
-        else {
-            MQTT_Client_Info = {
-                device_Type: deviceType,
-                device_ID: deviceID,
-                user: "everyone",
-
-                online: false
-            }
+            online: false
         }
 
         var success = await database.DataBase_Open(MQTT_DB_Name);
@@ -275,23 +263,6 @@ var MQTT_Broker = function () {
         }
         catch (e) {
             debug("[MQTT] MQTT_Broker_Init() Error " + e);
-        };
-    };
-    self.MQTT_Broker_Get_Connected_Client_Username = function (deviceID) {
-        try {
-            var username = null;
-
-            for (var i = 0; i < mqttOnlineClientList.length; i++) {
-                if (mqttOnlineClientList[i] == undefined) { continue; }
-                if (mqttOnlineClientList[i].user == undefined) { continue; }
-    
-                username = mqttOnlineClientList[i].user;
-            }
-
-            return username;
-        }
-        catch (e) {
-            debug("[MQTT] MQTT_Broker_Get_Connected_Client_Username() Error " + e);
         };
     };
     self.Register_MQTT_Broker_Ready_Callback = function (callback) {
