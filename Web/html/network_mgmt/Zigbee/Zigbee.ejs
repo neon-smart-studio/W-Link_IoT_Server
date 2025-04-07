@@ -1,0 +1,117 @@
+
+<link rel="stylesheet" type="text/css" href="../../css/metro-toggle_sw.css">
+
+<style>
+    .zigbee_permit_join_sw {
+        width: 200px;
+    }
+    .zigbee_permit_join_sw-sw {
+        width: 40px;
+        right : 160px;
+    }
+    .zigbee_permit_join_sw_inner {
+    }
+    .zigbee_permit_join_sw_inner:before, .zigbee_permit_join_sw_inner:after {
+        height : 80px;
+        color: #FFFFFF;
+        font-size: 30px;
+        padding: 25px;
+    }
+    .zigbee_permit_join_sw_inner:before {
+        content: "允許入網";
+        background-color: #f09609;
+        text-align: left;
+    }
+    .zigbee_permit_join_sw_inner:after {
+        content: "禁止入網";
+        background-color: #7f7f7f;
+        text-align: right;
+    }
+</style>
+
+<script type="text/javascript" src="Zigbee/Zigbee.js"></script>
+<script>
+    var UI_is_updating = false;
+
+    function Handle_WebSocket_Init_Done()
+    {
+        GET_Zigbee_Join_State(Update_Join_Status);
+    }
+    function Handle_WebSocket_POST_Message(in_json)
+    {
+        if(in_json.topic!=null){
+            if(in_json.topic=='Zigbee'){
+                if(in_json.command!=null){
+                    switch(in_json.command){
+                        case "Report Zigbee Join Status Change":
+                            Update_Join_Status(in_json);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    function Handle_WebSocket_GET_Message(in_json)
+    {
+        
+    }
+
+    function onClick_Permit_Prohibit_Join_Btn()
+    {
+        if(UI_is_updating){return;}
+
+        if($("#zigbee_permit_join_sw").prop("checked")){
+            Zigbee_Permit_New_Device_Join();
+        }
+        else{
+            Zigbee_Prohibit_New_Device_Join();
+        }
+    }
+
+    function Update_Join_Status(rsp_json)
+    {
+        UI_is_updating = true;
+
+        $("#zigbee_permit_join_sw").prop("checked", rsp_json.permit_join);
+
+        if(rsp_json.permit_join)
+        {
+            $("#zigbee_permit_join_remain_time").html("<div data-role=\"countdown\" data-seconds=\""+rsp_json.remain_time+"\" style=\"font-size: 36px\"></div>");
+        }
+        else{
+            $("#zigbee_permit_join_remain_time").html("");
+        }
+
+        UI_is_updating = false;
+    }
+</script>
+
+<div class="row">
+    <h2 class="<%=current_network_type_page_info.page_text_color%>">Zigbee 網路管理</h2>
+</div>
+
+<div class="row">
+    <div class="cell-md-4">
+        <div class="row">
+            <h3 class="<%=current_network_type_page_info.page_text_color%>">入網狀態</h3>
+        </div>
+        <div class="row">
+            <div class="onoffswitch zigbee_permit_join_sw">
+                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="zigbee_permit_join_sw" onclick="onClick_Permit_Prohibit_Join_Btn()">
+                <label class="onoffswitch-label" for="zigbee_permit_join_sw">
+                <span class="onoffswitch-inner zigbee_permit_join_sw_inner"></span>
+                <span class="onoffswitch-switch zigbee_permit_join_sw-sw"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="cell-md-7">
+        <div class="row">
+            <h3 class="<%=current_network_type_page_info.page_text_color%>">剩餘時間</h3>
+        </div>
+        <div class="row">
+            <div id="zigbee_permit_join_remain_time"></div>
+        </div>
+    </div>
+    <div class="cell-md-1"></div>
+</div>

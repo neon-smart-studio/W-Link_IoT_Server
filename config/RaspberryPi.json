@@ -1,0 +1,19 @@
+{
+  "database_type": "TingoDB",
+  "account_login": false,
+  "support_Zigbee": true,
+  "config_Zigbee": {
+    "config_ZNP_port":{
+      "baudrate": 115200,
+      "rtscts": false,
+      "port": "/dev/ttyS0",
+      "disable_led": false
+    },
+    "channel_List": [11],
+    "pan_ID": "\u1a62",
+    "ext_pan_ID": ["\u00DD", "\u00DD", "\u00DD", "\u00DD", "\u00DD", "\u00DD", "\u00DD", "\u00DD"],
+    "network_key": ["\u0001", "\u0003", "\u0005", "\u0007", "\u0009", "\u000B", "\u000D", "\u000F",
+                   "\u0000", "\u0002", "\u0004", "\u0006", "\u0008", "\u000A", "\u000C", "\u000D"]
+  },
+  "support_BLE": true
+}

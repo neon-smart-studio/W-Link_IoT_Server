@@ -1,0 +1,19 @@
+{
+  "support_SSL_Web": true,
+  "config_MQTT":{
+    "buildIn_broker": true,
+    "broker_URL": "192.168.0.107",
+    "client_username": "root",
+    "client_password": ""
+  },
+  "config_Zigbee": {
+    "config_ZNP_port":{
+      "baudrate": 115200,
+      "rtscts": false,
+      "port": "COM15",
+      "disable_led": true
+    },
+    "channel_List": [25],
+    "transmit_Power": 19
+  }
+}

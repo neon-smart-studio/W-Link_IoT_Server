@@ -1,0 +1,15 @@
+{
+    "Profile_ID": "0x0109",
+    "Device_IDs": {
+        "//": "SE Device IDs",
+        "Range_Extender": "0x0008",
+        "ESI": "0x0500",
+        "Metering": "0x0501",
+        "IHD": "0x0502",
+        "PCT": "0x0503",
+        "Load_Control": "0x0504",
+        "Smart_Appliance": "0x0505",
+        "Prepayment_Terminal": "0x0506",
+        "Physical": "0x0507"
+    }
+}

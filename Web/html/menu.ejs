@@ -1,0 +1,101 @@
+
+<aside class="sidebar pos-absolute z-2 on-left sidebar-shadow" style="background: rgba(30, 30, 30, 0.9)" data-role="sidebar" data-toggle="#sidebar-toggle" id="sb1">
+    <div class="sidebar-header" style="background: transparent;border-bottom: 1px #101010 solid">
+        <a href="/" class="fg-white sub-action" onclick="Metro.sidebar.close('#sb1'); return false;">
+            <span class="mif-arrow-left mif-2x"></span>
+        </a>
+        <%
+        if(service_page_info!=null && current_topic_page_info!=null)
+        {
+            if(current_sub_service_page_info==null){ %>
+                <span class="title fg-white" style="font-size: 30px"><%=current_topic_page_info.page_name%></span>  
+            <% }else {
+                for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++) {
+                    if(current_topic_page_info.sub_page_list[k].page_topic==sub_service) { %>
+                        <span class="title fg-white" style="font-size: 30px"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                    <% }
+                }
+            }
+        } %>
+    </div>
+    <ul class="sidebar-menu">
+        
+        <li class="fg-white">
+            <a href="/">
+                <span class="icon mif-home"></span>
+                <span class="caption">開始畫面</span>
+            </a>
+        </li>
+        <% for(var i = 0; i<nav_page_info.page_group_list.length; i++){ %>
+
+            <!--<li class="title"><%=nav_page_info.page_group_list[i].page_group_name%></li>-->
+
+            <% if(nav_page_info.page_group_list[i].page_group_topic=="Account")
+            {
+                if(username=="everyone"){
+                    continue;
+                }
+            }
+
+            for(var j = 0; j<nav_page_info.page_group_list[i].page_list.length; j++){
+                if(nav_page_info.page_group_list[i].page_group_topic=="Network MGMT")
+                {
+                    if(nav_page_info.page_group_list[i].page_list[j].page_topic=="Zigbee"){
+                        if(support_zigbee==false) {continue;}
+                    }
+                    if(nav_page_info.page_group_list[i].page_list[j].page_topic=="Bluetooth"){
+                        if(support_ble==false) {continue;}
+                    }
+                } %>
+                
+                <li class="fg-white bd-white" style="border-top: 2px">
+                    <% if(nav_page_info.page_group_list[i].page_list[j].sub_page_list!=null){ %>
+                        <a class="dropdown-toggle" href="#">
+                    <% } else{ %>
+                        <a href="<%=nav_page_info.page_group_list[i].page_list[j].page_URL%>">
+                    <% }
+                    switch(nav_page_info.page_group_list[i].page_list[j].page_icon_type){
+                        case "css": %>
+
+                            <span class="<%=nav_page_info.page_group_list[i].page_list[j].page_icon_css%> icon"></span>
+                            <%=nav_page_info.page_group_list[i].page_list[j].page_name%>
+
+                            <% break;
+                        case "URL": %>
+
+                            <img style="display: inline; left: 15px" src="<%=nav_page_info.page_group_list[i].page_list[j].page_icon_URL%>"/>
+                            <%=nav_page_info.page_group_list[i].page_list[j].page_name%>
+                
+                            <% break;
+                    } %>
+                    </a>
+
+                    <% if(nav_page_info.page_group_list[i].page_list[j].sub_page_list!=null){ %>
+                        <ul class="d-menu" data-role="dropdown" style="display: none;background: transparent">
+                        <% for(var k = 0; k<nav_page_info.page_group_list[i].page_list[j].sub_page_list.length; k++){ %>
+                            <li class="fg-white">
+                                <a href="<%=nav_page_info.page_group_list[i].page_list[j].sub_page_list[k].page_URL%>">
+                                <% switch(nav_page_info.page_group_list[i].page_list[j].sub_page_list[k].page_icon_type){
+                                    case "css": %>
+
+                                        <span class="<%=nav_page_info.page_group_list[i].page_list[j].sub_page_list[k].page_icon_css%> icon"></span>
+                                        <%=nav_page_info.page_group_list[i].page_list[j].sub_page_list[k].page_name%>
+
+                                        <% break;
+                                    case "URL": %>
+
+                                        <img style="display: inline; left: 15px" src="<%=nav_page_info.page_group_list[i].page_list[j].sub_page_list[k].page_icon_URL%>"/>
+                                        <%=nav_page_info.page_group_list[i].page_list[j].sub_page_list[k].page_name%>
+                            
+                                        <% break;
+                                } %>
+                                </a>
+                            </li>
+                        <% } %>
+                        </ul>
+                    <% } %>
+                </li>
+            <% } %>
+        <% } %>
+    </ul>
+</aside>

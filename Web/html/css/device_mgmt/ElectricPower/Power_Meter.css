@@ -1,0 +1,26 @@
+
+.meter_on_off_sw {
+    width: 250px;
+}
+.meter_on_off_sw-sw {
+    width: 50px;
+    right : 200px;
+}
+.meter_on_off_sw_inner {
+}
+.meter_on_off_sw_inner:before, .meter_on_off_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.meter_on_off_sw_inner:before {
+    content: "電力計通電";
+    background-color: #f09609;
+    text-align: left;
+}
+.meter_on_off_sw_inner:after {
+    content: "電力計斷電";
+    background-color: #7f7f7f;
+    text-align: right;
+}

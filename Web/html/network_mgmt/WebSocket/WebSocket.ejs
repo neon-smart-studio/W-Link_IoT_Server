@@ -1,0 +1,191 @@
+<script>
+    function Handle_WebSocket_Init_Done()
+    {
+        
+    }
+    function Handle_WebSocket_POST_Message(in_json)
+    {
+        
+    }
+    function Handle_WebSocket_GET_Message(in_json)
+    {
+        
+    }
+
+    function AutoDone_Request_Body_Textfield(onclick_elem_id)
+    {
+        var req_body = {};
+
+        if(onclick_elem_id=="websocket_POST_method_btn")
+        {
+            req_body["method"] = "POST";
+        }
+        else if(onclick_elem_id=="websocket_GET_method_btn")
+        {
+            req_body["method"] = "GET";
+        }
+        else{
+            if($('#websocket_POST_method_btn').hasClass("js-active")==true)
+            {
+                req_body["method"] = "POST";
+            }
+            if($('#websocket_GET_method_btn').hasClass("js-active")==true)
+            {
+                req_body["method"] = "GET";
+            }
+        }
+
+        var optgroup_doc = $('#select_websocket_topic_type').find(':selected');;
+        var optgroup_id = optgroup_doc.closest('optgroup').attr("id");
+        if(optgroup_id=="Network MGMT")
+        {
+            req_body["topic"] = $('#select_websocket_topic_type').val();
+        }
+        else{
+            req_body["topic"] = optgroup_id;
+            req_body["command_type"] = $('#select_websocket_topic_type').val();
+        }
+
+        $('#websocket_request_body_textarea').val("");
+        $('#websocket_request_body_textarea').val(JSON.stringify(req_body));
+    }
+    function onClick_Send_Test_Message_Btn()
+    {
+        var req_body_str = $('#websocket_request_body_textarea').val();
+        $('#websocket_response_textarea').val("");
+
+        try{
+            var req_body = JSON.parse(req_body_str);
+        }
+        catch(e){
+            $('#websocket_response_textarea').val(e);
+        }
+
+        if(req_body.method==null)
+        {
+            $('#websocket_response_textarea').val("請選取方法");
+        }
+
+        var websocket_topic = req_body.topic;
+
+        switch(req_body.method)
+        {
+            case "POST":
+                Websocket_Send_POST_Command(websocket_topic, req_body);
+                break;
+            case "GET":
+                Websocket_Send_GET_Command(websocket_topic, req_body, function(rsp_json){
+                    $('#websocket_response_textarea').val(JSON.stringify(rsp_json));
+                });
+                break;
+        }
+    }
+</script>
+
+<div class="row">
+    <h2 class="<%=current_network_type_page_info.page_text_color%>">WebSocket API 測試工具</h2>
+</div>
+
+<div class="row">
+    <div class="cell-md-4">
+        <h3 class="<%=current_network_type_page_info.page_text_color%>">選取方法</h3>
+    </div>
+    <div class="cell-md-4">
+        <h3 class="<%=current_network_type_page_info.page_text_color%>">選取 Topic</h3>
+    </div>
+    <div class="cell-md-3 offset-1">
+        <h3 class="<%=current_network_type_page_info.page_text_color%>">操作</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="cell-md-4">
+        <div data-role="buttongroup" data-cls-active="<%=current_network_type_page_info.button_background_css%> fg-white">
+            <button class="button" onclick="AutoDone_Request_Body_Textfield(this.id)" id="websocket_POST_method_btn">POST</button>
+            <button class="button" onclick="AutoDone_Request_Body_Textfield(this.id)" id="websocket_GET_method_btn">GET</button>
+        </div>
+    </div>
+    <div class="cell-md-4">
+        <select data-role="select" data-filter="true" data-drop-height="300px" id="select_websocket_topic_type" data-on-item-select="AutoDone_Request_Body_Textfield(this.id)">
+        <%
+        var select_item_icon_data_template;
+        for(var i = 0; i<page_group_list.length; i++){
+            if(page_group_list[i].page_group_topic=="Network MGMT")
+            { %>
+                <optgroup id="<%=page_group_list[i].page_group_topic%>" label="<%=page_group_list[i].page_group_name%>">
+                <% for(var j = 0; j<page_group_list[i].page_list.length; j++){
+                    if(page_group_list[i].page_list[j].page_topic=="WebSocket"){continue;}
+                    
+                    if(page_group_list[i].page_list[j].page_topic=="Zigbee"){
+                        if(support_zigbee==false) {continue;}
+                    }
+                    if(page_group_list[i].page_list[j].page_topic=="Bluetooth"){
+                        if(support_ble==false) {continue;}
+                    }
+                    if(page_group_list[i].page_list[j].page_topic=="MiIO"){
+                        if(support_miio==false) {continue;}
+                    }
+                    if(page_group_list[i].page_list[j].page_topic=="Hue Bridge"){
+                        if(support_hue_bridge==false) {continue;}
+                    }
+
+                    select_item_icon_data_template = "";
+                    switch(page_group_list[i].page_list[j].page_icon_type)
+                    {
+                        case "css":
+                            select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].page_icon_css+" "+page_group_list[i].page_list[j].page_text_color+" icon'></span>";
+                            break;
+                        case "URL":
+                            select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].page_icon_color_URL+"'/>";
+                            break;
+                    } %>
+                    <option value="<%=page_group_list[i].page_list[j].page_topic%>" data-template="<%=select_item_icon_data_template%> $1"><%=page_group_list[i].page_list[j].page_name%></option>
+                <% } %>
+                </optgroup>
+            <% }
+            else{
+                for(var j = 0; j<page_group_list[i].page_list.length; j++){
+                    if(page_group_list[i].page_list[j].sub_page_list!=null){ %>
+                        <optgroup id="<%=page_group_list[i].page_list[j].page_topic%>" label="<%=page_group_list[i].page_list[j].page_name%>(<%=page_group_list[i].page_group_name%>)">
+                        <% for(var k = 0; k<page_group_list[i].page_list[j].sub_page_list.length; k++){
+                            select_item_icon_data_template = "";
+                            switch(page_group_list[i].page_list[j].sub_page_list[k].page_icon_type)
+                            {
+                                case "css":
+                                    select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_css+" "+page_group_list[i].page_list[j].sub_page_list[k].page_text_color+" icon'></span>";
+                                    break;
+                                case "URL":
+                                    select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_color_URL+"'/>";
+                                    break;
+                            } %>
+                            <option value="<%=page_group_list[i].page_list[j].sub_page_list[k].page_topic%>" data-template="<%=select_item_icon_data_template%> $1"><%=page_group_list[i].page_list[j].sub_page_list[k].page_name%></option>
+                        <% } %>
+                        </optgroup>
+                    <% }
+                }
+            }
+        } %>
+        </select>
+    </div>
+    <div class="cell-md-3 offset-1">
+        <button class="button warning outline large" onclick="onClick_Send_Test_Message_Btn()">發送</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="cell-md-6">
+        <h3 class="<%=current_network_type_page_info.page_text_color%>">Request Body (JSON格式)</h3>
+    </div>
+    <div class="cell-md-6">
+        <h3 class="<%=current_network_type_page_info.page_text_color%>">Request Response (JSON格式)</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="cell-md-6">
+        <textarea id="websocket_request_body_textarea" data-role="textarea" data-prepend="<span class='mif-embed2'></span>"></textarea>
+    </div>
+    <div class="cell-md-6">
+        <textarea id="websocket_response_textarea" data-role="textarea" data-prepend="<span class='mif-attachment'></span>"></textarea>
+    </div>
+</div>

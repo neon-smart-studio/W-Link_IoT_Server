@@ -1,0 +1,26 @@
+
+.meter_en_dis_sw {
+    width: 250px;
+}
+.meter_en_dis_sw-sw {
+    width: 50px;
+    right : 200px;
+}
+.meter_en_dis_sw_inner {
+}
+.meter_en_dis_sw_inner:before, .meter_en_dis_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.meter_en_dis_sw_inner:before {
+    content: "流量計啟用";
+    background-color: #f09609;
+    text-align: left;
+}
+.meter_en_dis_sw_inner:after {
+    content: "流量計停用";
+    background-color: #7f7f7f;
+    text-align: right;
+}

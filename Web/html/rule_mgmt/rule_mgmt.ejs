@@ -1,0 +1,1686 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8"> 
+    
+    <%
+    var path_offset = "";
+    var service_page_info = null;
+    var current_page_name = "";
+    var current_topic_page_info = null;
+    var current_sub_service_page_info = null;
+    for(var i = 0; i<nav_page_info.page_group_list.length; i++){
+        if(nav_page_info.page_group_list[i].page_group_topic=="Service")
+        {
+            service_page_info = nav_page_info.page_group_list[i];
+            for(var j = 0; j<service_page_info.page_list.length; j++){
+                if(service_page_info.page_list[j].page_topic==topic) {
+                    current_topic_page_info = service_page_info.page_list[j];
+                    if(sub_service!=null && sub_service!="Not Specific") {
+                        path_offset = "../..";
+                        for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                            if(current_topic_page_info.sub_page_list[k].page_topic==sub_service) {
+                                current_sub_service_page_info = current_topic_page_info.sub_page_list[k];
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                        path_offset = "..";
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    if(service_page_info!=null)
+    {
+        if(current_topic_page_info!=null)
+        {
+            if(current_sub_service_page_info==null){
+                current_page_name = current_topic_page_info.page_name
+            } else{
+                current_page_name = current_sub_service_page_info.page_name
+            } %>
+            <title><%=current_page_name%></title>
+        <% }
+    }
+    %>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+        <link href="<%=(path_offset+current_topic_page_info.page_title_icon)%>" rel="SHORTCUT ICON">
+    <% } %>
+    
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/metro-all.min.css">
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/jquery.gridly.css">
+
+    <% if(current_sub_service_page_info!=null){
+        if(current_sub_service_page_info.additional_css_URL_list!=null){
+            for(var i = 0; i<current_sub_service_page_info.additional_css_URL_list.length; i++){ %>
+                <link rel="stylesheet" type="text/css" href="<%=(path_offset+current_sub_service_page_info.additional_css_URL_list[i])%>">
+    <%      }
+        }
+    } %>
+
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/fontawesome.min.css">
+    <script src="<%=path_offset%>/js/fontawesome.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/c3.min.css">
+    <script src="<%=path_offset%>/js/c3.min.js"></script>
+    
+    <style>
+        .dropdown-toggle::before{
+            border-color: #fff;
+        }
+
+        .device_name{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        .rule_name{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+    </style>
+
+    <script type="text/javascript" src="<%=path_offset%>/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="<%=path_offset%>/js/websocket.js"></script>
+    <script type="text/javascript" src="<%=path_offset%>/js/metro.min.js"></script> 
+    <script type="text/javascript" src="<%=path_offset%>/js/jquery.gridly.js"></script>
+
+    <script src="<%=path_offset%>/rule_mgmt/Rules.js"></script>
+    <script src="<%=path_offset%>/device_mgmt/Devices.js"></script>
+    <script src="<%=path_offset%>/group_mgmt/Groups.js"></script>
+
+    <% 
+    if(current_sub_service_page_info!=null){
+        if(current_sub_service_page_info.additional_js_URL_list!=null){
+            for(var i = 0; i<current_sub_service_page_info.additional_js_URL_list.length; i++){ %>
+                <script type="text/javascript" src="<%=(path_offset+current_sub_service_page_info.additional_js_URL_list[i])%>"></script> 
+    <%      }
+        }
+    } %>
+
+    <script type="text/javascript" src="<%=path_offset%>/js/parse.js"></script> 
+    
+    <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+    
+    <script type="text/javascript" src="<%=(path_offset+current_sub_service_page_info.page_control_js_URL)%>"></script> 
+    
+    <script type="text/javascript">
+
+    var ws_get_sb = null;
+    
+    var serverURI = window.location.host;
+        
+    var currentUser = null;
+    $(document).ready(function() {
+        
+        <% if(username=="everyone"){ %>
+            websocket_init(serverURI, "<%=session_token%>", Handle_Rule_WebSocket_Connect_Event, Handle_Rule_WebSocket_POST_Message, Handle_Rule_WebSocket_GET_Message, null, null);
+        <% }
+        else{ %>
+            Parse.initialize("1mKE4z1Ys3ZF6eHCVhkaqdOpxGJFcAgZreXqRkAN", "XzcesPGvhrRSC0ZOZRBCfkdH3y1dV5hgBVA0pH1P", "I5LnTbJiP0kuh1dLM3PZw4lXO8UpEilqU2TLzDiB");
+            Parse.serverURL = "https://"+serverURI+"/1";
+            
+            currentUser = Parse.User.current();
+            if (currentUser) {
+                // do stuff with the user
+                Parse.Session.current().then(function(session) {
+                    session.set("UI_sessionToken", "<%=session_token%>");
+                    session.save().then(function() {
+                        websocket_init(serverURI, "<%=session_token%>", Handle_Rule_WebSocket_Connect_Event, Handle_Rule_WebSocket_POST_Message, Handle_Rule_WebSocket_GET_Message, null, null);
+                    });
+                });
+            }
+        <% } %>
+    });
+
+    (function () {
+        $(function () {
+            $('.gridly').gridly({
+                base: 80, // px
+                gutter: 8, // px
+                columns: 8,
+                'responsive': true
+            });
+            $(document).on("change", ".gridly", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                return $('.gridly').gridly();
+            });
+            return $('.gridly').gridly();
+        });
+
+    }).call(this);
+
+    var map_rule_info_list = [];
+    var need_save_change = [];
+    var selected_source_device_type = null;
+
+    function Get_Rule_Name_By_Index(index)
+    {
+        return map_rule_info_list[Number(index)].rule_Name;
+    }
+
+    function Get_Rule_Source_Device_Type_By_Index(index)
+    {
+        return map_rule_info_list[Number(index)].source_device_type;
+    }
+
+    function Get_Rule_Source_Device_ID_By_Index(index)
+    {
+        return map_rule_info_list[Number(index)].source_device_ID;
+    }
+
+    function Handle_Rule_WebSocket_Connect_Event()
+    {
+        Show_Rule_List_Page();
+    }
+
+    function Update_Rule_List()
+    {
+        $('#rule_display_area').html('');
+        
+        GET_Rule_List(selected_source_device_type, function(rsp_json){
+            map_rule_info_list = [];
+
+            var show_rules_html = [];
+            
+            for (var i = 0; i < rsp_json.rule_list.length; i++) {
+                map_rule_info_list.push({
+                    "rule_Name":rsp_json.rule_list[i].rule_Name,
+                    "source_device_ID":rsp_json.rule_list[i].source_device_ID,
+                    "source_device_type": selected_source_device_type
+                });
+
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.rule_tile_background_type){
+                        case "css": %>
+                            show_rules_html.push("<div id=\"rule_"+ i +"_ctrl_tile\" data-role=\"hint\" onclick=\"onClick_Edit_Rule_Btn('" + i + "')\" class=\"tile-medium <%=current_sub_service_page_info.rule_tile_background_css%> fg-white\"\
+                                data-hint-position=\"top\" data-hint-text=\"" + rsp_json.rule_list[i].rule_Name + "\">");
+                            <% switch(current_sub_service_page_info.rule_tile_icon_type){
+                                case "css": %>
+                                show_rules_html.push("<span class=\"<%=current_sub_service_page_info.rule_tile_icon_css%> mif-4x icon\"></span>");
+                                show_rules_html.push("<span class=\"branding-bar device_name\" style=\"font-size: 20px\">" + rsp_json.rule_list[i].rule_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                show_rules_html.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.rule_tile_icon_URL%>\"/>");
+                                show_rules_html.push("<span class=\"branding-bar device_name\" style=\"font-size: 20px\">" + rsp_json.rule_list[i].rule_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_rules_html.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_rules_html.push("<div id=\"rule_"+ i +"_ctrl_tile\" data-role=\"hint\" class=\"tile-medium fg-white\" data-hint-position=\"top\" data-hint-text=\"" + rsp_json.rule_list[i].rule_Name + "\"\
+                                data-cover=\"<%=current_sub_service_page_info.rule_tile_background_URL%>\" onclick=\"onClick_Edit_Rule_Btn('" + i + "')\">");
+                            show_rules_html.push("<span class=\"branding-bar\">" + rsp_json.rule_list[i].rule_Name + "</span>");
+                            show_rules_html.push("</div>");
+                            <% break;
+                    }
+                }
+                %>
+            }
+
+            $('#rule_display_area').html('');
+            $('#rule_display_area').html(show_rules_html.join(''));
+            
+            $('.gridly').trigger("change");
+            $('.gridly').gridly('draggable', 'off');
+            $('.gridly').gridly({'responsive': true});
+        });
+    }
+    function Show_Rule_List_Page()
+    {
+        $('#rule_display_area').html('');
+
+        if(!$('#rule_display_area').hasClass('gridly'))
+        {
+            $('#rule_display_area').addClass('gridly');
+        }
+
+        Print_Rule_Management_Toolbar();
+
+        if(selected_source_device_type==null)
+        {
+            selected_source_device_type = $('#rule_mgmt_select_source_device_type').val();
+        }
+        else
+        {
+            $('#rule_mgmt_select_source_device_type').val(selected_source_device_type);
+        }
+
+        Update_Rule_List();
+    }
+
+    function onClick_Add_Rule_Btn()
+    {
+        selected_source_device_type = $('#rule_mgmt_select_source_device_type').val();
+
+        Show_Add_Rule_Page();
+    }
+
+    function onClick_Edit_Rule_Btn(index_str)
+    {
+        selected_source_device_type = $('#rule_mgmt_select_source_device_type').val();
+
+        Show_Edit_Rule_Page(index_str);
+    }
+
+    function Show_Add_Rule_Page()
+    {
+        $('.gridly').gridly('draggable', 'off');
+        $('.gridly').gridly({'responsive': true});
+
+        if($('#rule_display_area').hasClass('gridly'))
+        {
+            $('#rule_display_area').removeClass('gridly');
+        }
+
+        Print_Rule_Operation_Toolbar(true, "add");
+        Print_Rule_Settings(true, "add", "rule_display_area", null);
+    }
+
+    function Show_Edit_Rule_Page(index_str)
+    {
+        $('.gridly').gridly('draggable', 'off');
+        $('.gridly').gridly({'responsive': true});
+
+        if($('#rule_display_area').hasClass('gridly'))
+        {
+            $('#rule_display_area').removeClass('gridly');
+        }
+
+        var rule_op_modal_html = [];
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+            rule_op_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" id=\"rule_" + index_str + "_rename_modal\">");
+            rule_op_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">請幫這個規則取個新名稱吧!</h2></div>");
+            rule_op_modal_html.push("<div class=\"dialog-content\">");
+            rule_op_modal_html.push("<label class=\"<%=current_sub_service_page_info.page_text_color%>\">名稱:</label>");
+            rule_op_modal_html.push("<input type=\"text\" data-role=\"input\" id=\"rule_" + index_str + "_name_text\" data-prepend=\"<span class='mif-italic'>\" placeholder=\"新名稱\" oninput=\"onKeying_Rule_Name_Text('" + index_str + "')\">");
+            rule_op_modal_html.push("</div>");
+            rule_op_modal_html.push("<div class=\"dialog-actions text-right\">");
+            rule_op_modal_html.push("<button class=\"button alert js-dialog-close\">取消</button>");
+            rule_op_modal_html.push("<button class=\"button success\" disabled=\"true\" id=\"rule_" + index_str + "_save_name_btn\" onclick=\"onClick_Rule_Save_Name_Btn('" + index_str + "')\">儲存</button>");
+            rule_op_modal_html.push("</div>");
+            rule_op_modal_html.push("</div>");
+
+            //刪除規則
+            rule_op_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" id=\"rule_" + index_str + "_delete_modal\">");
+            rule_op_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">刪除規則</h2></div>");
+            rule_op_modal_html.push("<div class=\"dialog-content\">");
+            rule_op_modal_html.push("<h3 class=\"fg-orange\">確定刪除規則\"" + Get_Rule_Name_By_Index(Number(index_str))+ "\"嗎?</h3>");
+            rule_op_modal_html.push("<h3 class=\"fg-red\">注意!此動作將無法復原!</h3>");
+            rule_op_modal_html.push("</div>");
+            rule_op_modal_html.push("<div class=\"dialog-actions text-right\">");
+            rule_op_modal_html.push("<button class=\"button alert js-dialog-close\">離開</button>");
+            rule_op_modal_html.push("<button class=\"button warning\" id=\"rule_"+index_str+"_confirm_del_dev_btn\" onclick=\"onClick_Confirm_Delete_Rule_Btn('"+index_str+"')\">確定刪除</button>");
+            rule_op_modal_html.push("</div>");
+            rule_op_modal_html.push("</div>");
+        <% } %>
+
+        $("#rule_modal_lst").html("");
+        $("#rule_modal_lst").html(rule_op_modal_html.join(''));
+
+        Print_Rule_Operation_Toolbar(false, index_str);
+        Print_Rule_Settings(false, index_str, "rule_display_area", null);
+    }
+
+    function onKeying_Rule_Name_Text(index_str)
+    {
+        var input_name = $('#rule_' + index_str + '_name_text').val();
+        if(input_name==null || input_name=="")
+        {
+            $('#rule_' + index_str + '_save_name_btn').prop('disabled', true);
+        }
+        else{
+            $('#rule_' + index_str + '_save_name_btn').prop('disabled', false);
+        }
+    }
+
+    function onClick_Rule_Save_Name_Btn(index_str)
+    {
+        var new_name = $('#rule_' + index_str + '_name_text').val();
+        if (new_name == "") {
+            new_name = dev_name;
+        }
+        else {
+            var source_device_type = Get_Rule_Source_Device_Type_By_Index(Number(index_str));
+            var source_device_ID = Get_Rule_Source_Device_ID_By_Index(Number(index_str));
+
+            Rule_Change_Name(source_device_type, source_device_ID, new_name);
+        }
+        Metro.dialog.close('#rule_' + index_str + '_rename_modal');
+
+        Show_Edit_Rule_Page(index_str);
+    }
+
+    function onClick_Confirm_Delete_Rule_Btn(index_str)
+    {
+        var source_device_type = Get_Rule_Source_Device_Type_By_Index(Number(index_str));
+        var source_device_ID = Get_Rule_Source_Device_ID_By_Index(Number(index_str));
+
+        Delete_Rule(source_device_type, source_device_ID);
+        
+        Metro.dialog.close('#rule_' + index_str + '_delete_modal');
+
+        Print_Groups_Management_Toolbar();
+
+        Update_Rule_List();
+    }
+
+    function onClick_GoBack_Rule_List_Btn(index_str)
+    {
+        var need_save = false;
+        if(need_save_change[Number(index_str)]!=null)
+        {
+            if(need_save_change[Number(index_str)]==true)
+            {
+                need_save = true;
+            }
+        }
+
+        if(need_save)
+        {
+            Metro.dialog.open('#confirm_goback_without_saveing_changes_modal_' + index_str);
+        }
+        else{
+            Show_Rule_List_Page();
+        }
+    }
+
+    function Print_Rule_Avaliable_Source_Device_List(index_str, source_topic_type, print_id_str)
+    {
+        selected_source_ID = $('#rule_'+index_str+'_selected_source_text_area').val();
+
+        GET_All_Device_List(source_topic_type, function(all_dev_lst_json){
+            var show_available_device_list = [];
+
+            show_available_device_list.push("<div class=\"tiles-grid\">");
+            for(var i = 0; i<all_dev_lst_json.device_list.length; i++)
+            {
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.rule_target_device_tile_background_type){
+                        case "css": %>
+                            show_available_device_list.push("<div data-role=\"hint\" class=\"tile-small <%=current_sub_service_page_info.rule_source_device_tile_background_css%> fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" id=\"rule_"+index_str+"_source_device_"+ all_dev_lst_json.device_list[i].device_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_dev_lst_json.device_list[i].device_Name + "\" onclick=\"onClick_Selected_Source_Tile('"+index_str+"', '"+print_id_str+"', '" + all_dev_lst_json.device_list[i].device_ID + "')\">");
+                            <% switch(current_sub_service_page_info.rule_target_device_tile_icon_type){
+                                case "css": %>
+                                    show_available_device_list.push("<span class=\"<%=current_sub_service_page_info.rule_target_device_tile_icon_css%> mif-4x icon\"></span>");
+                                    show_available_device_list.push("<span class=\"branding-bar device_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                    show_available_device_list.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.rule_target_device_tile_icon_URL%>\"/>");
+                                    show_available_device_list.push("<span class=\"branding-bar device_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_available_device_list.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_available_device_list.push("<div data-role=\"hint\" class=\"tile-small fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" data-cover=\"<%=current_sub_service_page_info.rule_source_device_tile_icon_URL%>\" id=\"rule_"+index_str+"_source_device_"+ all_dev_lst_json.device_list[i].device_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_dev_lst_json.device_list[i].device_Name + "\" onclick=\"onClick_Selected_Source_Tile('"+index_str+"', '"+print_id_str+"', '" + all_dev_lst_json.device_list[i].device_ID + "')\">");
+                            show_available_device_list.push("<span class=\"branding-bar\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                            show_available_device_list.push("</div>");
+                            <% break;
+                    }
+                } %>
+            }
+            show_available_device_list.push("</div>");
+
+            $('#'+print_id_str).html('');
+            $('#'+print_id_str).html(show_available_device_list.join(''));
+
+            if(selected_source_ID!=null)
+            {
+                $('#rule_'+index_str+'_source_device_'+selected_source_ID).addClass("selected");
+            }
+            if($('#'+print_id_str+" div").hasClass("selected"))
+            {
+                $('#rule_'+index_str+'_confirm_select_source_btn').prop('disabled', false);
+            }
+        });
+    }
+
+    function Print_Rule_Avaliable_Target_Device_List(index_str, target_topic_type, print_id_str)
+    {
+        selected_target_ID = $('#rule_'+index_str+'_selected_target_text_area').val();
+
+        GET_All_Device_List(target_topic_type, function(all_dev_lst_json){
+            var show_available_device_list = [];
+
+            show_available_device_list.push("<div class=\"tiles-grid\">");
+            for(var i = 0; i<all_dev_lst_json.device_list.length; i++)
+            {
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.rule_target_device_tile_background_type){
+                        case "css": %>
+                            show_available_device_list.push("<div data-role=\"hint\" class=\"tile-small <%=current_sub_service_page_info.rule_target_device_tile_background_css%> fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" id=\"rule_"+index_str+"_target_"+ all_dev_lst_json.device_list[i].device_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_dev_lst_json.device_list[i].device_Name + "\" onclick=\"onClick_Selected_Target_Tile('"+index_str+"', '"+print_id_str+"', '" + all_dev_lst_json.device_list[i].device_ID + "')\">");
+                            <% switch(current_sub_service_page_info.rule_target_device_tile_icon_type){
+                                case "css": %>
+                                    show_available_device_list.push("<span class=\"<%=current_sub_service_page_info.rule_target_device_tile_icon_css%> mif-4x icon\"></span>");
+                                    show_available_device_list.push("<span class=\"branding-bar device_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                    show_available_device_list.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.rule_target_device_tile_icon_URL%>\"/>");
+                                    show_available_device_list.push("<span class=\"branding-bar device_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_available_device_list.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_available_device_list.push("<div data-role=\"hint\" class=\"tile-small fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" data-cover=\"<%=current_sub_service_page_info.rule_target_device_tile_icon_URL%>\" id=\"rule_"+index_str+"_target_"+ all_dev_lst_json.device_list[i].device_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_dev_lst_json.device_list[i].device_Name + "\" onclick=\"onClick_Selected_Target_Tile('"+index_str+"', '"+print_id_str+"', '" + all_dev_lst_json.device_list[i].device_ID + "')\">");
+                            show_available_device_list.push("<span class=\"branding-bar\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                            show_available_device_list.push("</div>");
+                            <% break;
+                    }
+                } %>
+            }
+            show_available_device_list.push("</div>");
+
+            $('#'+print_id_str).html('');
+            $('#'+print_id_str).html(show_available_device_list.join(''));
+
+            if(selected_target_ID!=null)
+            {
+                $('#rule_'+index_str+'_target_'+selected_target_ID).addClass("selected");
+            }
+            if($('#'+print_id_str+" div").hasClass("selected"))
+            {
+                $('#rule_'+index_str+'_confirm_select_target_btn').prop('disabled', false);
+            }
+        });
+    }
+
+    function Print_Rule_Avaliable_Target_Group_List(index_str, target_topic_type, print_id_str)
+    {
+        selected_target_ID = $('#rule_'+index_str+'_selected_target_text_area').val();
+        
+        GET_All_Group_List(target_topic_type, function(all_gp_lst_json){
+            var show_available_group_list = [];
+
+            show_available_group_list.push("<div class=\"tiles-grid\">");
+            for(var i = 0; i<all_gp_lst_json.group_list.length; i++)
+            {
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.rule_target_group_tile_background_type){
+                        case "css": %>
+                            show_available_group_list.push("<div data-role=\"hint\" class=\"tile-small <%=current_sub_service_page_info.rule_target_group_tile_background_css%> fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" id=\"rule_"+index_str+"_target_"+ all_gp_lst_json.group_list[i].group_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_gp_lst_json.group_list[i].group_Name + "\" onclick=\"onClick_Selected_Target_Tile('"+index_str+"', '"+print_id_str+"', '" + all_gp_lst_json.group_list[i].group_ID + "')\">");
+                            <% switch(current_sub_service_page_info.rule_target_group_tile_icon_type){
+                                case "css": %>
+                                    show_available_group_list.push("<span class=\"<%=current_sub_service_page_info.rule_target_group_tile_icon_css%> mif-4x icon\"></span>");
+                                    show_available_group_list.push("<span class=\"branding-bar group_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_gp_lst_json.group_list[i].group_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                    show_available_group_list.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.rule_target_group_tile_icon_URL%>\"/>");
+                                    show_available_group_list.push("<span class=\"branding-bar group_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_gp_lst_json.group_list[i].group_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_available_group_list.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_available_group_list.push("<div data-role=\"hint\" class=\"tile-small fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" data-cover=\"<%=current_sub_service_page_info.rule_target_group_tile_background_URL%>\" id=\"rule_"+index_str+"_target_"+ all_gp_lst_json.group_list[i].group_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_gp_lst_json.group_list[i].group_Name + "\" onclick=\"onClick_Selected_Target_Tile('"+index_str+"', '"+print_id_str+"', '" + all_gp_lst_json.group_list[i].group_ID + "')\">");
+                            show_available_group_list.push("<span class=\"branding-bar\">" + all_gp_lst_json.group_list[i].group_Name + "</span>");
+                            show_available_group_list.push("</div>");
+                            <% break;
+                    }
+                } %>
+            }
+            show_available_group_list.push("</div>");
+
+            $('#'+print_id_str).html('');
+            $('#'+print_id_str).html(show_available_group_list.join(''));
+            
+            if(selected_target_ID!=null)
+            {
+                $('#rule_'+index_str+'_target_'+selected_target_ID).addClass("selected");
+            }
+            if($('#'+print_id_str+" div").hasClass("selected"))
+            {
+                $('#rule_'+index_str+'_confirm_select_target_btn').prop('disabled', false);
+            }
+        });
+    }
+
+    function Print_Status_OK(print_id_str)
+    {
+        var print_status = [];
+
+        print_status.push("<h2 class=\"fg-green mif-checkmark\"></h2>");
+
+        $('#'+print_id_str).html('');
+        $('#'+print_id_str).html(print_status.join(''));
+    }
+
+    function Print_Status_Error(print_id_str)
+    {
+        var print_status = [];
+
+        print_status.push("<h2 class=\"fg-red mif-cross\"></h2>");
+
+        $('#'+print_id_str).html('');
+        $('#'+print_id_str).html(print_status.join(''));
+    }
+
+    function onClick_Show_Source_List_Btn(index_str)
+    {
+        Metro.dialog.open('#rule_'+index_str+'_select_source_modal');
+        
+        var source_topic_type = Metro.getPlugin("#rule_"+index_str+"_select_source_topic_type", 'select').val();
+        if(source_topic_type==null){return;}
+
+        Print_Rule_Avaliable_Source_Device_List(index_str, source_topic_type, 'rule_' + index_str + '_select_source_list');
+    }
+
+    function onClick_Show_Target_List_Btn(index_str)
+    {
+        Metro.dialog.open('#rule_'+index_str+'_select_target_modal');
+
+        var target_address_type = Metro.getPlugin("#rule_"+index_str+"_select_target_address_type", 'select').val();
+        if(target_address_type==null){return;}
+         
+        var target_topic_type = "default";
+
+        <% 
+        if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+            var rule_multi_target_topic_type = false;
+            if(current_sub_service_page_info.rule_multi_target_topic_type!=null &&
+                current_sub_service_page_info.rule_target_topic_type_list!=null &&
+                current_sub_service_page_info.rule_target_topic_icon_type_list!=null &&
+                current_sub_service_page_info.rule_target_topic_icon_list!=null){
+                    if(current_sub_service_page_info.rule_multi_target_topic_type=true){
+                        rule_multi_target_topic_type = true;
+                    }
+            }
+            if(rule_multi_target_topic_type){ %>
+                target_topic_type = Metro.getPlugin("#rule_"+index_str+"_select_target_topic_type", 'select').val();
+            <% } else { %>
+                target_topic_type = "<%=current_sub_service_page_info.rule_target_topic_type%>";
+            <% }
+        } 
+        %>
+
+        if(target_address_type=="Broadcast")
+        {
+
+        }
+        else{
+            Metro.dialog.open('#select_rule_target_modal_' + index_str);
+            if(target_address_type=="Device")
+            {
+                Print_Rule_Avaliable_Target_Device_List(index_str, target_topic_type, 'rule_' + index_str + '_select_target_list');
+            }
+            if(target_address_type=="Group")
+            {
+                Print_Rule_Avaliable_Target_Group_List(index_str, target_topic_type, 'rule_' + index_str + '_select_target_list');
+            }
+        }
+    }
+
+    function onClick_Selected_Source_Tile(index_str, display_area_id, address_ID)
+    {
+        var tile_selected = $('#rule_'+index_str+'_source_device_'+address_ID).hasClass("selected");
+
+        $('#'+display_area_id+" div").removeClass("selected");
+
+        if(!tile_selected)
+        {
+            $('#rule_'+index_str+'_source_device_'+address_ID).addClass("selected");
+            Handle_Rule_Source_Tile_Selected_Event(address_ID);
+        }
+        else
+        {
+            Handle_Rule_Source_Tile_UnSelected_Event(address_ID);
+        }
+
+        if($('#'+display_area_id+" div").hasClass("selected"))
+        {
+            $('#rule_'+index_str+'_confirm_select_source_btn').prop('disabled', false);
+        }
+        else{
+            $('#rule_'+index_str+'_confirm_select_source_btn').prop('disabled', true);
+        }
+    }
+
+    function onClick_Selected_Target_Tile(index_str, display_area_id, address_ID)
+    {
+        var tile_selected = $('#rule_'+index_str+'_target_'+address_ID).hasClass("selected");
+
+        $('#'+display_area_id+" div").removeClass("selected");
+
+        if(!tile_selected)
+        {
+            $('#rule_'+index_str+'_target_'+address_ID).addClass("selected");
+            Handle_Rule_Target_Tile_Selected_Event(address_ID);
+        }
+        else
+        {
+            Handle_Rule_Target_Tile_UnSelected_Event(address_ID);
+        }
+
+        if($('#'+display_area_id+" div").hasClass("selected"))
+        {
+            $('#rule_'+index_str+'_confirm_select_target_btn').prop('disabled', false);
+        }
+        else{
+            $('#rule_'+index_str+'_confirm_select_target_btn').prop('disabled', true);
+        }
+    }
+
+    function onClick_Confirm_Select_Source_Btn(add_rule, index_str, display_area_id)
+    {
+        Print_Save_Settings_Btn(add_rule, index_str);
+
+        var selected_tile_id = $('#'+display_area_id+" .selected").attr("id");
+        if(selected_tile_id==null){return;}
+        var header_str = "rule_"+index_str+"_source_device_";
+        var header_length = header_str.length;
+        var header_start_idx = selected_tile_id.indexOf(header_str);
+        if(header_start_idx>=0)
+        {
+            var source_device_type = Metro.getPlugin("#rule_"+index_str+"_select_source_topic_type", 'select').val();
+            var source_address_ID = selected_tile_id.substring(header_length);
+
+            Handle_Source_Address_ID_Changed(source_device_type, index_str, source_address_ID);
+
+            $('#rule_'+index_str+'_selected_source_text_area').val(source_address_ID);
+
+            Metro.dialog.close('#rule_'+index_str+'_select_source_modal');
+            
+            if(source_device_type==null || source_address_ID==null)
+            {
+                return;
+            }
+
+            Print_Rule_Condition_Settings(add_rule, source_device_type, source_address_ID, index_str, null);
+        }
+    }
+
+    function onClick_Confirm_Select_Target_Btn(add_rule, index_str, display_area_id)
+    {
+        Print_Save_Settings_Btn(add_rule, index_str);
+
+        var selected_tile_id = $('#'+display_area_id+" .selected").attr("id");
+        if(selected_tile_id==null){return;}
+        var header_str = "rule_"+index_str+"_target_";
+        var header_length = header_str.length;
+        var header_start_idx = selected_tile_id.indexOf(header_str);
+        if(header_start_idx>=0)
+        {
+            var target_address_type = Metro.getPlugin("#rule_"+index_str+"_select_target_address_type", 'select').val();
+            var target_topic_type = Metro.getPlugin("#rule_"+index_str+"_select_target_topic_type", 'select').val();
+            var target_address_ID = selected_tile_id.substring(header_length);
+
+            Handle_Target_Address_ID_Changed(target_address_type, target_topic_type, index_str, target_address_ID);
+            
+            $('#rule_'+index_str+'_selected_target_text_area').val(target_address_ID);
+
+            Metro.dialog.close('#rule_'+index_str+'_select_target_modal');
+        }
+    }
+
+    function onClick_Save_Rule_Settings_Btn(add_rule, index_str, display_area_id)
+    {
+        var new_rule_name = null;
+        if(add_rule)
+        {
+            new_rule_name = $('#rule_'+index_str+'_name_text').val();
+            if(new_rule_name==null)
+            {
+                Print_Status_Error("rule_"+index_str+"_name_text_status");
+                return;
+            }
+            Print_Status_OK("source"+index_str+"_name_text_status");
+        }
+
+        var source_address_ID = $('#rule_'+index_str+'_selected_source_text_area').val();
+        if(source_address_ID==null)
+        {
+            Print_Status_Error("rule_"+index_str+"_select_source_status");
+            return;
+        }
+        Print_Status_OK("source"+index_str+"_select_source_status");
+
+        var target_address_type = Metro.getPlugin("#rule_"+index_str+"_select_target_address_type", 'select').val();
+        if(target_address_type==null)
+        {
+            Print_Status_Error("rule_"+index_str+"_select_target_status");
+            return;
+        }
+        var target_address_ID = $('#rule_'+index_str+'_selected_target_text_area').val();
+        if(target_address_ID==null)
+        {
+            Print_Status_Error("source"+index_str+"_select_target_status");
+            return;
+        }
+        Print_Status_OK("source"+index_str+"_select_target_status");
+
+        var source_topic_type = Metro.getPlugin("#rule_"+index_str+"_select_source_topic_type", 'select').val();
+        var target_topic_type = Metro.getPlugin("#rule_"+index_str+"_select_target_topic_type", 'select').val();
+        if(source_topic_type==null || target_topic_type==null)
+        {
+            return;
+        }
+        
+        var condition_list = [];
+        var all_node_docs = $('#rule_'+index_str+'_condition_list').children('div .tabs');
+        for(var i = 0; i<all_node_docs.length; i++)
+        {
+            var all_sttr_docs = $('#rule_'+index_str+'_source_select_node_'+i).children('div');
+            for(var j = 0; j<all_sttr_docs.length; j++)
+            {
+                var doc_id_header_str = "rule_"+index_str+"_node_"+i+"_attribute_"+j;
+
+                var attr_en_dis_flag = $("#"+doc_id_header_str+"_compare_enable").prop("checked");
+                if(attr_en_dis_flag==null)
+                {
+                    Print_Status_Error("rule_"+index_str+"_edit_condition_status");
+                    continue;
+                }
+                if(attr_en_dis_flag==false)
+                {
+                    continue;
+                }
+
+                var cond_attr = $("#"+doc_id_header_str+"_compare_value").prop("placeholder");
+                var cond_operator_val = $("#"+doc_id_header_str+"_select_operator").val();
+                var cond_comp_val = $("#"+doc_id_header_str+"_compare_value").val();
+                if(cond_attr==null || cond_operator_val==null || cond_comp_val==null)
+                {
+                    Print_Status_Error("rule_"+index_str+"_edit_condition_status");
+                    continue;
+                }
+
+                var cond_operator = null;
+
+                switch(cond_operator_val)
+                {
+                    case "equal":
+                        cond_operator = "eq";
+                        break;
+                    case "not_equal":
+                        cond_operator = "neq";
+                        break;
+                    case "greater_than":
+                        cond_operator = "gt";
+                        break;
+                    case "greater_than_equal":
+                        cond_operator = "gte";
+                        break;
+                    case "less_than":
+                        cond_operator = "lt";
+                        break;
+                    case "less_than_equal":
+                        cond_operator = "lte";
+                        break;
+                    default:
+                        continue;
+                }
+                
+                condition_list.push({
+                    source_endpoint: i,
+                    attribute: cond_attr,
+                    value: cond_comp_val,
+                    operator: cond_operator
+                });
+            }
+        }
+
+        var match_action_info = Get_Action_Settings_Info("match", target_address_type, target_topic_type, target_address_ID, index_str);
+        var mismatch_action_info = Get_Action_Settings_Info("mismatch", target_address_type, target_topic_type, target_address_ID, index_str);
+        if(match_action_info==null || mismatch_action_info==null)
+        {
+            return;
+        }
+
+        Config_Rule_Action(source_topic_type, source_address_ID, new_rule_name,
+                            target_address_type, target_address_ID, 
+                            condition_list, match_action_info, mismatch_action_info);
+
+                                              
+        need_save_change[Number(index_str)] = false;
+
+        $('#rule_'+index_str+'_toolbar_display_area').html('');
+
+        if(add_rule)
+        {
+            Show_Rule_List_Page();
+        }
+    }
+
+    function onSelect_Device_Type_Selector()
+    {
+        selected_source_device_type = $('#rule_mgmt_select_source_device_type').val();
+        
+        Update_Rule_List();
+    }
+
+    function Print_Rule_Management_Toolbar()
+    {
+        var show_toolbar = [];
+
+        show_toolbar.push("<div class=\"row\">");
+
+        show_toolbar.push("<div class=\"cell-2\">");
+        show_toolbar.push("<ul class=\"t-menu open horizontal fg-white <%=current_sub_service_page_info.button_background_css%>\" style=\"text-align:center;z-index: 0;\">");
+        show_toolbar.push("<li data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"新增規則\"><a href=\"#\" onclick=\"onClick_Add_Rule_Btn()\"><span class=\"mif-plus icon\"></span></a></li>");
+        show_toolbar.push("</ul>");
+        show_toolbar.push("</div>"); //cell-2
+        
+        show_toolbar.push("<div class=\"cell-9\">");
+        show_toolbar.push("<h4 class=\"<%=current_sub_service_page_info.page_text_color%>\" style=\"display: inline\">來源裝置類型:</h4>");
+        show_toolbar.push("<select data-role=\"select\" data-filter=\"false\" data-drop-height=\"200px\" id=\"rule_mgmt_select_source_device_type\" data-on-item-select=\"onSelect_Device_Type_Selector()\")\">");
+        <%
+        var page_group_list = nav_page_info.page_group_list;
+        var select_item_icon_data_template;
+        for(var i = 0; i<page_group_list.length; i++){
+            if(page_group_list[i].page_group_topic=="Device MGMT")
+            {
+                if(service_page_info==null || current_topic_page_info==null || current_sub_service_page_info==null)
+                {
+                    break;
+                }
+
+                var support_device_type_list = current_sub_service_page_info.rule_support_source_device_type_list;
+                var support_device_type = null;
+
+                if(support_device_type_list==null)
+                {
+                    break;
+                }
+
+                for(var m = 0; m<support_device_type_list.length; m++)
+                {
+                    support_device_type = support_device_type_list[m];
+                    
+                    for(var j = 0; j<page_group_list[i].page_list.length; j++){
+                        if(page_group_list[i].page_list[j].sub_page_list!=null){
+                            if(page_group_list[i].page_list[j].page_topic==support_device_type)
+                            {
+                                select_item_icon_data_template = "";
+                                switch(page_group_list[i].page_list[j].page_icon_type)
+                                {
+                                    case "css":
+                                        select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].page_icon_css+" "+page_group_list[i].page_list[j].page_text_color+" icon'></span>";
+                                        break;
+                                    case "URL":
+                                        select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].page_icon_color_URL+"'/>";
+                                        break;
+                                } %>
+                                show_toolbar.push("<option value=\"<%=page_group_list[i].page_list[j].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].page_name%></option>");
+                            <% }
+                            else{
+                                for(var k = 0; k<page_group_list[i].page_list[j].sub_page_list.length; k++){
+                                    if(page_group_list[i].page_list[j].sub_page_list[k].page_topic!=support_device_type)
+                                    {
+                                        continue;
+                                    }
+
+                                    select_item_icon_data_template = "";
+                                    switch(page_group_list[i].page_list[j].sub_page_list[k].page_icon_type)
+                                    {
+                                        case "css":
+                                            select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_css+" "+page_group_list[i].page_list[j].sub_page_list[k].page_text_color+" icon'></span>";
+                                            break;
+                                        case "URL":
+                                            select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_color_URL+"'/>";
+                                            break;
+                                    } %>
+                                    show_toolbar.push("<option value=\"<%=page_group_list[i].page_list[j].sub_page_list[k].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].sub_page_list[k].page_name%></option>");
+                                <% }
+                            }
+                        }
+                    }
+                }
+            }
+        } %>
+        show_toolbar.push("</select>");
+        show_toolbar.push("</div>"); //cell-9
+        show_toolbar.push("<div class=\"cell-1\"></div>"); //cell-1
+
+        show_toolbar.push("</div>"); //row
+
+        $('#rule_mgmt_toolbar').html('');
+        $('#rule_mgmt_toolbar').html(show_toolbar.join(''));
+    }
+
+    function Print_Rule_Operation_Toolbar(add_rule, index_str)
+    {
+        var show_toolbar = [];
+
+        show_toolbar.push("<div class=\"row\">");
+
+        show_toolbar.push("<div class=\"cell-2\">");
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+            show_toolbar.push("<button href=\"#\" class=\"button cycle large fg-white <%=current_sub_service_page_info.button_background_css%>\" onclick=\"onClick_GoBack_Rule_List_Btn('"+index_str+"')\"><span class=\"mif-arrow-left\"></span></button>");
+        <% } %>
+        show_toolbar.push("</div>");
+        
+        if(add_rule)
+        {
+            show_toolbar.push("<div class=\"cell-9\">");
+            show_toolbar.push("<div id=\"rule_"+index_str+"_toolbar_display_area\" style=\"float:right\"/>");
+            show_toolbar.push("</div>");
+        }
+        else{
+            show_toolbar.push("<div class=\"cell-8\">");
+            show_toolbar.push("<ul class=\"t-menu open horizontal fg-white <%=current_sub_service_page_info.button_background_css%>\" style=\"text-align:center;float: right;\">");
+            show_toolbar.push("<li><a href=\"#\" data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"重新命名\" onclick=\"Metro.dialog.open('#rule_"+index_str+"_rename_modal')\"><span class=\"mif-pencil icon\"></span></a></li>");
+            show_toolbar.push("<li><a href=\"#\" data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"刪除規則\" onclick=\"Metro.dialog.open('#rule_"+index_str+"_delete_modal')\"><span class=\"mif-bin icon\"></span></a></li>");
+            show_toolbar.push("</ul>");
+            show_toolbar.push("</div>");
+            show_toolbar.push("<div class=\"cell-1\">");
+            show_toolbar.push("<div id=\"rule_"+index_str+"_toolbar_display_area\" style=\"float:right\"/>");
+            show_toolbar.push("</div>");
+        }
+
+        show_toolbar.push("<div class=\"cell-1\"></div>");
+
+        show_toolbar.push("</div>");
+
+        $('#rule_mgmt_toolbar').html('');
+        $('#rule_mgmt_toolbar').html(show_toolbar.join(''));
+    }
+
+    function Print_Rule_Settings(add_rule, index_str)
+    {
+        const selectSourceButtons = [{
+            html: "<span class='mif-list'></span>",
+            cls: "fg-white <%=current_sub_service_page_info.button_background_css%>",
+            onclick: "onClick_Show_Source_List_Btn('"+index_str+"');"
+        }];
+
+        const selectTargetButtons = [{
+            html: "<span class='mif-list'></span>",
+            cls: "fg-white <%=current_sub_service_page_info.button_background_css%>",
+            onclick: "onClick_Show_Target_List_Btn('"+index_str+"');"
+        }];
+
+        var print_settings = [];
+
+        print_settings.push("<div class=\"grid\" style=\"width: 100%\">");
+        
+        if(add_rule)
+        {
+            print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+            print_settings.push("<div class=\"cell-md-12\">");
+            print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">名稱:</h2>");
+            print_settings.push("<div style=\"margin-left: 5px\" id=\"rule_"+index_str+"_name_text_status\"/>");
+            print_settings.push("<input type=\"text\" data-role=\"input\" id=\"rule_"+index_str+"_name_text\" data-prepend=\"<span class='mif-italic'>\" placeholder=\"新名稱\" oninput=\"Print_Save_Settings_Btn("+add_rule+",'"+index_str+"')\">");
+            print_settings.push("</div>");
+            print_settings.push("</div>");
+        }
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">來源裝置:</h2>");
+        print_settings.push("<div style=\"margin-left: 5px\" id=\"rule_"+index_str+"_select_source_status\"/>");
+        print_settings.push("</div>"); //row
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<div class=\"cell-md-4\">");
+        
+        var select_source_topic_html_str = "";
+        select_source_topic_html_str += "<select data-role=\"select\" data-filter=\"false\" data-drop-height=\"200px\" id=\"rule_"+index_str+"_select_source_topic_type\" ";
+        if(!add_rule)
+        {
+            select_source_topic_html_str += "disabled=\"true\" ";
+        }
+        select_source_topic_html_str += "data-on-item-select=\"onClick_Select_Source_Topic_Type_Selector("+add_rule+", this.value, '"+index_str+"')\">";
+        
+        print_settings.push(select_source_topic_html_str);
+
+        <%
+        var page_group_list = nav_page_info.page_group_list;
+        var select_item_icon_data_template;
+        for(var i = 0; i<page_group_list.length; i++){
+            if(page_group_list[i].page_group_topic=="Device MGMT")
+            {
+                if(service_page_info==null || current_topic_page_info==null || current_sub_service_page_info==null)
+                {
+                    break;
+                }
+
+                var support_device_type_list = current_sub_service_page_info.rule_support_source_device_type_list;
+                var support_device_type = null;
+
+                if(support_device_type_list==null)
+                {
+                    break;
+                }
+
+                for(var m = 0; m<support_device_type_list.length; m++)
+                {
+                    support_device_type = support_device_type_list[m];
+                    
+                    for(var j = 0; j<page_group_list[i].page_list.length; j++){
+                        if(page_group_list[i].page_list[j].sub_page_list!=null){
+                            for(var k = 0; k<page_group_list[i].page_list[j].sub_page_list.length; k++){
+                                if(page_group_list[i].page_list[j].sub_page_list[k].page_topic!=support_device_type)
+                                {
+                                    continue;
+                                }
+
+                                select_item_icon_data_template = "";
+                                switch(page_group_list[i].page_list[j].sub_page_list[k].page_icon_type)
+                                {
+                                    case "css":
+                                        select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_css+" "+page_group_list[i].page_list[j].sub_page_list[k].page_text_color+" icon'></span>";
+                                        break;
+                                    case "URL":
+                                        select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_color_URL+"'/>";
+                                        break;
+                                } %>
+                                print_settings.push("<option value=\"<%=page_group_list[i].page_list[j].sub_page_list[k].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].sub_page_list[k].page_name%></option>");
+                            <% }
+                        }
+                    }
+                }
+            }
+        } %>
+        print_settings.push("</select>");
+        print_settings.push("</div>"); //cell-md-4
+        print_settings.push("<div class=\"cell-md-4\">");
+        print_settings.push("<script>var selectSourceButtons="+JSON.stringify(selectSourceButtons)+"<"+"/script>");
+        print_settings.push("<input type=\"text\" data-role=\"input\" \
+                                id=\"rule_"+index_str+"_selected_source_text_area\" \
+                                data-custom-buttons=\"selectSourceButtons\" \
+                                oninput=\"Handle_Source_Address_ID_Changed( \
+                                    Metro.getPlugin(\"#rule_"+index_str+"_select_source_topic_type\", 'select').val(), \
+                                    '"+index_str+"', \
+                                    this.value)\">");
+        print_settings.push("</div>"); //cell-md-4
+        print_settings.push("<div class=\"cell-md-4\"></div>");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">目標:</h2>");
+        print_settings.push("<div style=\"margin-left: 5px\" id=\"rule_"+index_str+"_select_target_status\"/>");
+        print_settings.push("</div>"); //row
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<div class=\"cell-md-3\">");
+        print_settings.push("<select data-role=\"select\" data-filter=\"false\" id=\"rule_"+index_str+"_select_target_address_type\" data-on-item-select=\"onClick_Select_Target_Address_Type_Selector("+add_rule+", this.value, '"+index_str+"')\">");
+        print_settings.push("<option value=\"Device\" data-template=\"<span class='mif-target icon'></span> $1\">單一裝置</option>");
+        print_settings.push("<option value=\"Group\" data-template=\"<span class='mif-flow-tree icon'></span> $1\">群組</option>");
+        print_settings.push("</select>");
+        print_settings.push("</div>"); //cell-md-3
+        print_settings.push("<div class=\"cell-md-4\">");
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+            var rule_multi_target_topic_type = false;
+            if(current_sub_service_page_info.rule_multi_target_topic_type!=null &&
+                current_sub_service_page_info.rule_target_topic_type_list!=null &&
+                current_sub_service_page_info.rule_target_topic_icon_type_list!=null &&
+                current_sub_service_page_info.rule_target_topic_icon_list!=null){
+                    if(current_sub_service_page_info.rule_multi_target_topic_type=true){
+                        rule_multi_target_topic_type = true;
+                    }
+            } %>
+
+            print_settings.push("<select data-role=\"select\" data-filter=\"false\" data-drop-height=\"100px\" id=\"rule_"+index_str+"_select_target_topic_type\" data-on-item-select=\"onClick_Select_Target_Topic_Type_Selector("+add_rule+", this.value, '"+index_str+"')\">");
+            
+            <% 
+                var target_topic_type_list = [];
+                if(rule_multi_target_topic_type){
+                    target_topic_type_list = current_sub_service_page_info.rule_target_topic_type_list;
+                }
+                else{
+                    target_topic_type_list = [current_sub_service_page_info.rule_target_topic_type];
+                }
+                
+                var page_group_list = nav_page_info.page_group_list;
+                var select_item_icon_data_template;
+                for(var i = 0; i<page_group_list.length; i++){
+                    if(page_group_list[i].page_group_topic=="Device MGMT")
+                    {
+                        for(var m = 0; m<target_topic_type_list.length; m++)
+                        { 
+                            for(var j = 0; j<page_group_list[i].page_list.length; j++){
+                                if(page_group_list[i].page_list[j].page_topic==target_topic_type_list[m])
+                                {
+                                    select_item_icon_data_template = "";
+                                    switch(page_group_list[i].page_list[j].page_icon_type)
+                                    {
+                                        case "css":
+                                            select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].page_icon_css+" "+page_group_list[i].page_list[j].page_text_color+" icon'></span>";
+                                            break;
+                                        case "URL":
+                                            select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].page_icon_color_URL+"'/>";
+                                            break;
+                                    } %>
+                                    print_settings.push("<option value=\"<%=page_group_list[i].page_list[j].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].page_name%></option>");
+                                <% }
+                                else{
+                                    if(page_group_list[i].page_list[j].sub_page_list!=null){
+                                        for(var k = 0; k<page_group_list[i].page_list[j].sub_page_list.length; k++){
+                                            if(page_group_list[i].page_list[j].sub_page_list[k].page_topic==target_topic_type_list[m])
+                                            {
+                                                select_item_icon_data_template = "";
+                                                switch(page_group_list[i].page_list[j].sub_page_list[k].page_icon_type)
+                                                {
+                                                    case "css":
+                                                        select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_css+" "+page_group_list[i].page_list[j].sub_page_list[k].page_text_color+" icon'></span>";
+                                                        break;
+                                                    case "URL":
+                                                        select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_color_URL+"'/>";
+                                                        break;
+                                                } %>
+                                                print_settings.push("<option value=\"<%=page_group_list[i].page_list[j].sub_page_list[k].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].sub_page_list[k].page_name%></option>");
+                                            <% }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            %>
+
+            print_settings.push("</select>");
+        <% } %>
+        print_settings.push("</div>"); //cell-md-4
+        print_settings.push("<div class=\"cell-md-4\">");
+        print_settings.push("<script>var selectTargetButtons="+JSON.stringify(selectTargetButtons)+"<"+"/script>");
+        print_settings.push("<input type=\"text\" data-role=\"input\" \
+                                id=\"rule_"+index_str+"_selected_target_text_area\" \
+                                data-custom-buttons=\"selectTargetButtons\" \
+                                oninput=\"\
+                                    Handle_Target_Address_ID_Changed( \
+                                    Metro.getPlugin(\"#rule_"+index_str+"_select_target_address_type\", 'select').val(), \
+                                    Metro.getPlugin(\"#rule_"+index_str+"_select_target_topic_type\", 'select').val(), \
+                                    '"+index_str+"', \
+                                    this.value)\">");
+        print_settings.push("</div>"); //cell-md-4
+        print_settings.push("<div class=\"cell-md-1\"></div>");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\" style=\"display:inline;\">條件:</h2>");
+        print_settings.push("<div style=\"margin-left: 5px\" id=\"rule_"+index_str+"_edit_condition_status\"/>");
+        print_settings.push("</div>"); //row
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<div style=\"margin-left: 5px\" id=\"rule_"+index_str+"_select_source_node_index_btns\"></div>");
+        print_settings.push("</div>"); //row
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<div id=\"rule_"+index_str+"_condition_list\" style=\"width: 100%\"></div>");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">匹配時動作:</h2>");
+        print_settings.push("</div>"); //row
+        
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<div id=\"rule_"+index_str+"_on_match_action\" style=\"width: 100%\"></div>");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">不匹配時動作:</h2>");
+        print_settings.push("</div>"); //row
+        
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<div id=\"rule_"+index_str+"_on_mismatch_action\" style=\"width: 100%\"></div>");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%;height: 100px\">");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("</div>"); //grid
+
+        var select_rule_modal_html = [];
+
+        select_rule_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" data-width=\"500\" id=\"rule_"+index_str+"_select_source_modal\">");
+        select_rule_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">選取目標</h2></div>");
+        select_rule_modal_html.push("<div class=\"dialog-content\">");
+        select_rule_modal_html.push("<div id=\"rule_"+index_str+"_select_source_list\" style=\"max-height:200px;overflow: auto;\"/>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("<div class=\"dialog-actions text-right\">");
+        select_rule_modal_html.push("<button class=\"button alert js-dialog-close\">離開</button>");
+        select_rule_modal_html.push("<button class=\"button success\" disabled=\"true\" id=\"rule_"+index_str+"_confirm_select_source_btn\" onclick=\"onClick_Confirm_Select_Source_Btn("+add_rule+", '"+index_str+"','rule_"+index_str+"_select_source_list')\">確定</button>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("</div>");
+
+        select_rule_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" data-width=\"500\" id=\"rule_"+index_str+"_select_target_modal\">");
+        select_rule_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">選取目標</h2></div>");
+        select_rule_modal_html.push("<div class=\"dialog-content\">");
+        select_rule_modal_html.push("<div id=\"rule_"+index_str+"_select_target_list\" style=\"max-height:200px;overflow: auto;\"/>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("<div class=\"dialog-actions text-right\">");
+        select_rule_modal_html.push("<button class=\"button alert js-dialog-close\">離開</button>");
+        select_rule_modal_html.push("<button class=\"button success\" disabled=\"true\" id=\"rule_"+index_str+"_confirm_select_target_btn\" onclick=\"onClick_Confirm_Select_Target_Btn("+add_rule+", '"+index_str+"','rule_"+index_str+"_select_target_list')\">確定</button>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("</div>");
+
+        select_rule_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" id=\"confirm_goback_without_saveing_changes_modal_" + index_str + "\">");
+        select_rule_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">未儲存變更</h2></div>");
+        select_rule_modal_html.push("<div class=\"dialog-content\">");
+        select_rule_modal_html.push("<h2 class=\"fg-red\">確定要不儲存變更然後離開嗎?</h2>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("<div class=\"dialog-actions text-right\">");
+        select_rule_modal_html.push("<button class=\"button success\" onclick=\"onClick_Save_Rule_Settings_Btn("+add_rule+",'"+index_str+"','rule_target_list_"+index_str+"')\">儲存</button>");
+        select_rule_modal_html.push("<button class=\"button alert js-dialog-close\" onclick=\"Show_Rule_List_Page()\">放棄</button>");
+        select_rule_modal_html.push("<button class=\"button warning js-dialog-close\">繼續編輯</button>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("</div>");
+        select_rule_modal_html.push("</div>");
+
+        $('#rule_display_area').html('');
+        $('#rule_display_area').html(print_settings.join(''));
+        
+        $('#rule_modal_lst').html('');
+        $('#rule_modal_lst').html(select_rule_modal_html.join(''));
+        
+        if(add_rule)
+        {
+            <% if(rule_multi_target_topic_type){ %>
+                var target_topic_type = "<%=current_sub_service_page_info.rule_target_topic_type_list[0]%>";
+            <% } else{ %>
+                var target_topic_type = "<%=current_sub_service_page_info.rule_target_topic_type%>";
+            <% } %>
+
+            if(Do_Check_Target_Topic_Match(target_topic_type))
+            {
+                Show_Rule_Action_Settings(add_rule, "match", "Device", target_topic_type, index_str, "rule_"+index_str+"_on_match_action");
+                Show_Rule_Action_Settings(add_rule, "mismatch", "Device", target_topic_type, index_str, "rule_"+index_str+"_on_mismatch_action");
+            }
+        }
+        else
+        {
+            var source_device_ID = Get_Rule_Source_Device_ID_By_Index(Number(index_str));
+
+            Update_Rule_Info(selected_source_device_type, source_device_ID, index_str);
+        }
+    }
+
+    function Update_Rule_Info(source_topic_type, source_device_ID, index_str)
+    {
+        $('#rule_'+index_str+'_selected_source_text_area').val(source_device_ID);
+
+        GET_Rule_Info(source_topic_type, source_device_ID, function(rsp_json){
+            var target_address_type = rsp_json.target_address_type;
+            var target_address_ID = rsp_json.target_address_ID;
+            var conditions_list = rsp_json.conditions;
+            var match_action_command = rsp_json.match_action.command;
+            var mismatch_action_command = rsp_json.mismatch_action.command;
+            
+            <% if(rule_multi_target_topic_type){ %>
+                var match_action_command_topic_type = rsp_json.match_action.command_type;
+                var mismatch_action_command_topic_type = rsp_json.mismatch_action.command_type;
+            <% } else { %>
+                var match_action_command_topic_type = rsp_json.match_action.command_topic;
+                var mismatch_action_command_topic_type = rsp_json.mismatch_action.command_topic;
+            <% } %>
+            
+            Metro.getPlugin('#rule_'+index_str+'_select_source_topic_type', 'select').val([source_topic_type]);
+
+            Metro.getPlugin('#rule_'+index_str+'_select_target_address_type', 'select').val([target_address_type]);
+            if(Do_Check_Target_Topic_Match(match_action_command_topic_type))
+            {
+                Metro.getPlugin('#rule_'+index_str+'_select_target_topic_type', 'select').val([match_action_command_topic_type]);
+                $('#rule_'+index_str+'_selected_target_text_area').val(target_address_ID);
+            }
+            
+            Show_Rule_Action_Settings(false, "match", target_address_type, match_action_command_topic_type, index_str, "rule_"+index_str+"_on_match_action");
+            Show_Rule_Action_Settings(false, "mismatch", target_address_type, mismatch_action_command_topic_type, index_str, "rule_"+index_str+"_on_mismatch_action");
+           
+            Handle_Update_Rule_Action_Settings_Info("match", target_address_type, match_action_command_topic_type, target_address_ID, index_str, rsp_json.match_action);
+            Handle_Update_Rule_Action_Settings_Info("mismatch", target_address_type, mismatch_action_command_topic_type, target_address_ID, index_str, rsp_json.mismatch_action);
+
+            Print_Rule_Condition_Settings(false, source_topic_type, source_device_ID, index_str, conditions_list);
+        });
+    }
+
+    function Print_Rule_Condition_Settings(add_rule, source_device_type, source_device_ID, index_str, condition_info_list)
+    {
+        GET_Device_Num_Of_Node(source_device_type, source_device_ID, (num_node_rsp_json)=>{
+            GET_Device_Support_Attributes(source_device_type, source_device_ID, (support_attrs_rsp_json)=>{
+                var print_settings = [];
+                print_settings.push("<ul data-cls-tabs=\"flex-justify-start\" data-role=\"tabs\" data-expand=\"true\" \
+                                    data-cls-tabs-list-item=\"\" id=\"rule_"+index_str+"_source_node_list\">");
+                for(var i = 0; i<num_node_rsp_json.num_of_node; i++)
+                {
+                    print_settings.push("<li><a href=\"#rule_"+index_str+"_source_select_node_"+i+"\">"+i+"</a></li>");
+                }
+                print_settings.push("</ul>");
+
+                print_settings.push("<style>.<%=current_sub_service_page_info.checkbox_outline_css%>::before{border-color: inherit!important;}</style>");
+                
+                print_settings.push("<div class=\"border bd-default no-border-top p-2\">");
+                for(var i = 0; i<num_node_rsp_json.num_of_node; i++)
+                {
+                    print_settings.push("<div id=\"rule_"+index_str+"_source_select_node_"+i+"\">");
+                    for(var j = 0; j<support_attrs_rsp_json.num_of_support_attributes; j++)
+                    {
+                        if(support_attrs_rsp_json.support_attributes_list[j].type!="measure")
+                        {
+                            continue;
+                        }
+                        var attr_cn_name = Resolve_Attribute_Chinese_Name(support_attrs_rsp_json.support_attributes_list[j].name);
+
+                        var doc_id_header_str = "rule_"+index_str+"_node_"+i+"_attribute_"+j;
+
+                        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+                        print_settings.push("<div class=\"cell-md-2\">");
+                        print_settings.push("<input type=\"checkbox\" data-role=\"checkbox\" \
+                                            id=\""+doc_id_header_str+"_compare_enable\" \
+                                            onclick=\"onClick_Attribute_Compare_Enable_Checkbox('"+add_rule+"','"+index_str+"','"+i+"','"+j+"')\" \
+                                            data-style=\"2\" data-caption=\""+attr_cn_name+"\" \
+                                            data-cls-caption=\"<%=current_sub_service_page_info.page_text_color%> text-bold\" \
+                                            data-cls-check=\"<%=current_sub_service_page_info.checkbox_outline_css%>\">");
+                        print_settings.push("</div>"); //cell-md-2
+                        print_settings.push("<div class=\"cell-md-5\">");
+                        print_settings.push("<select data-role=\"select\" data-filter=\"false\" id=\""+doc_id_header_str+"_select_operator\" disabled=\"true\"\
+                                            data-on-item-select=\"Print_Save_Settings_Btn('"+add_rule+"','"+index_str+"')\">");
+                        print_settings.push("<option value=\"equal\" data-template=\"<span class='fas fa-equals icon'></span> $1\">等於</option>");
+                        print_settings.push("<option value=\"not_equal\" data-template=\"<span class='fas fa-not-equal icon'></span> $1\">不等於</option>");
+                        print_settings.push("<option value=\"greater_than\" data-template=\"<span class='fas fa-greater-than icon'></span> $1\">大於</option>");
+                        print_settings.push("<option value=\"greater_than_equal\" data-template=\"<span class='fas fa-greater-than-equal icon'></span> $1\">大於等於</option>");
+                        print_settings.push("<option value=\"less_than\" data-template=\"<span class='fas fa-less-than icon'></span> $1\">小於</option>");
+                        print_settings.push("<option value=\"less_than_equal\" data-template=\"<span class='fas fa-less-than-equal icon'></span> $1\">小於等於</option>");
+                        print_settings.push("</select>");
+                        print_settings.push("</div>"); //cell-md-5
+                        print_settings.push("<div class=\"cell-md-5\">");
+                        print_settings.push("<input type=\"text\" data-role=\"input\" disabled=\"true\" \
+                                                id=\""+doc_id_header_str+"_compare_value\" \
+                                                placeholder=\""+support_attrs_rsp_json.support_attributes_list[j].name+"\" \
+                                                oninput=\"Print_Save_Settings_Btn('"+add_rule+"','"+index_str+"')\">");
+                        print_settings.push("</div>"); //cell-md-5
+                        print_settings.push("</div>"); //row
+                    }
+                    print_settings.push("</div>");
+                }
+                print_settings.push("</div>");
+
+                $('#rule_'+index_str+"_condition_list").html('');
+                $('#rule_'+index_str+"_condition_list").html(print_settings.join(''));
+
+                for(var i = 0; i<num_node_rsp_json.num_of_node; i++)
+                {
+                    for(var j = 0; j<support_attrs_rsp_json.num_of_support_attributes; j++)
+                    {
+                        var doc_id_header_str = "rule_"+index_str+"_node_"+i+"_attribute_"+j;
+                    }
+                }
+
+                if(condition_info_list!=null)
+                {
+                    var attr_list = support_attrs_rsp_json.support_attributes_list;
+                    if(attr_list==null)
+                    {
+                        return;
+                    }
+                    for(var i = 0; i<condition_info_list.length; i++)
+                    {
+                        var attr_index = -1;
+                        for(var j = 0; j<attr_list.length; j++)
+                        {
+                            if(attr_list[j].name==condition_info_list[i].attribute)
+                            {
+                                attr_index = j;
+                                break;
+                            }
+                        }
+                        if(attr_index<0)
+                        {
+                            continue;
+                        }
+
+                        var update_doc_id_header_str = "rule_"+index_str+"_node_"+condition_info_list[i].source_endpoint+"_attribute_"+attr_index;
+                        
+                        $("#"+update_doc_id_header_str+"_compare_enable").prop("checked", true);
+                        $("#"+update_doc_id_header_str+"_select_operator").prop("disabled", false);
+                        $("#"+update_doc_id_header_str+"_compare_value").prop("disabled", false);
+
+                        var op_val_str = null;
+                        switch(condition_info_list[i].operator)
+                        {
+                            case "eq":
+                                op_val_str = "equal";
+                                break;
+                            case "neq":
+                                op_val_str = "not_equal";
+                                break;
+                            case "gt":
+                                op_val_str = "greater_than";
+                                break;
+                            case "gte":
+                                op_val_str = "greater_than_equal";
+                                break;
+                            case "lt":
+                                op_val_str = "less_than";
+                                break;
+                            case "lte":
+                                op_val_str = "less_than_equal";
+                                break;
+                        }
+                        
+                        if(op_val_str!=null)
+                        {
+                            $("#"+update_doc_id_header_str+"_select_operator").val(op_val_str);
+                        }
+
+                        $("#"+update_doc_id_header_str+"_compare_value").val(condition_info_list[i].value);
+                    }
+                }
+            });
+        });
+    }
+
+    function onClick_Attribute_Compare_Enable_Checkbox(add_rule, rule_index_str, node_index_str, attr_index_str)
+    {
+        Print_Save_Settings_Btn(add_rule, rule_index_str);
+
+        var doc_id_header_str = "rule_"+rule_index_str+"_node_"+node_index_str+"_attribute_"+attr_index_str;
+        var attr_en_dis_flag = $("#"+doc_id_header_str+"_compare_enable").prop("checked");
+        if(attr_en_dis_flag)
+        {
+            $("#"+doc_id_header_str+"_select_operator").prop("disabled", false);
+            
+            $("#"+doc_id_header_str+"_compare_value").prop("disabled", false);
+        }
+        else{
+            $("#"+doc_id_header_str+"_select_operator").prop("disabled", true);
+            
+            $("#"+doc_id_header_str+"_compare_value").prop("disabled", true);
+        }
+    }
+
+    function Print_Save_Settings_Btn(add_rule, index_str)
+    {
+        need_save_change[Number(index_str)] = true;
+
+        var show_save_btn = [];
+
+        show_save_btn.push("<button href=\"#\" id=\"rule_"+index_str+"_save_settings_btn\" \
+                            class=\"button square large fg-white <%=current_sub_service_page_info.button_background_css%>\" \
+                            onclick=\"onClick_Save_Rule_Settings_Btn("+add_rule+", '"+index_str+"')\"><span class=\"mif-floppy-disk\"></span></button>");
+    
+        $('#rule_'+index_str+'_toolbar_display_area').html('');
+        $('#rule_'+index_str+'_toolbar_display_area').html(show_save_btn.join(''));
+    }
+
+    function Get_Source_Device_Select_Node_Index(index_str)
+    {
+        var src_dev_node_index = null;
+        var selected_btn_id = $('#device_'+index_str+'_switch_list .js-active').attr("id");
+        if(selected_btn_id==null){
+            return null;
+        }
+        var btn_header_str = "device_"+index_str+"_select_switch_";
+        var btn_header_length = btn_header_str.length;
+        var btn_header_start_idx = selected_btn_id.indexOf(btn_header_str);
+        if(btn_header_start_idx>=0)
+        {
+            src_dev_node_index = Number(selected_btn_id.substring(btn_header_length));
+        }
+        return src_dev_node_index;
+    }
+
+    function onClick_Select_Source_Topic_Type_Selector(add_rule, source_topic_type, index_str)
+    {
+        selected_source_device_type = source_topic_type;
+
+        Print_Save_Settings_Btn(add_rule, index_str);
+
+        $('#rule_'+index_str+'_selected_source_text_area').val("");
+        
+        Handle_Source_Address_ID_Changed(source_topic_type, index_str, null);
+    }
+
+    function onClick_Select_Target_Address_Type_Selector(add_rule, target_address_type, index_str)
+    {
+        Print_Save_Settings_Btn(add_rule, index_str);
+
+        var target_topic_type = Metro.getPlugin("#rule_"+index_str+"_select_target_topic_type", 'select').val();
+        
+        $('#rule_'+index_str+'_selected_target_text_area').val("");
+        
+        Handle_Target_Address_ID_Changed(target_address_type, target_topic_type, index_str, null);
+    }
+
+    function onClick_Select_Target_Topic_Type_Selector(add_rule, target_topic_type, index_str)
+    {
+        Print_Save_Settings_Btn(add_rule, index_str);
+
+        var target_address_type = Metro.getPlugin("#rule_"+index_str+"_select_target_address_type", 'select').val();
+        
+        if(Do_Check_Target_Topic_Match(target_topic_type))
+        {
+            Show_Rule_Action_Settings(add_rule, "match", target_address_type, target_topic_type, index_str, "rule_"+index_str+"_on_match_action");
+            Show_Rule_Action_Settings(add_rule, "mismatch", target_address_type, target_topic_type, index_str, "rule_"+index_str+"_on_mismatch_action");
+        }
+        
+        $('#rule_'+index_str+'_selected_target_text_area').val("");
+
+        Handle_Target_Address_ID_Changed(target_address_type, target_topic_type, index_str, null);
+    }
+
+    </script> 
+    <% } %>
+</head>
+    <body>
+        <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+            <%- include("../sidebar/sidebar.ejs", {
+                session_token: session_token,
+                language: language,
+                username: username,
+                topic: topic,
+                current_page_name: current_page_name,
+                page_group_list: nav_page_info.page_group_list
+            }); %>
+        <% } %>
+        <div class="aaa h-100" style="padding-top: 150px">
+            <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+                <div class="app-bar pos-absolute z-1" data-role="appbar" id="app-bar-1" data-role-appbar="true" style="height: 150px;background-image: url('../..<%=current_topic_page_info.page_background_URL%>');background-position: 50% 50%;">
+                    <div style="background: rgba(30, 30, 30, 0.5);height: 100%;width: 100%">
+                        <button type="button" class="hamburger menu-down hidden" style="display: none;">
+                            <span class="line"></span>
+                            <span class="line"></span>
+                            <span class="line"></span>
+                        </button>
+                        <button class="app-bar-item c-pointer" style="background: transparent" id="sidebar-toggle">
+                            <span class="mif-menu mif-2x fg-white" style="left: 5px "></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="h-100 p-6">
+                <% if(current_sub_service_page_info==null){ %>
+                    <div class="tiles-grid z-1">
+                    <% for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                        switch(current_topic_page_info.sub_page_list[k].tile_background_type){
+                            case "css": %>
+                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>" data-role="tile" data-size="<%=current_topic_page_info.sub_page_list[k].tile_size%>" class="<%=current_topic_page_info.sub_page_list[k].tile_background_css%> fg-white">
+                                <% switch(current_topic_page_info.sub_page_list[k].tile_icon_type){
+                                    case "css": %>
+                                        <span class="<%=current_topic_page_info.sub_page_list[k].tile_icon_css%> mif-4x icon"></span>
+                                        <span class="branding-bar" style="font-size: 20px"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                        <% break;
+                                    case "URL": %>
+                                        <img class="icon" style="display: inline;" src="<%=current_topic_page_info.sub_page_list[k].tile_icon_URL%>"/>
+                                        <span class="branding-bar" style="font-size: 20px"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                        <% break;
+                                } %>
+                                </a>
+                                <% break;
+                            case "URL": %>
+                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>" data-role="tile" data-size="<%=current_topic_page_info.sub_page_list[k].tile_size%>" class="fg-white" data-cover="<%=current_topic_page_info.sub_page_list[k].tile_background_URL%>">
+                                    <span class="branding-bar"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                </a>
+                                <% break;
+                        }
+                    } %>
+                    </div>
+                <% } else { %>
+                    <div class="grid">
+                        <div class="row">
+                            <div class="cell-md-3 offset-1" style="margin-bottom: 20px">
+                                <ul class="sidenav-simple sidenav-simple-expand-fs h-auto" style="background-color: #FFF">
+                                    <% for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                                        if(current_topic_page_info.sub_page_list[k].page_topic==sub_service){ %>
+                                            <li class="active <%=current_topic_page_info.sub_page_list[k].page_background_color%>">
+                                                <a href="#">
+                                                    <% switch(current_topic_page_info.sub_page_list[k].page_icon_type){
+                                                        case "css": %>
+                                                            <div class="<%=current_topic_page_info.sub_page_list[k].page_icon_css%> fg-white icon"></div>
+                                                            <% break;
+                                                        case "URL": %>
+                                                            <img class="icon" style="display: inline" src="<%=current_topic_page_info.sub_page_list[k].page_icon_URL%>"/>
+                                                            <% break;
+                                                    } %>
+                                                    <div class="title fg-white" style="font-size: 20px;"><%=current_topic_page_info.sub_page_list[k].page_name%></div>
+                                                </a>
+                                            </li>
+                                        <% } else{ %>
+                                            <li>
+                                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>">
+                                                    <% switch(current_topic_page_info.sub_page_list[k].page_icon_type){
+                                                        case "css": %>
+                                                            <div class="<%=current_topic_page_info.sub_page_list[k].page_icon_css%> <%=current_topic_page_info.sub_page_list[k].page_text_color%> icon"></div>
+                                                            <% break;
+                                                        case "URL": %>
+                                                            <img class="icon" style="display: inline" src="<%=current_topic_page_info.sub_page_list[k].page_icon_color_URL%>"/>
+                                                            <% break;
+                                                    } %>
+                                                    <div class="title <%=current_topic_page_info.sub_page_list[k].page_text_color%>" style="font-size: 20px;"><%=current_topic_page_info.sub_page_list[k].page_name%></div>
+                                                </a>
+                                            </li>
+                                        <% }
+                                    } %>
+                                </ul>
+                            </div>
+                            <div class="cell-md-8">
+                                <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+                                <div class="row">
+                                    <div id="rule_mgmt_toolbar" style="width:100%"></div>
+                                </div>
+                                <% } %>
+                                <div class="row">
+                                    <div class="cell-md-11">
+                                        <div id="rule_display_area" class="gridly" style="width:100%;margin-left: 10px;"></div>
+                                    </div>
+                                    <div class="cell-md-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }
+            } %>
+        </div>
+        <div id="rule_modal_lst"></div>
+    </body>
+</html>  

@@ -1,0 +1,51 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <link href="./icons/Services.ico" rel="SHORTCUT ICON">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">  
+    <title>W-Link 儀表板</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="./css/metro-all.min.css" rel="stylesheet">
+
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script> 
+    <script type="text/javascript" src="./js/metro.min.js"></script> 
+    <script type="text/javascript" src="./js/parse.js"></script> 
+    <style>
+        .login-form {
+            width: 350px;
+            height: auto;
+            top: 50%;
+            margin-top: -160px;
+        }
+    </style>
+    <script>
+        function invalidForm(){
+            var form  = $(this);
+            form.addClass("ani-ring");
+            setTimeout(function(){
+                form.removeClass("ani-ring");
+            }, 1000);
+        }
+
+        function validateForm(){
+            $(".login-form").animate({
+                opacity: 0
+            });
+        }
+    </script>
+</head>
+        
+            
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda, quod, praesentium dolor velit culpa cupiditate odio nihil voluptates aliquid eum dolore eligendi quas nobis nam nesciunt odit pariatur minus cum.</p>  
+<ul>  
+<% if(user.login) {%>  
+    <li><%= user.username %></li>  
+<% } else {%>  
+    <li>login</li>  
+<% }%>  
+</ul>  
+</body>  
+</html>  

@@ -1,0 +1,1323 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8"> 
+    
+    <%
+    var path_offset = "";
+    var service_page_info = null;
+    var current_page_name = "";
+    var current_topic_page_info = null;
+    var current_sub_service_page_info = null;
+    for(var i = 0; i<nav_page_info.page_group_list.length; i++){
+        if(nav_page_info.page_group_list[i].page_group_topic=="Service")
+        {
+            service_page_info = nav_page_info.page_group_list[i];
+            for(var j = 0; j<service_page_info.page_list.length; j++){
+                if(service_page_info.page_list[j].page_topic==topic) {
+                    current_topic_page_info = service_page_info.page_list[j];
+                    if(sub_service!=null && sub_service!="Not Specific") {
+                        path_offset = "../..";
+                        for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                            if(current_topic_page_info.sub_page_list[k].page_topic==sub_service) {
+                                current_sub_service_page_info = current_topic_page_info.sub_page_list[k];
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                        path_offset = "..";
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    if(service_page_info!=null)
+    {
+        if(current_topic_page_info!=null)
+        {
+            if(current_sub_service_page_info==null){
+                current_page_name = current_topic_page_info.page_name
+            } else{
+                current_page_name = current_sub_service_page_info.page_name
+            } %>
+            <title><%=current_page_name%></title>
+        <% }
+    }
+    %>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+        <link href="<%=(path_offset+current_topic_page_info.page_title_icon)%>" rel="SHORTCUT ICON">
+    <% } %>
+    
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/metro-all.min.css">
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/jquery.gridly.css">
+
+    <% if(current_sub_service_page_info!=null){
+        if(current_sub_service_page_info.additional_css_URL_list!=null){
+            for(var i = 0; i<current_sub_service_page_info.additional_css_URL_list.length; i++){ %>
+                <link rel="stylesheet" type="text/css" href="<%=(path_offset+current_sub_service_page_info.additional_css_URL_list[i])%>">
+    <%      }
+        }
+    } %>
+
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/fontawesome.min.css">
+    <script src="<%=path_offset%>/js/fontawesome.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/c3.min.css">
+    <script src="<%=path_offset%>/js/c3.min.js"></script>
+    
+    <style>
+        .dropdown-toggle::before{
+            border-color: #fff;
+        }
+
+        .device_name{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        .schedule_name{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+    </style>
+
+    <script type="text/javascript" src="<%=path_offset%>/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="<%=path_offset%>/js/websocket.js"></script>
+    <script type="text/javascript" src="<%=path_offset%>/js/metro.min.js"></script> 
+    <script type="text/javascript" src="<%=path_offset%>/js/jquery.gridly.js"></script>
+
+    <script src="<%=path_offset%>/schedule/Schedules.js"></script>
+    <script src="<%=path_offset%>/device_mgmt/Devices.js"></script>
+    <script src="<%=path_offset%>/group_mgmt/Groups.js"></script>
+
+    <% 
+    if(current_sub_service_page_info!=null){
+        if(current_sub_service_page_info.additional_js_URL_list!=null){
+            for(var i = 0; i<current_sub_service_page_info.additional_js_URL_list.length; i++){ %>
+                <script type="text/javascript" src="<%=(path_offset+current_sub_service_page_info.additional_js_URL_list[i])%>"></script> 
+    <%      }
+        }
+    } %>
+
+    <script type="text/javascript" src="<%=path_offset%>/js/parse.js"></script> 
+    
+    <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+    
+    <script type="text/javascript" src="<%=(path_offset+current_sub_service_page_info.page_control_js_URL)%>"></script> 
+    
+    <script type="text/javascript">
+
+    const weekday_en_name_list = ["Sunday", "Monday", "Tuesday", "Wednsday", "Thursday", "Friday", "Saturday"];
+    const weekday_ch_name_list = ["日", "一", "二", "三", "四", "五", "六"];
+
+    var ws_get_sb = null;
+    
+    var serverURI = window.location.host;
+        
+    var currentUser = null;
+    $(document).ready(function() {
+        
+        <% if(username=="everyone"){ %>
+            websocket_init(serverURI, "<%=session_token%>", Handle_Schedule_WebSocket_Connect_Event, Handle_Schedule_WebSocket_POST_Message, Handle_Schedule_WebSocket_GET_Message, null, null);
+        <% }
+        else{ %>
+            Parse.initialize("1mKE4z1Ys3ZF6eHCVhkaqdOpxGJFcAgZreXqRkAN", "XzcesPGvhrRSC0ZOZRBCfkdH3y1dV5hgBVA0pH1P", "I5LnTbJiP0kuh1dLM3PZw4lXO8UpEilqU2TLzDiB");
+            Parse.serverURL = "https://"+serverURI+"/1";
+            
+            currentUser = Parse.User.current();
+            if (currentUser) {
+                // do stuff with the user
+                Parse.Session.current().then(function(session) {
+                    session.set("UI_sessionToken", "<%=session_token%>");
+                    session.save().then(function() {
+                        websocket_init(serverURI, "<%=session_token%>", Handle_Schedule_WebSocket_Connect_Event, Handle_Schedule_WebSocket_POST_Message, Handle_Schedule_WebSocket_GET_Message, null, null);
+                    });
+                });
+            }
+        <% } %>
+    });
+
+    (function () {
+        $(function () {
+            $('.gridly').gridly({
+                base: 80, // px
+                gutter: 8, // px
+                columns: 8,
+                'responsive': true
+            });
+            $(document).on("change", ".gridly", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                return $('.gridly').gridly();
+            });
+            return $('.gridly').gridly();
+        });
+
+    }).call(this);
+
+    var map_schedule_info_list = [];
+    var need_save_change = [];
+    var selected_device_type = null;
+
+    function Get_Schedule_Name_By_Index(index)
+    {
+        return map_schedule_info_list[Number(index)].schedule_Name;
+    }
+
+    function Get_Schedule_Device_Type_By_Index(index)
+    {
+        return map_schedule_info_list[Number(index)].device_type;
+    }
+
+    function Get_Schedule_ID_By_Index(index)
+    {
+        return map_schedule_info_list[Number(index)].schedule_ID;
+    }
+
+    function Handle_Schedule_WebSocket_Connect_Event()
+    {
+        Show_Schedule_List_Page();
+    }
+
+    function Update_Schedule_List()
+    {
+        GET_Schedule_List(selected_device_type, function(rsp_json){
+            map_schedule_info_list = [];
+
+            var show_schedule_html = [];
+            
+            for (var i = 0; i < rsp_json.schedule_list.length; i++) {
+                map_schedule_info_list.push({
+                    "schedule_Name":rsp_json.schedule_list[i].schedule_Name,
+                    "schedule_ID":rsp_json.schedule_list[i].schedule_ID,
+                    "device_type": selected_device_type
+                });
+
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.schedule_tile_background_type){
+                        case "css": %>
+                            show_schedule_html.push("<div id=\"schedule_"+ i +"_ctrl_tile\" data-role=\"hint\" onclick=\"onClick_Edit_Schedule_Btn('" + i + "')\" class=\"tile-medium <%=current_sub_service_page_info.schedule_tile_background_css%> fg-white\"\
+                                data-hint-position=\"top\" data-hint-text=\"" + rsp_json.schedule_list[i].schedule_Name + "\">");
+                            <% switch(current_sub_service_page_info.schedule_tile_icon_type){
+                                case "css": %>
+                                show_schedule_html.push("<span class=\"<%=current_sub_service_page_info.schedule_tile_icon_css%> mif-4x icon\"></span>");
+                                show_schedule_html.push("<span class=\"branding-bar device_name\" style=\"font-size: 20px\">" + rsp_json.schedule_list[i].schedule_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                show_schedule_html.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.schedule_tile_icon_URL%>\"/>");
+                                show_schedule_html.push("<span class=\"branding-bar device_name\" style=\"font-size: 20px\">" + rsp_json.schedule_list[i].schedule_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_schedule_html.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_schedule_html.push("<div id=\"schedule_"+ i +"_ctrl_tile\" data-role=\"hint\" class=\"tile-medium fg-white\" data-hint-position=\"top\" data-hint-text=\"" + rsp_json.schedule_list[i].schedule_Name + "\"\
+                                data-cover=\"<%=current_sub_service_page_info.schedule_tile_background_URL%>\" onclick=\"onClick_Edit_Schedule_Btn('" + i + "')\">");
+                            show_schedule_html.push("<span class=\"branding-bar\">" + rsp_json.schedule_list[i].schedule_Name + "</span>");
+                            show_schedule_html.push("</div>");
+                            <% break;
+                    }
+                }
+                %>
+            }
+
+            $('#schedule_display_area').html('');
+            $('#schedule_display_area').html(show_schedule_html.join(''));
+            
+            $('.gridly').trigger("change");
+            $('.gridly').gridly('draggable', 'off');
+            $('.gridly').gridly({'responsive': true});
+        });
+    }
+    function Show_Schedule_List_Page()
+    {
+        $('#schedule_display_area').html('');
+
+        if(!$('#schedule_display_area').hasClass('gridly'))
+        {
+            $('#schedule_display_area').addClass('gridly');
+        }
+
+        Print_Schedule_Management_Toolbar();
+
+        if(selected_device_type==null)
+        {
+            selected_device_type = $('#schedule_select_device_type').val();
+        }
+        else
+        {
+            $('#schedule_select_device_type').val(selected_device_type);
+        }
+
+        Update_Schedule_List();
+    }
+
+    function onClick_Add_Schedule_Btn()
+    {
+        selected_device_type = $('#schedule_select_device_type').val();
+
+        Show_Add_Schedule_Page();
+    }
+
+    function onClick_Edit_Schedule_Btn(index_str)
+    {
+        selected_device_type = $('#schedule_select_device_type').val();
+
+        Show_Edit_Schedule_Page(index_str);
+    }
+
+    function Show_Add_Schedule_Page()
+    {
+        $('.gridly').gridly('draggable', 'off');
+        $('.gridly').gridly({'responsive': true});
+
+        if($('#schedule_display_area').hasClass('gridly'))
+        {
+            $('#schedule_display_area').removeClass('gridly');
+        }
+
+        Print_Schedule_Operation_Toolbar(true, "add");
+        Print_Schedule_Settings(true, "add", "schedule_display_area", null);
+    }
+
+    function Show_Edit_Schedule_Page(index_str)
+    {
+        $('.gridly').gridly('draggable', 'off');
+        $('.gridly').gridly({'responsive': true});
+
+        if($('#schedule_display_area').hasClass('gridly'))
+        {
+            $('#schedule_display_area').removeClass('gridly');
+        }
+
+        var schedule_op_modal_html = [];
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+            schedule_op_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" id=\"schedule_" + index_str + "_rename_modal\">");
+            schedule_op_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">請幫這個排程取個新名稱吧!</h2></div>");
+            schedule_op_modal_html.push("<div class=\"dialog-content\">");
+            schedule_op_modal_html.push("<label class=\"<%=current_sub_service_page_info.page_text_color%>\">名稱:</label>");
+            schedule_op_modal_html.push("<input type=\"text\" data-role=\"input\" id=\"schedule_" + index_str + "_name_text\" data-prepend=\"<span class='mif-italic'>\" placeholder=\"新名稱\" oninput=\"onKeying_Schedule_Name_Text('" + index_str + "')\">");
+            schedule_op_modal_html.push("</div>");
+            schedule_op_modal_html.push("<div class=\"dialog-actions text-right\">");
+            schedule_op_modal_html.push("<button class=\"button alert js-dialog-close\">取消</button>");
+            schedule_op_modal_html.push("<button class=\"button success\" disabled=\"true\" id=\"schedule_" + index_str + "_save_name_btn\" onclick=\"onClick_Schedule_Save_Name_Btn('" + index_str + "')\">儲存</button>");
+            schedule_op_modal_html.push("</div>");
+            schedule_op_modal_html.push("</div>");
+
+            //刪除排程
+            schedule_op_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" id=\"schedule_" + index_str + "_delete_modal\">");
+            schedule_op_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">刪除排程</h2></div>");
+            schedule_op_modal_html.push("<div class=\"dialog-content\">");
+            schedule_op_modal_html.push("<h3 class=\"fg-orange\">確定刪除排程\"" + Get_Schedule_Name_By_Index(Number(index_str))+ "\"嗎?</h3>");
+            schedule_op_modal_html.push("<h3 class=\"fg-red\">注意!此動作將無法復原!</h3>");
+            schedule_op_modal_html.push("</div>");
+            schedule_op_modal_html.push("<div class=\"dialog-actions text-right\">");
+            schedule_op_modal_html.push("<button class=\"button alert js-dialog-close\">離開</button>");
+            schedule_op_modal_html.push("<button class=\"button warning\" id=\"schedule_"+index_str+"_confirm_del_dev_btn\" onclick=\"onClick_Confirm_Delete_Schedule_Btn('"+index_str+"')\">確定刪除</button>");
+            schedule_op_modal_html.push("</div>");
+            schedule_op_modal_html.push("</div>");
+        <% } %>
+
+        $("#schedule_modal_lst").html("");
+        $("#schedule_modal_lst").html(schedule_op_modal_html.join(''));
+
+        Print_Schedule_Operation_Toolbar(false, index_str);
+        Print_Schedule_Settings(false, index_str, "schedule_display_area", null);
+    }
+
+    function onKeying_Schedule_Name_Text(index_str)
+    {
+        var input_name = $('#schedule_' + index_str + '_name_text').val();
+        if(input_name==null || input_name=="")
+        {
+            $('#schedule_' + index_str + '_save_name_btn').prop('disabled', true);
+        }
+        else{
+            $('#schedule_' + index_str + '_save_name_btn').prop('disabled', false);
+        }
+    }
+
+    function onClick_Schedule_Save_Name_Btn(index_str)
+    {
+        var new_name = $('#schedule_' + index_str + '_name_text').val();
+        if (new_name == "") {
+            new_name = dev_name;
+        }
+        else {
+            var device_type = Get_Schedule_Device_Type_By_Index(Number(index_str));
+            var schedule_ID = Get_Schedule_ID_By_Index(Number(index_str));
+
+            Schedule_Change_Name(device_type, schedule_ID, new_name);
+        }
+        Metro.dialog.close('#schedule_' + index_str + '_rename_modal');
+
+        Show_Edit_Schedule_Page(index_str);
+    }
+
+    function onClick_Confirm_Delete_Schedule_Btn(index_str)
+    {
+        var device_type = Get_Schedule_Device_Type_By_Index(Number(index_str));
+        var schedule_ID = Get_Schedule_ID_By_Index(Number(index_str));
+
+        Delete_Schedule(device_type, schedule_ID);
+        
+        Metro.dialog.close('#schedule_' + index_str + '_delete_modal');
+
+        Print_Groups_Management_Toolbar();
+
+        Update_Schedule_List();
+    }
+
+    function onClick_GoBack_Schedule_List_Btn(index_str)
+    {
+        var need_save = false;
+        if(need_save_change[Number(index_str)]!=null)
+        {
+            if(need_save_change[Number(index_str)]==true)
+            {
+                need_save = true;
+            }
+        }
+
+        if(need_save)
+        {
+            Metro.dialog.open('#confirm_goback_without_saveing_changes_modal_' + index_str);
+        }
+        else{
+            Show_Schedule_List_Page();
+        }
+    }
+
+    function Print_Schedule_Avaliable_Target_Device_List(index_str, target_topic_type, print_id_str)
+    {
+        selected_target_ID = $('#schedule_'+index_str+'_selected_target_text_area').val();
+
+        GET_All_Device_List(target_topic_type, function(all_dev_lst_json){
+            var show_available_device_list = [];
+
+            show_available_device_list.push("<div class=\"tiles-grid\">");
+            for(var i = 0; i<all_dev_lst_json.device_list.length; i++)
+            {
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.schedule_target_device_tile_background_type){
+                        case "css": %>
+                            show_available_device_list.push("<div data-role=\"hint\" class=\"tile-small <%=current_sub_service_page_info.schedule_target_device_tile_background_css%> fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" id=\"schedule_"+index_str+"_target_"+ all_dev_lst_json.device_list[i].device_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_dev_lst_json.device_list[i].device_Name + "\" onclick=\"onClick_Selected_Target_Tile('"+index_str+"', '"+print_id_str+"', '" + all_dev_lst_json.device_list[i].device_ID + "')\">");
+                            <% switch(current_sub_service_page_info.schedule_target_device_tile_icon_type){
+                                case "css": %>
+                                    show_available_device_list.push("<span class=\"<%=current_sub_service_page_info.schedule_target_device_tile_icon_css%> mif-4x icon\"></span>");
+                                    show_available_device_list.push("<span class=\"branding-bar device_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                    show_available_device_list.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.schedule_target_device_tile_icon_URL%>\"/>");
+                                    show_available_device_list.push("<span class=\"branding-bar device_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_available_device_list.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_available_device_list.push("<div data-role=\"hint\" class=\"tile-small fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" data-cover=\"<%=current_sub_service_page_info.schedule_target_device_tile_icon_URL%>\" id=\"schedule_"+index_str+"_target_"+ all_dev_lst_json.device_list[i].device_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_dev_lst_json.device_list[i].device_Name + "\" onclick=\"onClick_Selected_Target_Tile('"+index_str+"', '"+print_id_str+"', '" + all_dev_lst_json.device_list[i].device_ID + "')\">");
+                            show_available_device_list.push("<span class=\"branding-bar\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                            show_available_device_list.push("</div>");
+                            <% break;
+                    }
+                } %>
+            }
+            show_available_device_list.push("</div>");
+
+            $('#'+print_id_str).html('');
+            $('#'+print_id_str).html(show_available_device_list.join(''));
+
+            if(selected_target_ID!=null)
+            {
+                $('#schedule_'+index_str+'_target_'+selected_target_ID).addClass("selected");
+            }
+            if($('#'+print_id_str+" div").hasClass("selected"))
+            {
+                $('#schedule_'+index_str+'_confirm_select_target_btn').prop('disabled', false);
+            }
+        });
+    }
+
+    function Print_Schedule_Avaliable_Target_Group_List(index_str, target_topic_type, print_id_str)
+    {
+        selected_target_ID = $('#schedule_'+index_str+'_selected_target_text_area').val();
+        
+        GET_All_Group_List(target_topic_type, function(all_gp_lst_json){
+            var show_available_group_list = [];
+
+            show_available_group_list.push("<div class=\"tiles-grid\">");
+            for(var i = 0; i<all_gp_lst_json.group_list.length; i++)
+            {
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.schedule_target_group_tile_background_type){
+                        case "css": %>
+                            show_available_group_list.push("<div data-role=\"hint\" class=\"tile-small <%=current_sub_service_page_info.schedule_target_group_tile_background_css%> fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" id=\"schedule_"+index_str+"_target_"+ all_gp_lst_json.group_list[i].group_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_gp_lst_json.group_list[i].group_Name + "\" onclick=\"onClick_Selected_Target_Tile('"+index_str+"', '"+print_id_str+"', '" + all_gp_lst_json.group_list[i].group_ID + "')\">");
+                            <% switch(current_sub_service_page_info.schedule_target_group_tile_icon_type){
+                                case "css": %>
+                                    show_available_group_list.push("<span class=\"<%=current_sub_service_page_info.schedule_target_group_tile_icon_css%> mif-4x icon\"></span>");
+                                    show_available_group_list.push("<span class=\"branding-bar group_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_gp_lst_json.group_list[i].group_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                    show_available_group_list.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.schedule_target_group_tile_icon_URL%>\"/>");
+                                    show_available_group_list.push("<span class=\"branding-bar group_Name\" style=\"font-size: 10px;margin-bottom: -5px\">" + all_gp_lst_json.group_list[i].group_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_available_group_list.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_available_group_list.push("<div data-role=\"hint\" class=\"tile-small fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" data-cover=\"<%=current_sub_service_page_info.schedule_target_group_tile_background_URL%>\" id=\"schedule_"+index_str+"_target_"+ all_gp_lst_json.group_list[i].group_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_gp_lst_json.group_list[i].group_Name + "\" onclick=\"onClick_Selected_Target_Tile('"+index_str+"', '"+print_id_str+"', '" + all_gp_lst_json.group_list[i].group_ID + "')\">");
+                            show_available_group_list.push("<span class=\"branding-bar\">" + all_gp_lst_json.group_list[i].group_Name + "</span>");
+                            show_available_group_list.push("</div>");
+                            <% break;
+                    }
+                } %>
+            }
+            show_available_group_list.push("</div>");
+
+            $('#'+print_id_str).html('');
+            $('#'+print_id_str).html(show_available_group_list.join(''));
+            
+            if(selected_target_ID!=null)
+            {
+                $('#schedule_'+index_str+'_target_'+selected_target_ID).addClass("selected");
+            }
+            if($('#'+print_id_str+" div").hasClass("selected"))
+            {
+                $('#schedule_'+index_str+'_confirm_select_target_btn').prop('disabled', false);
+            }
+        });
+    }
+
+    function Print_Status_OK(print_id_str)
+    {
+        var print_status = [];
+
+        print_status.push("<h2 class=\"fg-green mif-checkmark\"></h2>");
+
+        $('#'+print_id_str).html('');
+        $('#'+print_id_str).html(print_status.join(''));
+    }
+
+    function Print_Status_Error(print_id_str)
+    {
+        var print_status = [];
+
+        print_status.push("<h2 class=\"fg-red mif-cross\"></h2>");
+
+        $('#'+print_id_str).html('');
+        $('#'+print_id_str).html(print_status.join(''));
+    }
+
+    function onClick_Show_Target_List_Btn(index_str)
+    {
+        Metro.dialog.open('#schedule_'+index_str+'_select_target_modal');
+
+        var target_address_type = Metro.getPlugin("#schedule_"+index_str+"_select_target_address_type", 'select').val();
+        if(target_address_type==null){return;}
+         
+        var target_topic_type = "default";
+
+        <% 
+        if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+            var schedule_multi_target_topic_type = false;
+            if(current_sub_service_page_info.schedule_multi_target_topic_type!=null &&
+                current_sub_service_page_info.schedule_target_topic_type_list!=null &&
+                current_sub_service_page_info.schedule_target_topic_icon_type_list!=null &&
+                current_sub_service_page_info.schedule_target_topic_icon_list!=null){
+                    if(current_sub_service_page_info.schedule_multi_target_topic_type=true){
+                        schedule_multi_target_topic_type = true;
+                    }
+            }
+            if(schedule_multi_target_topic_type){ %>
+                target_topic_type = Metro.getPlugin("#schedule_"+index_str+"_select_target_topic_type", 'select').val();
+            <% } else { %>
+                target_topic_type = "<%=current_sub_service_page_info.schedule_target_topic_type%>";
+            <% }
+        } 
+        %>
+
+        if(target_address_type=="Broadcast")
+        {
+
+        }
+        else{
+            Metro.dialog.open('#select_schedule_target_modal_' + index_str);
+            if(target_address_type=="Device")
+            {
+                Print_Schedule_Avaliable_Target_Device_List(index_str, target_topic_type, 'schedule_' + index_str + '_select_target_list');
+            }
+            if(target_address_type=="Group")
+            {
+                Print_Schedule_Avaliable_Target_Group_List(index_str, target_topic_type, 'schedule_' + index_str + '_select_target_list');
+            }
+        }
+    }
+
+    function onClick_Selected_Target_Tile(index_str, display_area_id, address_ID)
+    {
+        var tile_selected = $('#schedule_'+index_str+'_target_'+address_ID).hasClass("selected");
+
+        $('#'+display_area_id+" div").removeClass("selected");
+
+        if(!tile_selected)
+        {
+            $('#schedule_'+index_str+'_target_'+address_ID).addClass("selected");
+            Handle_Schedule_Target_Tile_Selected_Event(address_ID);
+        }
+        else
+        {
+            Handle_Schedule_Target_Tile_UnSelected_Event(address_ID);
+        }
+
+        if($('#'+display_area_id+" div").hasClass("selected"))
+        {
+            $('#schedule_'+index_str+'_confirm_select_target_btn').prop('disabled', false);
+        }
+        else{
+            $('#schedule_'+index_str+'_confirm_select_target_btn').prop('disabled', true);
+        }
+    }
+
+    function onClick_Confirm_Select_Source_Btn(add_schedule, index_str, display_area_id)
+    {
+        Print_Save_Settings_Btn(add_schedule, index_str);
+
+        var selected_tile_id = $('#'+display_area_id+" .selected").attr("id");
+        if(selected_tile_id==null){return;}
+        var header_str = "schedule_"+index_str+"_source_device_";
+        var header_length = header_str.length;
+        var header_start_idx = selected_tile_id.indexOf(header_str);
+        if(header_start_idx>=0)
+        {
+            var source_topic_type = Metro.getPlugin("#schedule_"+index_str+"_select_source_topic_type", 'select').val();
+            var source_address_ID = selected_tile_id.substring(header_length);
+
+            Handle_Source_Address_ID_Changed(source_device_type, index_str, source_address_ID);
+
+            $('#schedule_'+index_str+'_selected_source_text_area').val(source_address_ID);
+
+            Metro.dialog.close('#schedule_'+index_str+'_select_source_modal');
+            
+            if(source_device_type==null || source_address_ID==null)
+            {
+                return;
+            }
+        }
+    }
+
+    function onClick_Confirm_Select_Target_Btn(add_schedule, index_str, display_area_id)
+    {
+        Print_Save_Settings_Btn(add_schedule, index_str);
+
+        var selected_tile_id = $('#'+display_area_id+" .selected").attr("id");
+        if(selected_tile_id==null){return;}
+        var header_str = "schedule_"+index_str+"_target_";
+        var header_length = header_str.length;
+        var header_start_idx = selected_tile_id.indexOf(header_str);
+        if(header_start_idx>=0)
+        {
+            var target_address_type = Metro.getPlugin("#schedule_"+index_str+"_select_target_address_type", 'select').val();
+            var target_topic_type = Metro.getPlugin("#schedule_"+index_str+"_select_target_topic_type", 'select').val();
+            var target_address_ID = selected_tile_id.substring(header_length);
+
+            Handle_Target_Address_ID_Changed(target_address_type, target_topic_type, index_str, target_address_ID);
+            
+            $('#schedule_'+index_str+'_selected_target_text_area').val(target_address_ID);
+
+            Metro.dialog.close('#schedule_'+index_str+'_select_target_modal');
+        }
+    }
+
+    function onClick_Save_Schedule_Settings_Btn(add_schedule, index_str, display_area_id)
+    {
+        var new_schedule_name = null;
+        if(add_schedule)
+        {
+            new_schedule_name = $('#schedule_'+index_str+'_name_text').val();
+            if(new_schedule_name==null)
+            {
+                Print_Status_Error("schedule_"+index_str+"_name_text_status");
+                return;
+            }
+            Print_Status_OK("source"+index_str+"_name_text_status");
+        }
+
+        var target_address_type = Metro.getPlugin("#schedule_"+index_str+"_select_target_address_type", 'select').val();
+        if(target_address_type==null)
+        {
+            Print_Status_Error("schedule_"+index_str+"_select_target_status");
+            return;
+        }
+        var target_address_ID = $('#schedule_'+index_str+'_selected_target_text_area').val();
+        if(target_address_ID==null)
+        {
+            Print_Status_Error("source"+index_str+"_select_target_status");
+            return;
+        }
+        Print_Status_OK("source"+index_str+"_select_target_status");
+
+        var repeat_mode = $('#schedule_'+index_str+'_repeat_mode').val();
+        var repeat_weekdays = [];
+        if(repeat_mode==null)
+        {
+            Print_Status_Error("source"+index_str+"_config_repeat_mode_status");
+            return;
+        }
+        if(repeat_mode=="Week")
+        {
+            for(var i = 0; i<weekday_en_name_list.length; i++)
+            {
+                if($('#schedule_'+index_str+"_repeat_weekday_"+weekday_en_name_list[i]).hasClass('js-active'))
+                {
+                    repeat_weekdays.push(weekday_en_name_list[i]);
+                }
+            }
+
+            if(repeat_weekdays.length==0)
+            {
+                Print_Status_Error("source"+index_str+"_config_repeat_mode_status");
+                return;
+            }
+        }
+        Print_Status_OK("source"+index_str+"_config_repeat_mode_status");
+
+        var repeat_info = {
+            mode: repeat_mode,
+            days: repeat_weekdays
+        };
+
+        var exec_time = Metro.getPlugin("#schedule_"+index_str+"_execute_time", 'timepicker').time();
+        if(exec_time==null)
+        {
+            return;
+        }
+
+        var target_topic_type = Metro.getPlugin("#schedule_"+index_str+"_select_target_topic_type", 'select').val();
+        if(target_topic_type==null)
+        {
+            return;
+        }
+        
+        var action_info = Get_Action_Settings_Info(target_address_type, target_topic_type, target_address_ID, index_str);
+        if(action_info==null)
+        {
+            return;
+        }
+
+        Create_New_Schedule(target_topic_type, new_schedule_name,
+                            target_address_type, target_address_ID, 
+                            exec_time, repeat_info, action_info);
+
+                                              
+        need_save_change[Number(index_str)] = false;
+
+        $('#schedule_'+index_str+'_toolbar_display_area').html('');
+
+        if(add_schedule)
+        {
+            Show_Schedule_List_Page();
+        }
+    }
+
+    function onSelect_Device_Type_Selector()
+    {
+        selected_device_type = $('#schedule_select_device_type').val();
+        
+        Update_Schedule_List();
+    }
+
+    function onClick_Select_Schedule_Repeat_Mode_Selector(add_schedule, index_str, repeat_mode)
+    {
+        $('#schedule_'+index_str+'_repeat_mode_settings').html('');
+        if(repeat_mode=="Week")
+        {
+            var show_btns = [];
+            show_btns.push("<div data-role=\"buttongroup\" data-mode=\"multi\" style=\"margin-top:10px;\" id=\"schedule_"+index_str+"_repeat_select_weekday\" data-cls-active=\"<%=current_sub_service_page_info.button_background_css%> fg-white\">");
+            for(var i = 0; i<weekday_en_name_list.length; i++)
+            {
+                show_btns.push("<button class=\"button\" style=\"text-align:center;\" \
+                                id=\"schedule_"+index_str+"_repeat_weekday_"+weekday_en_name_list[i]+"\" \
+                                onclick=\"Print_Save_Settings_Btn('"+add_schedule+"', '"+index_str+"');\"> \
+                                "+weekday_ch_name_list[i]+"</button>");
+            }
+            show_btns.push("</div>");
+            $('#schedule_'+index_str+'_repeat_mode_settings').html(show_btns.join(''));
+        }
+
+        var show_picker = [];
+        show_picker.push("<input data-role=\"timepicker\" \
+                            id=\"schedule_"+index_str+"_time_picker\">");
+
+        $('#schedule_'+index_str+'_execute_time').html(show_picker.join(''));
+        
+        Print_Save_Settings_Btn(add_schedule, index_str);
+    }
+
+    function Print_Schedule_Management_Toolbar()
+    {
+        var show_toolbar = [];
+
+        show_toolbar.push("<div class=\"row\">");
+
+        show_toolbar.push("<div class=\"cell-2\">");
+        show_toolbar.push("<ul class=\"t-menu open horizontal fg-white <%=current_sub_service_page_info.button_background_css%>\" style=\"text-align:center;z-index: 0;\">");
+        show_toolbar.push("<li data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"新增排程\"><a href=\"#\" onclick=\"onClick_Add_Schedule_Btn()\"><span class=\"mif-plus icon\"></span></a></li>");
+        show_toolbar.push("</ul>");
+        show_toolbar.push("</div>"); //cell-2
+        
+        show_toolbar.push("<div class=\"cell-9\">");
+        show_toolbar.push("<h4 class=\"<%=current_sub_service_page_info.page_text_color%>\" style=\"display: inline\">目標裝置類型:</h4>");
+        
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+            var schedule_multi_target_topic_type = false;
+            if(current_sub_service_page_info.schedule_multi_target_topic_type!=null &&
+                current_sub_service_page_info.schedule_target_topic_type_list!=null &&
+                current_sub_service_page_info.schedule_target_topic_icon_type_list!=null &&
+                current_sub_service_page_info.schedule_target_topic_icon_list!=null){
+                    if(current_sub_service_page_info.schedule_multi_target_topic_type=true){
+                        schedule_multi_target_topic_type = true;
+                    }
+            } %>
+
+            show_toolbar.push("<select data-role=\"select\" data-filter=\"false\" data-drop-height=\"100px\" id=\"schedule_select_device_type\" data-on-item-select=\"onSelect_Device_Type_Selector()\">");
+            
+            <% 
+            var target_topic_type_list = [];
+                if(schedule_multi_target_topic_type){
+                    target_topic_type_list = current_sub_service_page_info.schedule_target_topic_type_list;
+                }
+                else{
+                    target_topic_type_list = [current_sub_service_page_info.schedule_target_topic_type];
+                }
+                
+                var page_group_list = nav_page_info.page_group_list;
+                var select_item_icon_data_template;
+                for(var i = 0; i<page_group_list.length; i++){
+                    if(page_group_list[i].page_group_topic=="Device MGMT")
+                    {
+                        for(var m = 0; m<target_topic_type_list.length; m++)
+                        { 
+                            for(var j = 0; j<page_group_list[i].page_list.length; j++){
+                                if(page_group_list[i].page_list[j].page_topic==target_topic_type_list[m])
+                                {
+                                    select_item_icon_data_template = "";
+                                    switch(page_group_list[i].page_list[j].page_icon_type)
+                                    {
+                                        case "css":
+                                            select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].page_icon_css+" "+page_group_list[i].page_list[j].page_text_color+" icon'></span>";
+                                            break;
+                                        case "URL":
+                                            select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].page_icon_color_URL+"'/>";
+                                            break;
+                                    } %>
+                                    show_toolbar.push("<option value=\"<%=page_group_list[i].page_list[j].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].page_name%></option>");
+                                <% }
+                                else{
+                                    if(page_group_list[i].page_list[j].sub_page_list!=null){
+                                        for(var k = 0; k<page_group_list[i].page_list[j].sub_page_list.length; k++){
+                                            if(page_group_list[i].page_list[j].sub_page_list[k].page_topic==target_topic_type_list[m])
+                                            {
+                                                select_item_icon_data_template = "";
+                                                switch(page_group_list[i].page_list[j].sub_page_list[k].page_icon_type)
+                                                {
+                                                    case "css":
+                                                        select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_css+" "+page_group_list[i].page_list[j].sub_page_list[k].page_text_color+" icon'></span>";
+                                                        break;
+                                                    case "URL":
+                                                        select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_color_URL+"'/>";
+                                                        break;
+                                                } %>
+                                                show_toolbar.push("<option value=\"<%=page_group_list[i].page_list[j].sub_page_list[k].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].sub_page_list[k].page_name%></option>");
+                                            <% }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            %>
+
+            show_toolbar.push("</select>");
+        <% } %>
+        show_toolbar.push("</select>");
+        show_toolbar.push("</div>"); //cell-9
+        show_toolbar.push("<div class=\"cell-1\"></div>"); //cell-1
+
+        show_toolbar.push("</div>"); //row
+
+        $('#schedule_toolbar').html('');
+        $('#schedule_toolbar').html(show_toolbar.join(''));
+    }
+
+    function Print_Schedule_Operation_Toolbar(add_schedule, index_str)
+    {
+        var show_toolbar = [];
+
+        show_toolbar.push("<div class=\"row\">");
+
+        show_toolbar.push("<div class=\"cell-2\">");
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+            show_toolbar.push("<button href=\"#\" class=\"button cycle large fg-white <%=current_sub_service_page_info.button_background_css%>\" onclick=\"onClick_GoBack_Schedule_List_Btn('"+index_str+"')\"><span class=\"mif-arrow-left\"></span></button>");
+        <% } %>
+        show_toolbar.push("</div>");
+        
+        if(add_schedule)
+        {
+            show_toolbar.push("<div class=\"cell-9\">");
+            show_toolbar.push("<div id=\"schedule_"+index_str+"_toolbar_display_area\" style=\"float:right\"/>");
+            show_toolbar.push("</div>");
+        }
+        else{
+            show_toolbar.push("<div class=\"cell-8\">");
+            show_toolbar.push("<ul class=\"t-menu open horizontal fg-white <%=current_sub_service_page_info.button_background_css%>\" style=\"text-align:center;float: right;\">");
+            show_toolbar.push("<li><a href=\"#\" data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"重新命名\" onclick=\"Metro.dialog.open('#schedule_"+index_str+"_rename_modal')\"><span class=\"mif-pencil icon\"></span></a></li>");
+            show_toolbar.push("<li><a href=\"#\" data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"刪除排程\" onclick=\"Metro.dialog.open('#schedule_"+index_str+"_delete_modal')\"><span class=\"mif-bin icon\"></span></a></li>");
+            show_toolbar.push("</ul>");
+            show_toolbar.push("</div>");
+            show_toolbar.push("<div class=\"cell-1\">");
+            show_toolbar.push("<div id=\"schedule_"+index_str+"_toolbar_display_area\" style=\"float:right\"/>");
+            show_toolbar.push("</div>");
+        }
+
+        show_toolbar.push("<div class=\"cell-1\"></div>");
+
+        show_toolbar.push("</div>");
+
+        $('#schedule_toolbar').html('');
+        $('#schedule_toolbar').html(show_toolbar.join(''));
+    }
+
+    function Print_Schedule_Settings(add_schedule, index_str)
+    {
+        const selectTargetButtons = [{
+            html: "<span class='mif-list'></span>",
+            cls: "fg-white <%=current_sub_service_page_info.button_background_css%>",
+            onclick: "onClick_Show_Target_List_Btn('"+index_str+"');"
+        }];
+
+        var print_settings = [];
+
+        print_settings.push("<div class=\"grid\" style=\"width: 100%\">");
+        
+        if(add_schedule)
+        {
+            print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+            print_settings.push("<div class=\"cell-md-12\">");
+            print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">名稱:</h2>");
+            print_settings.push("<div style=\"margin-left: 5px\" id=\"schedule_"+index_str+"_name_text_status\"/>");
+            print_settings.push("<input type=\"text\" data-role=\"input\" id=\"schedule_"+index_str+"_name_text\" data-prepend=\"<span class='mif-italic'>\" placeholder=\"新名稱\" oninput=\"Print_Save_Settings_Btn("+add_schedule+",'"+index_str+"')\">");
+            print_settings.push("</div>");
+            print_settings.push("</div>");
+        }
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">目標:</h2>");
+        print_settings.push("<div style=\"margin-left: 5px\" id=\"schedule_"+index_str+"_select_target_status\"/>");
+        print_settings.push("</div>"); //row
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<div class=\"cell-md-3\">");
+        print_settings.push("<select data-role=\"select\" data-filter=\"false\" id=\"schedule_"+index_str+"_select_target_address_type\" data-on-item-select=\"onClick_Select_Target_Address_Type_Selector("+add_schedule+", this.value, '"+index_str+"')\">");
+        print_settings.push("<option value=\"Device\" data-template=\"<span class='mif-target icon'></span> $1\">單一裝置</option>");
+        print_settings.push("<option value=\"Group\" data-template=\"<span class='mif-flow-tree icon'></span> $1\">群組</option>");
+        print_settings.push("</select>");
+        print_settings.push("</div>"); //cell-md-3
+        print_settings.push("<div class=\"cell-md-4\">");
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+            var schedule_multi_target_topic_type = false;
+            if(current_sub_service_page_info.schedule_multi_target_topic_type!=null &&
+                current_sub_service_page_info.schedule_target_topic_type_list!=null &&
+                current_sub_service_page_info.schedule_target_topic_icon_type_list!=null &&
+                current_sub_service_page_info.schedule_target_topic_icon_list!=null){
+                    if(current_sub_service_page_info.schedule_multi_target_topic_type=true){
+                        schedule_multi_target_topic_type = true;
+                    }
+            } %>
+
+            print_settings.push("<select data-role=\"select\" data-filter=\"false\" data-drop-height=\"100px\" id=\"schedule_"+index_str+"_select_target_topic_type\" data-on-item-select=\"onClick_Select_Target_Topic_Type_Selector("+add_schedule+", this.value, '"+index_str+"')\">");
+            
+            <% 
+                var target_topic_type_list = [];
+                if(schedule_multi_target_topic_type){
+                    target_topic_type_list = current_sub_service_page_info.schedule_target_topic_type_list;
+                }
+                else{
+                    target_topic_type_list = [current_sub_service_page_info.schedule_target_topic_type];
+                }
+                
+                var page_group_list = nav_page_info.page_group_list;
+                var select_item_icon_data_template;
+                for(var i = 0; i<page_group_list.length; i++){
+                    if(page_group_list[i].page_group_topic=="Device MGMT")
+                    {
+                        for(var m = 0; m<target_topic_type_list.length; m++)
+                        { 
+                            for(var j = 0; j<page_group_list[i].page_list.length; j++){
+                                if(page_group_list[i].page_list[j].page_topic==target_topic_type_list[m])
+                                {
+                                    select_item_icon_data_template = "";
+                                    switch(page_group_list[i].page_list[j].page_icon_type)
+                                    {
+                                        case "css":
+                                            select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].page_icon_css+" "+page_group_list[i].page_list[j].page_text_color+" icon'></span>";
+                                            break;
+                                        case "URL":
+                                            select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].page_icon_color_URL+"'/>";
+                                            break;
+                                    } %>
+                                    print_settings.push("<option value=\"<%=page_group_list[i].page_list[j].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].page_name%></option>");
+                                <% }
+                                else{
+                                    if(page_group_list[i].page_list[j].sub_page_list!=null){
+                                        for(var k = 0; k<page_group_list[i].page_list[j].sub_page_list.length; k++){
+                                            if(page_group_list[i].page_list[j].sub_page_list[k].page_topic==target_topic_type_list[m])
+                                            {
+                                                select_item_icon_data_template = "";
+                                                switch(page_group_list[i].page_list[j].sub_page_list[k].page_icon_type)
+                                                {
+                                                    case "css":
+                                                        select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_css+" "+page_group_list[i].page_list[j].sub_page_list[k].page_text_color+" icon'></span>";
+                                                        break;
+                                                    case "URL":
+                                                        select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_color_URL+"'/>";
+                                                        break;
+                                                } %>
+                                                print_settings.push("<option value=\"<%=page_group_list[i].page_list[j].sub_page_list[k].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].sub_page_list[k].page_name%></option>");
+                                            <% }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            %>
+
+            print_settings.push("</select>");
+        <% } %>
+        print_settings.push("</div>"); //cell-md-4
+        print_settings.push("<div class=\"cell-md-4\">");
+        print_settings.push("<script>var selectTargetButtons="+JSON.stringify(selectTargetButtons)+"<"+"/script>");
+        print_settings.push("<input type=\"text\" data-role=\"input\" \
+                                id=\"schedule_"+index_str+"_selected_target_text_area\" \
+                                data-custom-buttons=\"selectTargetButtons\" \
+                                oninput=\"\
+                                    Handle_Target_Address_ID_Changed( \
+                                    Metro.getPlugin(\"#schedule_"+index_str+"_select_target_address_type\", 'select').val(), \
+                                    Metro.getPlugin(\"#schedule_"+index_str+"_select_target_topic_type\", 'select').val(), \
+                                    '"+index_str+"', \
+                                    this.value)\">");
+        print_settings.push("</div>"); //cell-md-4
+        print_settings.push("<div class=\"cell-md-1\"></div>");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">重複模式:</h2>");
+        print_settings.push("<div style=\"margin-left: 5px\" id=\"schedule_"+index_str+"_config_repeat_mode_status\"/>");
+        print_settings.push("</div>"); //row
+        
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<select data-role=\"select\" data-filter=\"false\" id=\"schedule_"+index_str+"_repeat_mode\" data-on-item-select=\"onClick_Select_Schedule_Repeat_Mode_Selector("+add_schedule+", '"+index_str+"', this.value)\">");
+        print_settings.push("<option value=\"Once\" data-template=\"<span class='mif-arrow-right icon'></span> $1\">執行一次</option>");
+        print_settings.push("<option value=\"Day\" data-template=\"<span class='mif-loop icon'></span> $1\">每天</option>");
+        print_settings.push("<option value=\"Week\" data-template=\"<span class='mif-loop2 icon'></span> $1\">每周</option>");
+        print_settings.push("</select>");
+        print_settings.push("<div id=\"schedule_"+index_str+"_repeat_mode_settings\" style=\"width: 100%\"></div>");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">執行時間:</h2>");
+        print_settings.push("</div>"); //row
+        
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<input data-role=\"timepicker\" style=\"width: 100%\" id=\"schedule_"+index_str+"_execute_time\">");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">動作:</h2>");
+        print_settings.push("</div>"); //row
+        
+        print_settings.push("<div class=\"row\" style=\"width: 100%\">");
+        print_settings.push("<div id=\"schedule_"+index_str+"_exec_action\" style=\"width: 100%\"></div>");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("<div class=\"row\" style=\"width: 100%;height: 100px\">");
+        print_settings.push("</div>"); //row
+
+        print_settings.push("</div>"); //grid
+
+        var select_schedule_modal_html = [];
+
+        select_schedule_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" data-width=\"500\" id=\"schedule_"+index_str+"_select_source_modal\">");
+        select_schedule_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">選取目標</h2></div>");
+        select_schedule_modal_html.push("<div class=\"dialog-content\">");
+        select_schedule_modal_html.push("<div id=\"schedule_"+index_str+"_select_source_list\" style=\"max-height:200px;overflow: auto;\"/>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("<div class=\"dialog-actions text-right\">");
+        select_schedule_modal_html.push("<button class=\"button alert js-dialog-close\">離開</button>");
+        select_schedule_modal_html.push("<button class=\"button success\" disabled=\"true\" id=\"schedule_"+index_str+"_confirm_select_source_btn\" onclick=\"onClick_Confirm_Select_Source_Btn("+add_schedule+", '"+index_str+"','schedule_"+index_str+"_select_source_list')\">確定</button>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("</div>");
+
+        select_schedule_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" data-width=\"500\" id=\"schedule_"+index_str+"_select_target_modal\">");
+        select_schedule_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">選取目標</h2></div>");
+        select_schedule_modal_html.push("<div class=\"dialog-content\">");
+        select_schedule_modal_html.push("<div id=\"schedule_"+index_str+"_select_target_list\" style=\"max-height:200px;overflow: auto;\"/>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("<div class=\"dialog-actions text-right\">");
+        select_schedule_modal_html.push("<button class=\"button alert js-dialog-close\">離開</button>");
+        select_schedule_modal_html.push("<button class=\"button success\" disabled=\"true\" id=\"schedule_"+index_str+"_confirm_select_target_btn\" onclick=\"onClick_Confirm_Select_Target_Btn("+add_schedule+", '"+index_str+"','schedule_"+index_str+"_select_target_list')\">確定</button>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("</div>");
+
+        select_schedule_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" id=\"confirm_goback_without_saveing_changes_modal_" + index_str + "\">");
+        select_schedule_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">未儲存變更</h2></div>");
+        select_schedule_modal_html.push("<div class=\"dialog-content\">");
+        select_schedule_modal_html.push("<h2 class=\"fg-red\">確定要不儲存變更然後離開嗎?</h2>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("<div class=\"dialog-actions text-right\">");
+        select_schedule_modal_html.push("<button class=\"button success\" onclick=\"onClick_Save_Schedule_Settings_Btn("+add_schedule+",'"+index_str+"','schedule_target_list_"+index_str+"')\">儲存</button>");
+        select_schedule_modal_html.push("<button class=\"button alert js-dialog-close\" onclick=\"Show_Schedule_List_Page()\">放棄</button>");
+        select_schedule_modal_html.push("<button class=\"button warning js-dialog-close\">繼續編輯</button>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("</div>");
+        select_schedule_modal_html.push("</div>");
+
+        $('#schedule_display_area').html('');
+        $('#schedule_display_area').html(print_settings.join(''));
+        
+        $('#schedule_modal_lst').html('');
+        $('#schedule_modal_lst').html(select_schedule_modal_html.join(''));
+        
+        if(add_schedule)
+        {
+            <% if(schedule_multi_target_topic_type){ %>
+                var target_topic_type = "<%=current_sub_service_page_info.schedule_target_topic_type_list[0]%>";
+            <% } else{ %>
+                var target_topic_type = "<%=current_sub_service_page_info.schedule_target_topic_type%>";
+            <% } %>
+
+            if(Do_Check_Target_Topic_Match(target_topic_type))
+            {
+                Show_Schedule_Action_Settings(add_schedule, "Device", target_topic_type, index_str, "schedule_"+index_str+"_exec_action");
+            }
+        }
+        else
+        {
+            var schedule_ID = Get_Schedule_ID_By_Index(Number(index_str));
+
+            Update_Schedule_Info(selected_device_type, schedule_ID, index_str);
+        }
+    }
+
+    function Update_Schedule_Info(source_topic_type, source_device_ID, index_str)
+    {
+        $('#schedule_'+index_str+'_selected_source_text_area').val(source_device_ID);
+
+        GET_Schedule_Info(source_topic_type, source_device_ID, function(rsp_json){
+            var target_address_type = rsp_json.target_address_type;
+            var target_address_ID = rsp_json.target_address_ID;
+            var conditions_list = rsp_json.conditions;
+            var match_action_command = rsp_json.match_action.command;
+            var mismatch_action_command = rsp_json.mismatch_action.command;
+            
+            <% if(schedule_multi_target_topic_type){ %>
+                var match_action_command_topic_type = rsp_json.match_action.command_type;
+                var mismatch_action_command_topic_type = rsp_json.mismatch_action.command_type;
+            <% } else { %>
+                var match_action_command_topic_type = rsp_json.match_action.command_topic;
+                var mismatch_action_command_topic_type = rsp_json.mismatch_action.command_topic;
+            <% } %>
+            
+            Metro.getPlugin('#schedule_'+index_str+'_select_source_topic_type', 'select').val([source_topic_type]);
+
+            Metro.getPlugin('#schedule_'+index_str+'_select_target_address_type', 'select').val([target_address_type]);
+            if(Do_Check_Target_Topic_Match(match_action_command_topic_type))
+            {
+                Metro.getPlugin('#schedule_'+index_str+'_select_target_topic_type', 'select').val([match_action_command_topic_type]);
+                $('#schedule_'+index_str+'_selected_target_text_area').val(target_address_ID);
+            }
+            
+            Show_Schedule_Action_Settings(false, target_address_type, match_action_command_topic_type, index_str, "schedule_"+index_str+"_exec_action");
+            
+            Handle_Update_Schedule_Action_Settings_Info(target_address_type, match_action_command_topic_type, target_address_ID, index_str, rsp_json.match_action);
+
+        });
+    }
+
+    function Print_Save_Settings_Btn(add_schedule, index_str)
+    {
+        need_save_change[Number(index_str)] = true;
+
+        var show_save_btn = [];
+
+        show_save_btn.push("<button href=\"#\" id=\"schedule_"+index_str+"_save_settings_btn\" \
+                            class=\"button square large fg-white <%=current_sub_service_page_info.button_background_css%>\" \
+                            onclick=\"onClick_Save_Schedule_Settings_Btn("+add_schedule+", '"+index_str+"')\"><span class=\"mif-floppy-disk\"></span></button>");
+    
+        $('#schedule_'+index_str+'_toolbar_display_area').html('');
+        $('#schedule_'+index_str+'_toolbar_display_area').html(show_save_btn.join(''));
+    }
+
+    function onClick_Select_Target_Address_Type_Selector(add_schedule, target_address_type, index_str)
+    {
+        Print_Save_Settings_Btn(add_schedule, index_str);
+
+        var target_topic_type = Metro.getPlugin("#schedule_"+index_str+"_select_target_topic_type", 'select').val();
+        
+        $('#schedule_'+index_str+'_selected_target_text_area').val("");
+        
+        Handle_Target_Address_ID_Changed(target_address_type, target_topic_type, index_str, null);
+    }
+
+    function onClick_Select_Target_Topic_Type_Selector(add_schedule, target_topic_type, index_str)
+    {
+        Print_Save_Settings_Btn(add_schedule, index_str);
+
+        var target_address_type = Metro.getPlugin("#schedule_"+index_str+"_select_target_address_type", 'select').val();
+        
+        if(Do_Check_Target_Topic_Match(target_topic_type))
+        {
+            Show_Schedule_Action_Settings(add_schedule, target_address_type, target_topic_type, index_str, "schedule_"+index_str+"_exec_action");
+        }
+        
+        $('#schedule_'+index_str+'_selected_target_text_area').val("");
+
+        Handle_Target_Address_ID_Changed(target_address_type, target_topic_type, index_str, null);
+    }
+
+    </script> 
+    <% } %>
+</head>
+    <body>
+        <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+            <%- include("../sidebar/sidebar.ejs", {
+                session_token: session_token,
+                language: language,
+                username: username,
+                topic: topic,
+                current_page_name: current_page_name,
+                page_group_list: nav_page_info.page_group_list
+            }); %>
+        <% } %>
+        <div class="aaa h-100" style="padding-top: 150px">
+            <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+                <div class="app-bar pos-absolute z-1" data-role="appbar" id="app-bar-1" data-role-appbar="true" style="height: 150px;background-image: url('../..<%=current_topic_page_info.page_background_URL%>');background-position: 50% 50%;">
+                    <div style="background: rgba(30, 30, 30, 0.5);height: 100%;width: 100%">
+                        <button type="button" class="hamburger menu-down hidden" style="display: none;">
+                            <span class="line"></span>
+                            <span class="line"></span>
+                            <span class="line"></span>
+                        </button>
+                        <button class="app-bar-item c-pointer" style="background: transparent" id="sidebar-toggle">
+                            <span class="mif-menu mif-2x fg-white" style="left: 5px "></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="h-100 p-6">
+                <% if(current_sub_service_page_info==null){ %>
+                    <div class="tiles-grid z-1">
+                    <% for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                        switch(current_topic_page_info.sub_page_list[k].tile_background_type){
+                            case "css": %>
+                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>" data-role="tile" data-size="<%=current_topic_page_info.sub_page_list[k].tile_size%>" class="<%=current_topic_page_info.sub_page_list[k].tile_background_css%> fg-white">
+                                <% switch(current_topic_page_info.sub_page_list[k].tile_icon_type){
+                                    case "css": %>
+                                        <span class="<%=current_topic_page_info.sub_page_list[k].tile_icon_css%> mif-4x icon"></span>
+                                        <span class="branding-bar" style="font-size: 20px"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                        <% break;
+                                    case "URL": %>
+                                        <img class="icon" style="display: inline;" src="<%=current_topic_page_info.sub_page_list[k].tile_icon_URL%>"/>
+                                        <span class="branding-bar" style="font-size: 20px"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                        <% break;
+                                } %>
+                                </a>
+                                <% break;
+                            case "URL": %>
+                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>" data-role="tile" data-size="<%=current_topic_page_info.sub_page_list[k].tile_size%>" class="fg-white" data-cover="<%=current_topic_page_info.sub_page_list[k].tile_background_URL%>">
+                                    <span class="branding-bar"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                </a>
+                                <% break;
+                        }
+                    } %>
+                    </div>
+                <% } else { %>
+                    <div class="grid">
+                        <div class="row">
+                            <div class="cell-md-3 offset-1" style="margin-bottom: 20px">
+                                <ul class="sidenav-simple sidenav-simple-expand-fs h-auto" style="background-color: #FFF">
+                                    <% for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                                        if(current_topic_page_info.sub_page_list[k].page_topic==sub_service){ %>
+                                            <li class="active <%=current_topic_page_info.sub_page_list[k].page_background_color%>">
+                                                <a href="#">
+                                                    <% switch(current_topic_page_info.sub_page_list[k].page_icon_type){
+                                                        case "css": %>
+                                                            <div class="<%=current_topic_page_info.sub_page_list[k].page_icon_css%> fg-white icon"></div>
+                                                            <% break;
+                                                        case "URL": %>
+                                                            <img class="icon" style="display: inline" src="<%=current_topic_page_info.sub_page_list[k].page_icon_URL%>"/>
+                                                            <% break;
+                                                    } %>
+                                                    <div class="title fg-white" style="font-size: 20px;"><%=current_topic_page_info.sub_page_list[k].page_name%></div>
+                                                </a>
+                                            </li>
+                                        <% } else{ %>
+                                            <li>
+                                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>">
+                                                    <% switch(current_topic_page_info.sub_page_list[k].page_icon_type){
+                                                        case "css": %>
+                                                            <div class="<%=current_topic_page_info.sub_page_list[k].page_icon_css%> <%=current_topic_page_info.sub_page_list[k].page_text_color%> icon"></div>
+                                                            <% break;
+                                                        case "URL": %>
+                                                            <img class="icon" style="display: inline" src="<%=current_topic_page_info.sub_page_list[k].page_icon_color_URL%>"/>
+                                                            <% break;
+                                                    } %>
+                                                    <div class="title <%=current_topic_page_info.sub_page_list[k].page_text_color%>" style="font-size: 20px;"><%=current_topic_page_info.sub_page_list[k].page_name%></div>
+                                                </a>
+                                            </li>
+                                        <% }
+                                    } %>
+                                </ul>
+                            </div>
+                            <div class="cell-md-8">
+                                <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+                                <div class="row">
+                                    <div id="schedule_toolbar" style="width:100%"></div>
+                                </div>
+                                <% } %>
+                                <div class="row">
+                                    <div class="cell-md-11">
+                                        <div id="schedule_display_area" class="gridly" style="width:100%;margin-left: 10px;"></div>
+                                    </div>
+                                    <div class="cell-md-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }
+            } %>
+        </div>
+        <div id="schedule_modal_lst"></div>
+    </body>
+</html>  

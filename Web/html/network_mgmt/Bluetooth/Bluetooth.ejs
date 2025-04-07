@@ -1,0 +1,65 @@
+
+<link rel="stylesheet" type="text/css" href="../../css/metro-toggle_sw.css">
+
+<style>
+</style>
+
+<script type="text/javascript" src="Bluetooth/Bluetooth.js"></script>
+<script>
+    var UI_is_updating = false;
+
+    function Handle_WebSocket_Init_Done()
+    {
+        GET_Bluetooth_Join_State(Update_Join_Status);
+    }
+    function Handle_WebSocket_POST_Message(in_json)
+    {
+        if(in_json.topic!=null){
+            if(in_json.topic=='Bluetooth'){
+                if(in_json.command!=null){
+                    switch(in_json.command){
+                        case "Report Bluetooth Discovering Change":
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    function Handle_WebSocket_GET_Message(in_json)
+    {
+        
+    }
+
+    function Update_Join_Status(rsp_json)
+    {
+        UI_is_updating = true;
+
+        $("#bluetooth_permit_join_sw").prop("checked", rsp_json.permit_join);
+
+        if(rsp_json.permit_join)
+        {
+            $("#bluetooth_next_scan_remain_time").html("<div data-role=\"countdown\" data-seconds=\""+rsp_json.remain_time+"\" style=\"font-size: 36px\"></div>");
+        }
+        else{
+            $("#bluetooth_next_scan_remain_time").html("");
+        }
+
+        UI_is_updating = false;
+    }
+</script>
+
+<div class="row">
+    <h2 class="<%=current_network_type_page_info.page_text_color%>">Bluetooth 網路管理</h2>
+</div>
+
+<div class="row">
+    <div class="cell-md-11">
+    </div>
+    <div class="cell-md-1"></div>
+</div>
+
+<div class="row">
+    <div class="cell-md-11">
+    </div>
+    <div class="cell-md-1"></div>
+</div>

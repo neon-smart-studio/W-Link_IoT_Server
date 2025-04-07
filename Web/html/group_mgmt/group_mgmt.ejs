@@ -1,0 +1,833 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8"> 
+    
+    <%
+    var path_offset = "";
+    var service_page_info = null;
+    var current_page_name = "";
+    var current_topic_page_info = null;
+    var current_sub_service_page_info = null;
+    for(var i = 0; i<nav_page_info.page_group_list.length; i++){
+        if(nav_page_info.page_group_list[i].page_group_topic=="Service")
+        {
+            service_page_info = nav_page_info.page_group_list[i];
+            for(var j = 0; j<service_page_info.page_list.length; j++){
+                if(service_page_info.page_list[j].page_topic==topic) {
+                    current_topic_page_info = service_page_info.page_list[j];
+                    if(sub_service!=null && sub_service!="Not Specific") {
+                        path_offset = "../..";
+                        for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                            if(current_topic_page_info.sub_page_list[k].page_topic==sub_service) {
+                                current_sub_service_page_info = current_topic_page_info.sub_page_list[k];
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                        path_offset = "..";
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    if(service_page_info!=null)
+    {
+        if(current_topic_page_info!=null)
+        {
+            if(current_sub_service_page_info==null){
+                current_page_name = current_topic_page_info.page_name
+            } else{
+                current_page_name = current_sub_service_page_info.page_name
+            } %>
+            <title><%=current_page_name%></title>
+        <% }
+    }
+    %>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+        <link href="<%=(path_offset+current_topic_page_info.page_title_icon)%>" rel="SHORTCUT ICON">
+    <% } %>
+    
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/metro-all.min.css">
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/jquery.gridly.css">
+
+    <% if(current_sub_service_page_info!=null){
+        if(current_sub_service_page_info.additional_css_URL_list!=null){
+            for(var i = 0; i<current_sub_service_page_info.additional_css_URL_list.length; i++){ %>
+                <link rel="stylesheet" type="text/css" href="<%=(path_offset+current_sub_service_page_info.additional_css_URL_list[i])%>">
+    <%      }
+        }
+    } %>
+
+    <link rel="stylesheet" type="text/css" href="<%=path_offset%>/css/c3.min.css">
+    <script src="<%=path_offset%>/js/c3.min.js"></script>
+
+    <style>
+        .dropdown-toggle::before{
+            border-color: #fff;
+        }
+
+        .device_name{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        .group_name{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+    </style>
+
+    <script type="text/javascript" src="<%=path_offset%>/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="<%=path_offset%>/js/websocket.js"></script>
+    <script type="text/javascript" src="<%=path_offset%>/js/metro.min.js"></script> 
+    <script type="text/javascript" src="<%=path_offset%>/js/jquery.gridly.js"></script>
+
+    <script src="<%=path_offset%>/device_mgmt/Devices.js"></script>
+    <script src="<%=path_offset%>/group_mgmt/Groups.js"></script>
+    
+    <% 
+    if(current_sub_service_page_info!=null){
+        if(current_sub_service_page_info.additional_js_URL_list!=null){
+            for(var i = 0; i<current_sub_service_page_info.additional_js_URL_list.length; i++){ %>
+                <script type="text/javascript" src="<%=(path_offset+current_sub_service_page_info.additional_js_URL_list[i])%>"></script> 
+    <%      }
+        }
+    } %>
+
+    <script type="text/javascript" src="<%=path_offset%>/js/parse.js"></script> 
+    
+    <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+    
+    <script type="text/javascript" src="<%=(path_offset+current_sub_service_page_info.page_control_js_URL)%>"></script> 
+    
+    <script type="text/javascript">
+
+    var ws_get_sb = null;
+    
+    var serverURI = window.location.host;
+        
+    var currentUser = null;
+    $(document).ready(function() {
+        
+        <% if(username=="everyone"){ %>
+            websocket_init(serverURI, "<%=session_token%>", Handle_WebSocket_Connect_Event, Handle_Group_WebSocket_POST_Message, Handle_Group_WebSocket_GET_Message, null, null);
+        <% }
+        else{ %>
+            Parse.initialize("1mKE4z1Ys3ZF6eHCVhkaqdOpxGJFcAgZreXqRkAN", "XzcesPGvhrRSC0ZOZRBCfkdH3y1dV5hgBVA0pH1P", "I5LnTbJiP0kuh1dLM3PZw4lXO8UpEilqU2TLzDiB");
+            Parse.serverURL = "https://"+serverURI+"/1";
+            
+            currentUser = Parse.User.current();
+            if (currentUser) {
+                // do stuff with the user
+                Parse.Session.current().then(function(session) {
+                    session.set("UI_sessionToken", "<%=session_token%>");
+                    session.save().then(function() {
+                        websocket_init(serverURI, "<%=session_token%>", Handle_WebSocket_Connect_Event, Handle_Group_WebSocket_POST_Message, Handle_Group_WebSocket_GET_Message, null, null);
+                    });
+                });
+            }
+        <% } %>
+        
+    });
+
+    (function () {
+        $(function () {
+            $('.gridly').gridly({
+                base: 80, // px
+                gutter: 8, // px
+                columns: 8,
+                'responsive': true
+            });
+            $(document).on("change", ".gridly", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                return $('.gridly').gridly();
+            });
+            return $('.gridly').gridly();
+        });
+
+    }).call(this);
+
+    var map_group_info_list = [];
+    var selected_device_type = null;
+
+    function Find_Group_Index_By_ID(group_ID)
+    {
+        for(var i = 0; i<map_group_info_list.length; i++){
+            if(map_group_info_list[i].group_ID==group_ID){return i;}
+        }
+        return -1;
+    }
+
+    function Get_Group_ID_By_Index(index)
+    {
+        return map_group_info_list[Number(index)].group_ID;
+    }
+
+    function Get_Group_Name_By_Index(index)
+    {
+        return map_group_info_list[Number(index)].group_Name;
+    }
+
+    function Handle_WebSocket_Connect_Event()
+    {
+        Show_Group_List_Page();
+    }
+
+    function Update_Group_List()
+    {
+        GET_All_Group_List(selected_device_type, function(rsp_json){
+            var show_group_html = [];
+            
+            for (var i = 0; i < rsp_json.group_list.length; i++) {
+                map_group_info_list.push({
+                    "group_ID":rsp_json.group_list[i].group_ID,
+                    "group_Name":rsp_json.group_list[i].group_Name
+                });
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.group_tile_background_type){
+                        case "css": %>
+                            show_group_html.push("<div id=\"group_ctrl_tile_"+ i +"\" data-role=\"hint\" onclick=\"onClick_Edit_Group_Btn('" + i + "')\" class=\"tile-medium <%=current_sub_service_page_info.group_tile_background_css%> fg-white\"\
+                                data-hint-position=\"top\" data-hint-text=\"" + rsp_json.group_list[i].group_Name + "\">");
+                            <% switch(current_sub_service_page_info.group_tile_icon_type){
+                                case "css": %>
+                                show_group_html.push("<span class=\"<%=current_sub_service_page_info.group_tile_icon_css%> mif-4x icon\"></span>");
+                                show_group_html.push("<span class=\"branding-bar group_name\" style=\"font-size: 20px\">" + rsp_json.group_list[i].group_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                show_group_html.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.group_tile_icon_URL%>\"/>");
+                                show_group_html.push("<span class=\"branding-bar group_name\" style=\"font-size: 20px\">" + rsp_json.group_list[i].group_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_group_html.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_group_html.push("<div id=\"group_ctrl_tile_"+ i +"\" data-role=\"hint\" class=\"tile-medium fg-white\" data-hint-position=\"top\" data-hint-text=\"" + rsp_json.group_list[i].group_Name + "\"\
+                                data-cover=\"<%=current_sub_service_page_info.group_tile_background_URL%>\" onclick=\"onClick_Edit_Group_Btn('" + i + "')\">");
+                            show_group_html.push("<span class=\"branding-bar\">" + rsp_json.group_list[i].group_Name + "</span>");
+                            show_group_html.push("</div>");
+                            <% break;
+                    }
+                }
+                %>
+            }
+
+            if(!$('#group_mgmt_display_area').hasClass('gridly'))
+            {
+                $('#group_mgmt_display_area').addClass('gridly');
+            }
+
+            $('#group_mgmt_display_area').html('');
+            $('#group_mgmt_display_area').html(show_group_html.join(''));
+            
+            $('.gridly').trigger("change");
+            $('.gridly').gridly('draggable', 'off');
+            $('.gridly').gridly({'responsive': true});
+        });
+    }
+
+    function Show_Group_List_Page()
+    {
+        Print_Groups_Management_Toolbar();
+
+        if(selected_device_type==null)
+        {
+            selected_device_type = $('#group_mgmt_select_device_type').val();
+        }
+        else
+        {
+            $('#group_mgmt_select_device_type').val(selected_device_type);
+        }
+
+        Update_Group_List();
+    }
+
+    function Print_Group_Avaliable_Device_List(print_id_str, mark_devices, group_index)
+    {
+        if(selected_device_type==null)
+        {
+            return;
+        }
+
+        GET_All_Device_List(selected_device_type, function(all_dev_lst_json){
+            var show_group_device_list = [];
+
+            var group_index_str = "add";
+            if(group_index!=null)
+            {
+                group_index_str = group_index;
+            }
+
+            for(var i = 0; i<all_dev_lst_json.device_list.length; i++)
+            {
+                <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){
+                    switch(current_sub_service_page_info.group_device_tile_background_type){
+                        case "css": %>
+                            show_group_device_list.push("<div data-role=\"hint\" class=\"tile-small <%=current_sub_service_page_info.group_device_tile_background_css%> fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" id=\"group_"+group_index_str+"_device_"+ all_dev_lst_json.device_list[i].device_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_dev_lst_json.device_list[i].device_Name + "\" onclick=\"onSelect_Group_Device_Tile(this.id, '" + all_dev_lst_json.device_list[i].device_ID + "')\">");
+                            <% switch(current_sub_service_page_info.group_device_tile_icon_type){
+                                case "css": %>
+                                    show_group_device_list.push("<span class=\"<%=current_sub_service_page_info.group_device_tile_icon_css%> mif-4x icon\"></span>");
+                                    show_group_device_list.push("<span class=\"branding-bar device_Name\" style=\"bottom: -5px\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                                    <% break;
+                                case "URL": %>
+                                    show_group_device_list.push("<img class=\"icon\" style=\"display: inline;\" src=\"<%=current_sub_service_page_info.group_device_tile_icon_URL%>\"/>");
+                                    show_group_device_list.push("<span class=\"branding-bar device_Name\" style=\"bottom: -5px\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                                    <% break;
+                            } %>
+                            show_group_device_list.push("</div>");
+                            <% break;
+                        case "URL": %>
+                            show_group_device_list.push("<div data-role=\"hint\" class=\"tile-small fg-white\" style=\"margin-left: 4px;margin-top: 4px;\" data-cover=\"<%=current_sub_service_page_info.group_device_tile_background_URL%>\" id=\"group_"+group_index_str+"_device_"+ all_dev_lst_json.device_list[i].device_ID +"\" \
+                                data-hint-position=\"top\" data-hint-text=\"" + all_dev_lst_json.device_list[i].device_Name + "\" onclick=\"onSelect_Group_Device_Tile(this.id, '" + all_dev_lst_json.device_list[i].device_ID + "')\">");
+                            show_group_device_list.push("<span class=\"branding-bar\">" + all_dev_lst_json.device_list[i].device_Name + "</span>");
+                            show_group_device_list.push("</div>");
+                            <% break;
+                    }
+                } %>
+            }
+
+            $('#'+print_id_str).html('');
+            $('#'+print_id_str).html(show_group_device_list.join(''));
+
+            if(mark_devices)
+            {
+                GET_Group_Device_List(selected_device_type, map_group_info_list[group_index].group_ID, function(gp_dev_lst_json){
+                    for(var i = 0; i<gp_dev_lst_json.group_device_list.length; i++)
+                    {
+                        if(!$('#group_'+group_index_str+'_device_'+gp_dev_lst_json.group_device_list[i]).hasClass('selected'))
+                        {
+                            $('#group_'+group_index_str+'_device_'+gp_dev_lst_json.group_device_list[i]).addClass('selected');
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function Get_Group_Selected_Device_List(pannel_id_str, group_index)
+    {
+        var selected_device_list = [];
+        var select_device_tile_list = $( "#"+pannel_id_str+" div[class~='selected']" );
+        for(var i = 0; i<select_device_tile_list.length; i++)
+        {
+            var device_id_header_str = "group_"+group_index+"_device_";
+            var device_id_str = select_device_tile_list[i].id;
+            var device_id = device_id_str.substring(device_id_header_str.length);
+            selected_device_list.push(device_id);
+        }
+        return selected_device_list;
+    }
+    
+    function onSelect_Group_Device_Tile(tile_id, device_ID)
+    {
+        if(!$('#'+tile_id).hasClass("selected"))
+        {
+            Handle_Group_Device_Tile_Selected_Event(device_ID);
+        }
+        else
+        {
+            Handle_Group_Device_Tile_UnSelected_Event(device_ID);
+        }
+        $('#'+tile_id).toggleClass("selected");
+    }
+
+    function onSelect_Device_Type_Selector()
+    {
+        selected_device_type = $('#group_mgmt_select_device_type').val();
+        
+        Update_Group_List();
+    }
+
+    function Print_Groups_Management_Toolbar()
+    {
+        var show_toolbar = [];
+
+        show_toolbar.push("<div class=\"row\">");
+
+        show_toolbar.push("<div class=\"cell-2\">");
+        show_toolbar.push("<ul class=\"t-menu open horizontal fg-white <%=current_sub_service_page_info.button_background_css%>\" style=\"text-align:center;z-index: 0;\">");
+        show_toolbar.push("<li data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"新增群組\"><a href=\"#\" onclick=\"onClick_Add_New_Group_Btn()\"><span class=\"mif-plus icon\"></span></a></li>");
+        show_toolbar.push("</ul>");
+        show_toolbar.push("</ul>");
+        show_toolbar.push("</div>"); //cell-2
+        
+        show_toolbar.push("<div class=\"cell-9\">");
+        show_toolbar.push("<h4 class=\"<%=current_sub_service_page_info.page_text_color%>\" style=\"display: inline\">裝置類型:</h4>");
+        show_toolbar.push("<select data-role=\"select\" data-filter=\"false\" data-drop-height=\"200px\" id=\"group_mgmt_select_device_type\" data-on-item-select=\"onSelect_Device_Type_Selector()\")\">");
+        <%
+        var page_group_list = nav_page_info.page_group_list;
+        var select_item_icon_data_template;
+        for(var i = 0; i<page_group_list.length; i++){
+            if(page_group_list[i].page_group_topic=="Device MGMT")
+            {
+                if(service_page_info==null || current_topic_page_info==null || current_sub_service_page_info==null)
+                {
+                    break;
+                }
+
+                var support_device_type_list = null;
+                if(current_sub_service_page_info.group_support_multi_device_type)
+                {
+                    support_device_type_list = current_sub_service_page_info.group_support_device_type_list;
+                }
+                else{
+                    support_device_type_list = [current_sub_service_page_info.group_support_device_type];
+                }
+                
+                if(support_device_type_list==null)
+                {
+                    break;
+                }
+
+                var support_device_type = null;
+
+                for(var m = 0; m<support_device_type_list.length; m++)
+                {
+                    support_device_type = support_device_type_list[m];
+                    
+                    for(var j = 0; j<page_group_list[i].page_list.length; j++){
+                        if(page_group_list[i].page_list[j].sub_page_list!=null){
+                            if(page_group_list[i].page_list[j].page_topic==support_device_type)
+                            {
+                                select_item_icon_data_template = "";
+                                switch(page_group_list[i].page_list[j].page_icon_type)
+                                {
+                                    case "css":
+                                        select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].page_icon_css+" "+page_group_list[i].page_list[j].page_text_color+" icon'></span>";
+                                        break;
+                                    case "URL":
+                                        select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].page_icon_color_URL+"'/>";
+                                        break;
+                                } %>
+                                show_toolbar.push("<option value=\"<%=page_group_list[i].page_list[j].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].page_name%></option>");
+                            <% }
+                            else{
+                                for(var k = 0; k<page_group_list[i].page_list[j].sub_page_list.length; k++){
+                                    if(page_group_list[i].page_list[j].sub_page_list[k].page_topic!=support_device_type)
+                                    {
+                                        continue;
+                                    }
+
+                                    select_item_icon_data_template = "";
+                                    switch(page_group_list[i].page_list[j].sub_page_list[k].page_icon_type)
+                                    {
+                                        case "css":
+                                            select_item_icon_data_template = "<span class='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_css+" "+page_group_list[i].page_list[j].sub_page_list[k].page_text_color+" icon'></span>";
+                                            break;
+                                        case "URL":
+                                            select_item_icon_data_template = "<img class='icon' style='display: inline;' src='"+page_group_list[i].page_list[j].sub_page_list[k].page_icon_color_URL+"'/>";
+                                            break;
+                                    } %>
+                                    show_toolbar.push("<option value=\"<%=page_group_list[i].page_list[j].sub_page_list[k].page_topic%>\" data-template=\"<%=select_item_icon_data_template%> $1\"><%=page_group_list[i].page_list[j].sub_page_list[k].page_name%></option>");
+                                <% }
+                            }
+                        }
+                    }
+                }
+            }
+        } %>
+        show_toolbar.push("</select>");
+        show_toolbar.push("</div>"); //cell-9
+        show_toolbar.push("<div class=\"cell-1\"></div>"); //cell-1
+
+        show_toolbar.push("</div>"); //row
+
+        $('#group_mgmt_toolbar').html('');
+        $('#group_mgmt_toolbar').html(show_toolbar.join(''));
+    }
+
+    function onClick_Add_New_Group_Btn()
+    {
+        selected_device_type = $('#group_mgmt_select_device_type').val();
+
+        Metro.dialog.open('#group_add_modal');
+        
+        var print_settings = [];
+
+        <%
+            if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+                print_settings.push("<h4 class=\"<%=current_sub_service_page_info.page_text_color%>\">選取裝置:</h4>");
+            <% }
+        %>
+        print_settings.push("<div data-role=\"panel\">");
+        print_settings.push("<div id=\"created_group_select_device_list\" class=\"tiles-grid\" style=\"max-height:200px;overflow: auto;\"></div>");
+        print_settings.push("</div>");
+
+        $('#create_group_settings').html('');
+        $('#create_group_settings').html(print_settings.join(''));
+        
+        Print_Group_Avaliable_Device_List("created_group_select_device_list", false, null);
+    }
+
+    function onClick_Edit_Group_Btn(index_str)
+    {
+        selected_device_type = $('#group_mgmt_select_device_type').val();
+
+        Show_Group_Operation_Page(index_str);
+    }
+
+    function onKeying_Created_Group_Name_Text()
+    {
+        var input_name = $('#new_group_name_text').val();
+        if(input_name==null || input_name=="")
+        {
+            $('#group_create_btn').prop('disabled', true);
+        }
+        else{
+            $('#group_create_btn').prop('disabled', false);
+        }
+    }
+
+    function onClick_Create_Group_Btn()
+    {
+        if(selected_device_type==null)
+        {
+            return;
+        }
+        
+        var group_name = $('#new_group_name_text').val();
+        if (group_name == null || group_name=="") {
+            return;
+        }
+        
+        var selected_device_list = Get_Group_Selected_Device_List("created_group_select_device_list", "add");
+    
+        Create_New_Group(selected_device_type, group_name, selected_device_list);
+
+        Metro.dialog.close('#group_add_modal');
+
+        Show_Group_List_Page();
+    }
+
+    function Show_Group_Device_List_Info(index_str)
+    {
+        Print_Group_Avaliable_Device_List('group_' + index_str + '_edit_device_list', true, index_str);
+    }
+    
+    function Print_Group_Operation_Toolbar(index_str)
+    {
+        var show_toolbar = [];
+
+        show_toolbar.push("<div class=\"row\">");
+
+        show_toolbar.push("<div class=\"cell-2\">");
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+            show_toolbar.push("<button href=\"#\" class=\"button cycle large fg-white <%=current_sub_service_page_info.button_background_css%>\" onclick=\"onClick_GoBack_Group_List_Btn()\"><span class=\"mif-arrow-left\"></span></button>");
+        <% } %>
+        show_toolbar.push("</div>");
+             
+        show_toolbar.push("<div class=\"cell-9\">");
+        show_toolbar.push("<ul class=\"t-menu open horizontal fg-white <%=current_sub_service_page_info.button_background_css%>\" style=\"text-align:center;float: right;\">");
+        show_toolbar.push("<li><a href=\"#\" data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"重新命名\" onclick=\"Metro.dialog.open('#group_rename_modal_"+index_str+"')\"><span class=\"mif-pencil icon\"></span></a></li>");
+        show_toolbar.push("<li><a href=\"#\" data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"裝置管理\" \
+            onclick=\"Metro.dialog.open('#group_device_mgmt_modal_"+index_str+"');Show_Group_Device_List_Info("+index_str+")\"><span class=\"mif-list icon\"></span></a></li>");
+        show_toolbar.push("<li><a href=\"#\" data-role=\"hint\" data-hint-position=\"top\" data-hint-text=\"刪除群組\" onclick=\"Metro.dialog.open('#group_delete_modal_"+index_str+"')\"><span class=\"mif-bin icon\"></span></a></li>");
+        show_toolbar.push("</ul>");
+        show_toolbar.push("</div>");
+        show_toolbar.push("<div class=\"cell-1\"></div>");
+
+        show_toolbar.push("</div>");
+
+        var get_toolbar_list = Handle_Get_Group_Operation_Toolbar_Info();
+        if(get_toolbar_list!=null)
+        {
+            for(var i = 0; i<get_toolbar_list.length; i++)
+            {
+                show_toolbar.push("<li>"+get_toolbar_list[i]+"</li>");
+            }
+        }
+
+        $('#group_mgmt_toolbar').html('');
+        $('#group_mgmt_toolbar').html(show_toolbar.join(''));
+    }
+
+    function Show_Group_Operation_Page(index_str)
+    {
+        if(selected_device_type==null)
+        {
+            return;
+        }
+        
+        $('.gridly').gridly('draggable', 'off');
+        $('.gridly').gridly({'responsive': true});
+
+        if($('#group_mgmt_display_area').hasClass('gridly'))
+        {
+            $('#group_mgmt_display_area').removeClass('gridly');
+        }
+
+        Print_Group_Operation_Toolbar(index_str);
+
+        if(selected_device_type!=null)
+        {
+            $('#group_mgmt_select_device_type').val(selected_device_type);
+        }
+
+        var group_ctrl_modal_html = [];
+
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+            //群組更名
+            group_ctrl_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" id=\"group_rename_modal_" + index_str + "\">");
+            group_ctrl_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">請幫這個群組取個新名稱吧!</h2></div>");
+            group_ctrl_modal_html.push("<div class=\"dialog-content\">");
+            group_ctrl_modal_html.push("<label class=\"<%=current_sub_service_page_info.page_text_color%>\">名稱:</label>");
+            group_ctrl_modal_html.push("<input type=\"text\" data-role=\"input\" id=\"group_name_text_" + index_str + "\" data-prepend=\"<span class='mif-italic'>\" placeholder=\"新名稱\" oninput=\"onKeying_Rename_Group_Name_Text('" + index_str + "')\">");
+            group_ctrl_modal_html.push("</div>");
+            group_ctrl_modal_html.push("<div class=\"dialog-actions text-right\">");
+            group_ctrl_modal_html.push("<button class=\"button alert js-dialog-close\">取消</button>");
+            group_ctrl_modal_html.push("<button class=\"button success\" disabled=\"true\" id=\"group_save_name_btn_" + index_str + "\" onclick=\"onClick_Group_Save_Name_Btn('" + index_str + "')\">儲存</button>");
+            group_ctrl_modal_html.push("</div>");
+            group_ctrl_modal_html.push("</div>");
+            
+            //裝置管理
+            group_ctrl_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" data-width=\"500\" id=\"group_device_mgmt_modal_" + index_str + "\">");
+            group_ctrl_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">加入/移除裝置</h2></div>");
+            group_ctrl_modal_html.push("<div class=\"dialog-content\">");
+            <%
+                if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+                    group_ctrl_modal_html.push("<h4 class=\"<%=current_sub_service_page_info.page_text_color%>\">選取裝置:</h4>");
+                <% }
+            %>
+            group_ctrl_modal_html.push("<div data-role=\"panel\">");
+            group_ctrl_modal_html.push("<div id=\"group_" + index_str + "_edit_device_list\" class=\"tiles-grid\" style=\"max-height:200px;overflow: auto;\"></div>");
+            group_ctrl_modal_html.push("</div>");
+            group_ctrl_modal_html.push("</div>");
+            group_ctrl_modal_html.push("<div class=\"dialog-actions text-right\">");
+            group_ctrl_modal_html.push("<button class=\"button alert js-dialog-close\">取消</button>");
+            group_ctrl_modal_html.push("<button class=\"button success\" id=\"group_edit_device_list_btn_" + index_str + "\" onclick=\"onClick_Save_Group_Device_List_Btn('" + index_str + "')\">儲存</button>");
+            group_ctrl_modal_html.push("</div>");
+            group_ctrl_modal_html.push("</div>");
+
+            //刪除群組
+            group_ctrl_modal_html.push("<div class=\"dialog\" data-role=\"dialog\" id=\"group_delete_modal_" + index_str + "\">");
+            group_ctrl_modal_html.push("<div class=\"dialog-title\"><h2 class=\"<%=current_sub_service_page_info.page_text_color%>\">刪除群組</h2></div>");
+            group_ctrl_modal_html.push("<div class=\"dialog-content\">");
+            group_ctrl_modal_html.push("<h3 class=\"fg-orange\">確定刪除群組\"" + Get_Group_Name_By_Index(Number(index_str))+ "\"嗎?</h3>");
+            group_ctrl_modal_html.push("<h3 class=\"fg-red\">注意!此動作將無法復原!</h3>");
+            group_ctrl_modal_html.push("</div>");
+            group_ctrl_modal_html.push("<div class=\"dialog-actions text-right\">");
+            group_ctrl_modal_html.push("<button class=\"button alert js-dialog-close\">離開</button>");
+            group_ctrl_modal_html.push("<button class=\"button warning\" id=\"group_confirm_del_dev_btn_"+index_str+"\" onclick=\"onClick_Confirm_Delete_Group_Btn('"+index_str+"')\">確定刪除</button>");
+            group_ctrl_modal_html.push("</div>");
+            group_ctrl_modal_html.push("</div>");
+        <% } %>
+
+        $("#group_mgmt_modal_lst").html("");
+        $("#group_mgmt_modal_lst").html(group_ctrl_modal_html.join(''));
+
+        Print_Group_Operation_Settings(index_str, 'group_mgmt_display_area');
+    }
+
+    function onClick_GoBack_Group_List_Btn()
+    {
+        Show_Group_List_Page();
+    }
+
+    function onKeying_Rename_Group_Name_Text(index_str)
+    {
+        var input_name = $('#group_name_text_' + index_str).val();
+        if(input_name==null || input_name=="")
+        {
+            $('#group_save_name_btn_' + index_str).prop('disabled', true);
+        }
+        else{
+            $('#group_save_name_btn_' + index_str).prop('disabled', false);
+        }
+    }
+
+    function onClick_Group_Save_Name_Btn(index_str)
+    {
+        if(selected_device_type==null)
+        {
+            return;
+        }
+        
+        var new_name = $('#group_name_text_' + index_str).val();
+        if (new_name == "") {
+            new_name = dev_name;
+        }
+        else {
+            map_group_info_list[Number(index)].group_Name = new_name;
+            Group_Change_Name(selected_device_type, map_group_info_list[Number(index)].group_ID, new_name);
+        }
+        Metro.dialog.close('#group_rename_modal_' + index_str);
+        Show_Group_Operation_Page(index_str);
+    }
+
+    function onClick_Save_Group_Device_List_Btn(index_str)
+    {
+        if(selected_device_type==null)
+        {
+            return;
+        }
+        
+        var group_device_list = Get_Group_Selected_Device_List("group_" + index_str + "_edit_device_list", index_str);
+        Edit_Group_Device_List(selected_device_type, map_group_info_list[Number(index_str)].group_ID, group_device_list);
+        Metro.dialog.close('#group_device_mgmt_modal_' + index_str);
+        Show_Group_Operation_Page(index_str);
+    }
+
+    function onClick_Confirm_Delete_Group_Btn(index_str)
+    {
+        if(selected_device_type==null)
+        {
+            return;
+        }
+        
+        Remove_One_Group(selected_device_type, map_group_info_list[Number(index)].group_ID);
+        
+        delete map_group_info_list[index];
+        map_group_info_list.lenght--;
+
+        Metro.dialog.close('#group_delete_modal_' + index_str);
+
+        if(status>=0)
+        {
+            Show_Group_List_Page();
+        }
+    }
+
+    </script> 
+    <% } %>
+</head>
+    <body>
+        <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+            <%- include("../sidebar/sidebar.ejs", {
+                session_token: session_token,
+                language: language,
+                username: username,
+                topic: topic,
+                current_page_name: current_page_name,
+                page_group_list: nav_page_info.page_group_list
+            }); %>
+        <% } %>
+        <div class="aaa h-100" style="padding-top: 150px">
+            <% if(service_page_info!=null && current_topic_page_info!=null){ %>
+                <div class="app-bar pos-absolute z-1" data-role="appbar" id="app-bar-1" data-role-appbar="true" style="height: 150px;background-image: url('../..<%=current_topic_page_info.page_background_URL%>');background-position: 50% 50%;">
+                    <div style="background: rgba(30, 30, 30, 0.5);height: 100%;width: 100%">
+                        <button type="button" class="hamburger menu-down hidden" style="display: none;">
+                            <span class="line"></span>
+                            <span class="line"></span>
+                            <span class="line"></span>
+                        </button>
+                        <button class="app-bar-item c-pointer" style="background: transparent" id="sidebar-toggle">
+                            <span class="mif-menu mif-2x fg-white" style="left: 5px "></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="h-100 p-6">
+                <% if(current_sub_service_page_info==null){ %>
+                    <div class="tiles-grid z-1">
+                    <% for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                        switch(current_topic_page_info.sub_page_list[k].tile_background_type){
+                            case "css": %>
+                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>" data-role="tile" data-size="<%=current_topic_page_info.sub_page_list[k].tile_size%>" class="<%=current_topic_page_info.sub_page_list[k].tile_background_css%> fg-white">
+                                <% switch(current_topic_page_info.sub_page_list[k].tile_icon_type){
+                                    case "css": %>
+                                        <span class="<%=current_topic_page_info.sub_page_list[k].tile_icon_css%> mif-4x icon"></span>
+                                        <span class="branding-bar" style="font-size: 20px"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                        <% break;
+                                    case "URL": %>
+                                        <img class="icon" style="display: inline;" src="<%=current_topic_page_info.sub_page_list[k].tile_icon_URL%>"/>
+                                        <span class="branding-bar" style="font-size: 20px"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                        <% break;
+                                } %>
+                                </a>
+                                <% break;
+                            case "URL": %>
+                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>" data-role="tile" data-size="<%=current_topic_page_info.sub_page_list[k].tile_size%>" class="fg-white" data-cover="<%=current_topic_page_info.sub_page_list[k].tile_background_URL%>">
+                                    <span class="branding-bar"><%=current_topic_page_info.sub_page_list[k].page_name%></span>
+                                </a>
+                                <% break;
+                        }
+                    } %>
+                    </div>
+                <% } else { %>
+                    <div class="grid">
+                        <div class="row">
+                            <div class="cell-md-3 offset-1" style="margin-bottom: 20px">
+                                <ul class="sidenav-simple sidenav-simple-expand-fs h-auto" style="background-color: #FFF">
+                                    <% for(var k = 0; k<current_topic_page_info.sub_page_list.length; k++){
+                                        if(current_topic_page_info.sub_page_list[k].page_topic==sub_service){ %>
+                                            <li class="active <%=current_topic_page_info.sub_page_list[k].page_background_color%>">
+                                                <a href="#">
+                                                    <% switch(current_topic_page_info.sub_page_list[k].page_icon_type){
+                                                        case "css": %>
+                                                            <div class="<%=current_topic_page_info.sub_page_list[k].page_icon_css%> fg-white icon"></div>
+                                                            <% break;
+                                                        case "URL": %>
+                                                            <img class="icon" style="display: inline" src="<%=current_topic_page_info.sub_page_list[k].page_icon_URL%>"/>
+                                                            <% break;
+                                                    } %>
+                                                    <div class="title fg-white" style="font-size: 20px;"><%=current_topic_page_info.sub_page_list[k].page_name%></div>
+                                                </a>
+                                            </li>
+                                        <% } else{ %>
+                                            <li>
+                                                <a href="<%=current_topic_page_info.sub_page_list[k].page_URL%>">
+                                                    <% switch(current_topic_page_info.sub_page_list[k].page_icon_type){
+                                                        case "css": %>
+                                                            <div class="<%=current_topic_page_info.sub_page_list[k].page_icon_css%> <%=current_topic_page_info.sub_page_list[k].page_text_color%> icon"></div>
+                                                            <% break;
+                                                        case "URL": %>
+                                                            <img class="icon" style="display: inline" src="<%=current_topic_page_info.sub_page_list[k].page_icon_color_URL%>"/>
+                                                            <% break;
+                                                    } %>
+                                                    <div class="title <%=current_topic_page_info.sub_page_list[k].page_text_color%>" style="font-size: 20px;"><%=current_topic_page_info.sub_page_list[k].page_name%></div>
+                                                </a>
+                                            </li>
+                                        <% }
+                                    } %>
+                                </ul>
+                            </div>
+                            <div class="cell-md-8">
+                                <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+                                <div class="row">
+                                    <div id="group_mgmt_toolbar" style="width:100%"></div>
+                                </div>
+                                <% } %>
+                                <div class="row" style="margin-top: 20px;">
+                                    <div class="cell-md-11">
+                                        <div id="group_mgmt_display_area" class="gridly" style="width:100%"></div>
+                                    </div>
+                                    <div class="cell-md-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }
+            } %>
+        </div>
+        <% if(service_page_info!=null && current_topic_page_info!=null && current_sub_service_page_info!=null){ %>
+        <div class="dialog" data-role="dialog" data-width="500" id="group_add_modal">
+            <div class="dialog-title"><h2 class="<%=current_sub_service_page_info.page_text_color%>">新增群組</h2></div>
+            <div class="dialog-content">
+                <h4 class="<%=current_sub_service_page_info.page_text_color%>">名稱:</h4>
+                <input type="text" data-role="input" id="new_group_name_text" data-prepend="<span class='mif-italic'>" placeholder="新名稱" oninput="onKeying_Created_Group_Name_Text()">
+                <div style="margin-top: 20px" id="create_group_settings"></div>
+            </div>
+            <div class="dialog-actions text-right">
+                <button class="button alert js-dialog-close">取消</button>
+                <button class="button success" disabled="true" id="group_create_btn" onclick="onClick_Create_Group_Btn()">新增</button>
+            </div>
+        </div>
+        <div id="group_mgmt_modal_lst"></div>
+        <% } %>
+    </body>
+</html>  

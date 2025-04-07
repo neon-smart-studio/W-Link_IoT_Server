@@ -1,0 +1,242 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <link href="../icons/Login.ico" rel="SHORTCUT ICON">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">  
+    <title>W-Link 登入</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="../css/metro-all.min.css">
+
+    <script type="text/javascript" src="../js/jquery-3.3.1.min.js"></script> 
+    <script type="text/javascript" src="../js/metro.min.js"></script> 
+    <script type="text/javascript" src="../js/parse.js"></script> 
+    <style>
+        .random_background {
+            background-image: url(../images/random_background/<%=background_img_file%>);
+            background-position: 50% 50%;
+            height: 100%;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .login-form {
+            width: 350px;
+            height: auto;
+            top: 50%;
+            margin-top: -220px;
+        }
+    </style>
+    <script>
+        var serverURI = window.location.host;
+        var wsUri = "wss://"+serverURI;
+
+        $(document).ready(function() {
+            Parse.initialize("1mKE4z1Ys3ZF6eHCVhkaqdOpxGJFcAgZreXqRkAN", "XzcesPGvhrRSC0ZOZRBCfkdH3y1dV5hgBVA0pH1P", "I5LnTbJiP0kuh1dLM3PZw4lXO8UpEilqU2TLzDiB");
+            Parse.serverURL = "https://"+serverURI+"/1";
+        });
+
+        function onClick_LogIn_Btn()
+        {
+            var error = false;
+            var account_ID = $('#account_login_username').val();
+            var account_psw = $('#account_login_passworld').val();
+            
+            var error_msg = "";
+            
+            if(account_ID==null || account_ID==""){
+                error = true;
+                error_msg = "請輸入帳號";
+            }
+            else if(account_psw==null || account_psw==""){
+                error = true;
+                error_msg = "請輸入密碼";
+            }
+            else{
+                if(account_ID.length<4){
+                    error = true;
+                    error_msg = "帳號過短";
+                }
+
+                if(account_psw.length<8){
+                    if(error==true){
+                        error_msg = "帳號/密碼過短";
+                    }
+                    else{
+                        error_msg = "密碼過短";
+                    }
+                    error = true;
+                }
+            }
+            
+            if(error)
+            {
+                $("#account_show_login_status").html(error_msg);
+                return;
+            }
+
+            $("#account_show_login_status").html("<div data-role=\"activity\" data-type=\"metro\" data-style=\"dark\"></div>");
+            
+            Parse.User.logIn(account_ID, account_psw, {
+                success: function(user) {
+                    //login success --> redirect to homepage
+                    Parse.Session.current().then(function(session) {
+                        session.set("UI_sessionToken", "<%=session_token%>");
+                        session.save().then(function() {
+                            window.location.href = "http://" + serverURI;
+                        });
+                    });
+                },
+                error: function(user, error) {
+                    // The login failed. Check error to see why.
+                    switch(error.code){
+                        case 101:
+                            if(error.message=="Invalid username/password."){
+                                $("#account_show_login_status").html("帳號或密碼錯誤");
+                            }
+                            break;
+                        case 500:
+                            $("#account_show_login_status").html("伺服器錯誤");
+                            break;
+                    }
+                }
+            });
+        }
+        
+        function onClick_Reset_Pswd_Btn(email_str){
+            var eror = false;
+            var title = "";
+            var status = "";
+            
+            if(email_str=="")
+            {
+                eror = true;
+                title = "錯誤";
+                status = "您未輸入電子郵件";
+            }
+            else{
+                if(email_str.indexOf("@")<0)
+                {
+                    eror = true;
+                    title = "錯誤";
+                    status = "您輸入了無效的電子郵件";
+                }
+            }
+            
+            if(!eror)
+            {
+                Parse.User.requestPasswordReset(email_str)
+                    .then(() => {
+                        eror = false;
+                    }).catch((error) => {
+                    // Show the error message somewhere
+                    alert("Error: " + error.code + " " + error.message);
+                });
+            }
+            else{
+                Metro.dialog.create({
+                    title: title,
+                    content: "<h2 class=\"fg-red\">"+status+"</h2>",
+                    actions: [
+                        {
+                            caption: "確定",
+                            cls: "js-dialog-close success",
+                            onclick: function(){
+                            }
+                        }
+                    ]
+                });
+            }
+        }
+
+        function onClick_Forget_Pswd_Btn(){
+            Metro.dialog.open('#account_reset_pswd_dialog');
+        }
+
+        function onClick_Reset_Pswd_Btn(){
+            var eror = false;
+            var status = "";
+            
+            var email_str = $('#account_reset_pswd_email').val();
+            if(email_str=="")
+            {
+                eror = true;
+                status = "您未輸入電子郵件";
+            }
+            else{
+                if(email_str.indexOf("@")<0)
+                {
+                    eror = true;
+                    status = "您輸入了無效的電子郵件";
+                }
+            }
+            
+            if(!eror)
+            {
+                Parse.User.requestPasswordReset(email_str)
+                    .then(() => {
+                        Metro.dialog.close('#account_reset_pswd_dialog');
+                    }).catch((error) => {
+                        // Show the error message somewhere
+                        status = "Error: " + error.code + " " + error.message;
+                        $('#account_show_reset_pswd_status').html(status);
+                });
+            }
+            else{
+                $('#account_show_reset_pswd_status').html(status);
+            }
+        }
+    </script>
+</head>
+    <body class="h-vh-100">
+        <div class="random_background">
+            <div style="background: #1e1e1e80;height: 100%;padding-top: 5%;">
+                <div class="login-form bg-white p-6 mx-auto border bd-default win-shadow">
+                        <div class="container-fluid">
+                            <h2 class="text-light" style="display: inline;">W-Link</h2>
+                            <div class="place-right" style="top: 5px;">
+                                <h4 class="fg-red" style="margin: 0" id="account_show_login_status"></h4>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="container-fluid">
+                            <div class="form-group">
+                                <input type="text" data-role="input" id="account_login_username" data-prepend="<span class='mif-user'>" placeholder="請輸入您的帳號">
+                            </div>
+                            <div class="form-group">
+                                <input type="password" data-role="input" id="account_login_passworld" data-prepend="<span class='mif-key'>" placeholder="請輸入您的密碼">
+                            </div>
+                        </div>
+                        <div class="container-fluid">
+                            <div class="form-group mt-5">
+                                <div class="button place-left bg-lightCrimson fg-white" onclick=onClick_Forget_Pswd_Btn()><span class="mif-question"></span><span style="margin-left: 8px;top: -4px">忘記密碼?</span></div>
+                                <div class="button place-right bg-amber fg-white" onclick=onClick_LogIn_Btn()><span class="mif-enter"></span><span style="margin-left: 8px">登入</span></div>
+                            </div>
+                        </div>
+                        <div class="container-fluid">
+                            <div class="form-group mt-5">
+                                <h4 class="place-left fg-orange">沒有帳號嗎?</h4>
+                                <div class="button place-right bg-green fg-white" style="margin-top: 10px" onclick=window.location.href="http://"+serverURI+"/account/signup"><span class="mif-plus"></span><span style="margin-left: 8px">馬上註冊一個</span></div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <div class="dialog" data-role="dialog" id="account_reset_pswd_dialog">
+            <div class="dialog-title"><h2 class="fg-red">忘記密碼</h2><span class="fg-orange">(將會有一封重設密碼的郵件寄到您的信箱中)</span></div>
+            <div class="dialog-content">
+                <div class="container-fluid\">
+                    <input type="text" data-role="input" id="account_reset_pswd_email" data-prepend="<span class='mif-envelop'>" placeholder="請輸入您的電子郵件">
+                </div>
+            </div>
+            <div class="dialog-actions text-right">
+                <div class="place-left text-left" style="top: 4px;">
+                    <h4 class="fg-red" style="margin: 0" id="account_show_reset_pswd_status"></h4>
+                </div>
+                <button class="button js-dialog-close">取消</button>
+                <button class="button warning" onclick=onClick_Reset_Pswd_Btn()>重設密碼</button>
+            </div>
+        </div>
+    </body>  
+</html>  

@@ -1,0 +1,14 @@
+{
+    "Profile_ID": "0xA1E0",
+    "Default_Endpoint": "0x00F2",
+    "Device_IDs": {
+        "//": "ZGP Infrastructure Device IDs",
+        "Proxy": "0x0060",
+        "Proxy_Minimun": "0x0061",
+        "Target_Plus": "0x0062",
+        "Target": "0x0063",
+        "Commissioning_Tool": "0x0064",
+        "Combo": "0x0065",
+        "Combo_Minimun": "0x0066"
+    }
+}

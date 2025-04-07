@@ -1,0 +1,6 @@
+{
+  "database_type": "MongoDB",
+  "account_login": true,
+  "support_Zigbee": false,
+  "support_BLE": false
+}

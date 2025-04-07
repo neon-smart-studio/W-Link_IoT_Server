@@ -1,0 +1,36 @@
+1 0 http://192.168.1.101:80/ urn:schemas-upnp-org:device:Basic:1 Hue內壢元智 (192.168.1.103) Signify http://www.meethue.com Philips hue Personal Wireless Lighting Philips hue bridge 2015 BSB002 http://www.meethue.com 001788a75273 uuid:2f402f80-da50-11e1-9b23-001788a75273 index.html image/png 48 48 24 hue_logo_0.png
+This XML file does not appear to have any style information associated with it. The document tree is shown below.
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+<specVersion>
+<major>1</major>
+<minor>0</minor>
+</specVersion>
+<specVersion>...</specVersion>
+<URLBase>http://192.168.1.101:80/</URLBase>
+<device>
+<deviceType>urn:schemas-upnp-org:device:Basic:1</deviceType>
+<friendlyName>Hue (192.168.1.101)</friendlyName>
+<manufacturer>Signify</manufacturer>
+<manufacturerURL>http://www.meethue.com</manufacturerURL>
+<modelDescription>Philips hue Personal Wireless Lighting</modelDescription>
+<modelName>Philips hue bridge 2015</modelName>
+<modelNumber>BSB002</modelNumber>
+<modelURL>http://www.meethue.com</modelURL>
+<serialNumber>001788a75273</serialNumber>
+<UDN>uuid:2f402f80-da50-11e1-9b23-001788a75273</UDN>
+<presentationURL>index.html</presentationURL>
+<iconList>
+<icon>
+<mimetype>image/png</mimetype>
+<height>48</height>
+<width>48</width>
+<depth>24</depth>
+<url>hue_logo_0.png</url>
+</icon>
+<icon>...</icon>
+</iconList>
+<iconList>...</iconList>
+</device>
+<device>...</device>
+</root>
+<root xmlns="urn:schemas-upnp-org:device-1-0">...</root>

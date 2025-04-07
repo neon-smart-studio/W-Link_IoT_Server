@@ -1,0 +1,104 @@
+
+.em_valve_en_dis_main_sw {
+    width: 200px;
+}
+.em_valve_en_dis_main_sw-sw {
+    width: 40px;
+    right : 160px;
+}
+.em_valve_en_dis_main_sw_inner {
+}
+.em_valve_en_dis_main_sw_inner:before, .em_valve_en_dis_main_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.em_valve_en_dis_main_sw_inner:before {
+    content: "全部啟用";
+    background-color: #f09609;
+    text-align: left;
+}
+.em_valve_en_dis_main_sw_inner:after {
+    content: "全部停用";
+    background-color: #7f7f7f;
+    text-align: right;
+}
+
+.em_valve_on_off_main_sw {
+    width: 200px;
+}
+.em_valve_on_off_main_sw-sw {
+    width: 40px;
+    right : 160px;
+}
+.em_valve_on_off_main_sw_inner {
+}
+.em_valve_on_off_main_sw_inner:before, .em_valve_on_off_main_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.em_valve_on_off_main_sw_inner:before {
+    content: "全部開啟";
+    background-color: #8cbf26;
+    text-align: left;
+}
+.em_valve_on_off_main_sw_inner:after {
+    content: "全部關閉";
+    background-color: #e51400;
+    text-align: right;
+}
+
+.em_valve_en_dis_sw {
+    width: 200px;
+}
+.em_valve_en_dis_sw-sw {
+    width: 40px;
+    right : 160px;
+}
+.em_valve_en_dis_sw_inner {
+}
+.em_valve_en_dis_sw_inner:before, .em_valve_en_dis_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.em_valve_en_dis_sw_inner:before {
+    content: "電磁閥啟用";
+    background-color: #f09609;
+    text-align: left;
+}
+.em_valve_en_dis_sw_inner:after {
+    content: "電磁閥停用";
+    background-color: #7f7f7f;
+    text-align: right;
+}
+
+.em_valve_on_off_sw {
+    width: 200px;
+}
+.em_valve_on_off_sw-sw {
+    width: 40px;
+    right : 160px;
+}
+.em_valve_on_off_sw_inner {
+}
+.em_valve_on_off_sw_inner:before, .em_valve_on_off_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.em_valve_on_off_sw_inner:before {
+    content: "電磁閥開啟";
+    background-color: #8cbf26;
+    text-align: left;
+}
+.em_valve_on_off_sw_inner:after {
+    content: "電磁閥關閉";
+    background-color: #e51400;
+    text-align: right;
+}

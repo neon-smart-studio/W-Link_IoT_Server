@@ -1,0 +1,130 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <link href="../icons/StartMenu.ico" rel="SHORTCUT ICON">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">  
+    <title>W-Link 開始</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="../css/metro-all.min.css">
+    <link rel="stylesheet" href="../css/start_menu.css">
+
+    <script type="text/javascript" src="../js/jquery-3.3.1.min.js"></script> 
+    <script type="text/javascript" src="../js/metro.min.js"></script> 
+    <script type="text/javascript" src="../js/parse.js"></script> 
+    <style>
+        .user_background {
+            background-image: url(../images/start_page_background/<%=background_img_file%>);
+            background-position: 50% 50%;
+            height: 100%;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .start_menu_tile_transform{
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.3s ease 0s;
+        }
+    </style>
+    <script>
+        var serverURI = window.location.host;
+        var wsUri = "wss://"+serverURI;
+
+        $(document).ready(function() {
+            Parse.initialize("1mKE4z1Ys3ZF6eHCVhkaqdOpxGJFcAgZreXqRkAN", "XzcesPGvhrRSC0ZOZRBCfkdH3y1dV5hgBVA0pH1P", "I5LnTbJiP0kuh1dLM3PZw4lXO8UpEilqU2TLzDiB");
+            Parse.serverURL = "https://"+serverURI+"/1";
+
+            currentUser = Parse.User.current();
+            if (currentUser) {
+                Parse.Session.current().then(function(session) {
+                    session.set("UI_sessionToken", "<%=session_token%>");
+                    session.save().then(function() {
+                    });
+                });
+            }
+        });
+
+    </script>
+</head>
+    <body class="bg-dark fg-white h-vh-100">
+        <div class="user_background">
+            <div style="background: #50505080;height: 100%;">
+                <div class="container-fluid start-screen h-100">
+                    <h1 class="start-screen-title">開始</h1>
+                    <% if(username!="everyone"){ %>
+                    <div class="start-screen-controls">
+                        <a href="./account/profile" class="button light">
+                            <span class="mif-user icon"></span>
+                            <span class="caption"><%=username%></span>
+                        </a>
+                        <a href="./account/logout" class="button light">
+                            <span class="mif-exit icon"></span>
+                            <span class="caption">登出</span>
+                        </a>
+                    </div>
+                    <% } %>
+                    <div class="tiles-area clear">
+
+                        <% for(var i = 0; i<nav_page_info.page_group_list.length; i++){
+                            if(nav_page_info.page_group_list[i].page_group_topic=="Account")
+                            {
+                                if(username=="everyone"){
+                                    continue;
+                                }
+                            }
+                            %>
+
+                            <div class="tiles-grid tiles-group <%=nav_page_info.page_group_list[i].page_tiles_group_width%> fg-white" data-group-title="<%=nav_page_info.page_group_list[i].page_group_name%>">
+
+                            <% for(var j = 0; j<nav_page_info.page_group_list[i].page_list.length; j++){
+                                if(nav_page_info.page_group_list[i].page_group_topic=="Network MGMT")
+                                {
+                                    if(nav_page_info.page_group_list[i].page_list[j].page_topic=="Zigbee"){
+                                        if(support_zigbee==false) {continue;}
+                                    }
+                                    if(nav_page_info.page_group_list[i].page_list[j].page_topic=="Bluetooth"){
+                                        if(support_ble==false) {continue;}
+                                    }
+                                }
+
+                                var tile_text_color = "";
+                                if(nav_page_info.page_group_list[i].page_list[j].tile_text_color!=null)
+                                {
+                                    tile_text_color = nav_page_info.page_group_list[i].page_list[j].tile_text_color;
+                                }
+
+                                switch(nav_page_info.page_group_list[i].page_list[j].tile_background_type){
+                                    case "css": %>
+
+                                        <a href="<%=nav_page_info.page_group_list[i].page_list[j].page_URL%>" data-role="tile" data-size="<%=nav_page_info.page_group_list[i].page_list[j].tile_size%>" class="start_menu_tile_transform <%=nav_page_info.page_group_list[i].page_list[j].tile_background_css%> fg-white">
+                                            <% switch(nav_page_info.page_group_list[i].page_list[j].tile_icon_type){
+                                                case "css": %>
+                                                    <span class="<%=nav_page_info.page_group_list[i].page_list[j].tile_icon_css%> icon"></span>
+                                                    <% break;
+                                                case "URL": %>
+                                                    <img class="icon" style="display: inline" src="<%=nav_page_info.page_group_list[i].page_list[j].tile_icon_URL%>"/>
+                                                    <% break;
+                                            } %>
+                                            <span class="branding-bar <%=tile_text_color%>"><%=nav_page_info.page_group_list[i].page_list[j].page_name%></span>
+                                        </a>
+
+                                        <% break;
+                                    case "URL": %>
+                                        <a href="<%=nav_page_info.page_group_list[i].page_list[j].page_URL%>" data-role="tile" data-size="<%=nav_page_info.page_group_list[i].page_list[j].tile_size%>" class="start_menu_tile_transform fg-white" data-cover="<%=nav_page_info.page_group_list[i].page_list[j].tile_background_URL%>">
+                                            <span class="branding-bar <%=tile_text_color%>"><%=nav_page_info.page_group_list[i].page_list[j].page_name%></span>
+                                        </a>
+                                        
+                                        <% break;
+                                }
+                            } %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript" src="../js/start_menu.js"></script> 
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "w-link",
+  "version": "1.4.0",
+  "description": "w-link server",
+  "main": "Main.js",
+  "repository": {
+    "type": "git"
+  },
+  "dependencies": {
+    "@abandonware/noble": "^1.9.2-26",
+    "axios": "^1.8.4",
+    "config": "^3.3.12",
+    "debug": "^4.4.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "moment": "^2.30.1",
+    "moment-timezone": "^0.5.48",
+    "mongodb": "^6.15.0",
+    "mosca": "^0.6.0",
+    "mqtt": "^5.10.4",
+    "node-hue-api": "^5.0.0-beta.16",
+    "object-assign-deep": "^0.4.0",
+    "uuid": "^11.1.0",
+    "websocket": "^1.0.35",
+    "zigbee-herdsman": "^3.5.1",
+    "zigbee-herdsman-converters": "^23.22.0"
+  },
+  "scripts": {
+    "start": "node Main.js",
+    "test": "set DEBUG=* && node Main.js",
+    "debug": "set DEBUG=* && node --inspect-brk Main.js"
+  }
+}

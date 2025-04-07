@@ -1,0 +1,23 @@
+{
+    "Profile_ID": "0xc05e",
+    "Device_IDs": {
+        "//0": "ZLL Basic Lighting Device IDs",
+        "On_Off_Light": "0x0000",
+        "On_Off_Plug_In_Unit": "0x0010",
+        "Dimmable_Light": "0x0100",
+        "Dimmable_Plug_In_Unit": "0x0110",
+        
+        "//1": "ZLL Color Lighting Device IDs",
+        "Color_Light": "0x0200",
+        "Extended_Color_Light": "0x0210",
+        "Color_Temperature_Light": "0x0220",
+        
+        "//2": "ZLL Lighting Remotes Device IDs",
+        "Color_Controller": "0x0800",
+        "Color_Scene_Controller": "0x0810",
+        "Non_Color_Controller": "0x0820",
+        "Non_Color_Scene_Controller": "0x0830",
+        "Control_Bridge": "0x0840",
+        "On_Off_Sensor": "0x0850"
+    }
+}

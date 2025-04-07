@@ -1,0 +1,26 @@
+
+.socket_on_off_sw {
+    width: 200px;
+}
+.socket_on_off_sw-sw {
+    width: 40px;
+    right : 160px;
+}
+.socket_on_off_sw_inner {
+}
+.socket_on_off_sw_inner:before, .socket_on_off_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.socket_on_off_sw_inner:before {
+    content: "插座開啟";
+    background-color: #f09609;
+    text-align: left;
+}
+.socket_on_off_sw_inner:after {
+    content: "插座關閉";
+    background-color: #7f7f7f;
+    text-align: right;
+}

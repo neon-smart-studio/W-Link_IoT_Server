@@ -1,0 +1,26 @@
+
+.light_on_off_sw {
+    width: 200px;
+}
+.light_on_off_sw-sw {
+    width: 40px;
+    right : 160px;
+}
+.light_on_off_sw_inner {
+}
+.light_on_off_sw_inner:before, .light_on_off_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.light_on_off_sw_inner:before {
+    content: "燈泡開啟";
+    background-color: #f39c12;
+    text-align: left;
+}
+.light_on_off_sw_inner:after {
+    content: "燈泡關閉";
+    background-color: #7f8c8d;
+    text-align: right;
+}

@@ -1,0 +1,26 @@
+
+.motor_on_off_sw {
+    width: 200px;
+}
+.motor_on_off_sw-sw {
+    width: 40px;
+    right : 160px;
+}
+.motor_on_off_sw_inner {
+}
+.motor_on_off_sw_inner:before, .motor_on_off_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.motor_on_off_sw_inner:before {
+    content: "馬達開啟";
+    background-color: #8cbf26;
+    text-align: left;
+}
+.motor_on_off_sw_inner:after {
+    content: "馬達關閉";
+    background-color: #e51400;
+    text-align: right;
+}

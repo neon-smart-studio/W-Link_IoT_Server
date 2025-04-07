@@ -1,0 +1,26 @@
+
+.fan_on_off_sw {
+    width: 200px;
+}
+.fan_on_off_sw-sw {
+    width: 40px;
+    right : 160px;
+}
+.fan_on_off_sw_inner {
+}
+.fan_on_off_sw_inner:before, .fan_on_off_sw_inner:after {
+    height : 80px;
+    color: #FFFFFF;
+    font-size: 30px;
+    padding: 25px;
+}
+.fan_on_off_sw_inner:before {
+    content: "風扇開啟";
+    background-color: #8cbf26;
+    text-align: left;
+}
+.fan_on_off_sw_inner:after {
+    content: "風扇關閉";
+    background-color: #e51400;
+    text-align: right;
+}
