@@ -7,11 +7,12 @@
     "client_password": ""
   },
   "config_Zigbee": {
-    "config_ZNP_port":{
+    "config_port":{
       "baudrate": 115200,
       "rtscts": false,
       "port": "COM15",
-      "disable_led": true
+      "disable_led": true,
+      "adapter": "ezsp"
     },
     "channel_List": [25],
     "transmit_Power": 19

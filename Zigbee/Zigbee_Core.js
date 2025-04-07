@@ -17,10 +17,10 @@ const ZigbeeHerdsman = require('zigbee-herdsman');
 const zigbeeHerdsmanConverters = require('zigbee-herdsman-converters');
 const objectAssignDeep = require('object-assign-deep');
 
-const ZNP_Data_Path = appDir+'/ZNP_Data';
-const ZNP_Database_Path = ZNP_Data_Path+'/database.db';
-const ZNP_Database_Backup_Path = ZNP_Data_Path+'/database.db.backup';
-const ZNP_Backup_Path = ZNP_Data_Path+'/znp_coordinator_backup.json';
+const Zigbee_Data_Path = appDir+'/Zigbee_Data';
+const Zigbee_Database_Path = Zigbee_Data_Path+'/database.db';
+const Zigbee_Database_Backup_Path = Zigbee_Data_Path+'/database.db.backup';
+const Zigbee_Backup_Path = Zigbee_Data_Path+'/Zigbee_coordinator_backup.json';
 
 var network_Config = {
     panID: 0x8422,
@@ -47,13 +47,14 @@ if (config.has('config_Zigbee.network_key')) {
 
 const herdsmanSettings = {
     network: network_Config,
-    databasePath: ZNP_Database_Path,
-    databaseBackupPath: ZNP_Database_Backup_Path,
-    backupPath: ZNP_Backup_Path,
+    databasePath: Zigbee_Database_Path,
+    databaseBackupPath: Zigbee_Database_Backup_Path,
+    backupPath: Zigbee_Backup_Path,
     serialPort: {
-        baudRate: config.get('config_Zigbee.config_ZNP_port.baudrate'),
-        rtscts: config.get('config_Zigbee.config_ZNP_port.rtscts'),
-        path: config.get('config_Zigbee.config_ZNP_port.port')
+        baudRate: config.get('config_Zigbee.config_port.baudrate'),
+        rtscts: config.get('config_Zigbee.config_port.rtscts'),
+        path: config.get('config_Zigbee.config_port.port'),
+        adapter: config.get('config_Zigbee.config_port.adapter'),
     },
 };
 
@@ -90,8 +91,8 @@ var Zigbee_Core = function (){
         try {
             state.start();
 
-            if (!fs.existsSync(ZNP_Data_Path)){
-                fs.mkdirSync(ZNP_Data_Path);
+            if (!fs.existsSync(Zigbee_Data_Path)){
+                fs.mkdirSync(Zigbee_Data_Path);
             }
 
             debug(`Starting zigbee-herdsman...`);
@@ -139,8 +140,8 @@ var Zigbee_Core = function (){
             debug(`Zigbee network parameters: ${JSON.stringify(await zigbee_herdsman_controller.getNetworkParameters())}`);
 
             // Check if we have to turn off the led
-            if (config.has('config_Zigbee.config_ZNP_port.disable_led')) {
-                if (config.get('config_Zigbee.config_ZNP_port.disable_led')==false) {
+            if (config.has('config_Zigbee.config_Zigbee_port.disable_led')) {
+                if (config.get('config_Zigbee.config_Zigbee_port.disable_led')==false) {
                     await zigbee_herdsman_controller.setLED(false);
                 }
             }
