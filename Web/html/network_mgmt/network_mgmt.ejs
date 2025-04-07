@@ -73,10 +73,6 @@
         }
     } %>
 
-    <% if(username!="everyone"){ %>
-        <script type="text/javascript" src="<%=path_offset%>/js/parse.js"></script> 
-    <% } %>
-    
     <% if(network_mgmt_page_info!=null && current_network_type_page_info!=null){ %>
     
     <script type="text/javascript">
@@ -87,25 +83,7 @@
         
     var currentUser = null;
     $(document).ready(function() {
-        
-        <% if(username=="everyone"){ %>
-            websocket_init(serverURI, "<%=session_token%>", Handle_WebSocket_Init_Done, Handle_WebSocket_POST_Message, Handle_WebSocket_GET_Message, null, null);
-        <% }
-        else{ %>
-            Parse.initialize("1mKE4z1Ys3ZF6eHCVhkaqdOpxGJFcAgZreXqRkAN", "XzcesPGvhrRSC0ZOZRBCfkdH3y1dV5hgBVA0pH1P", "I5LnTbJiP0kuh1dLM3PZw4lXO8UpEilqU2TLzDiB");
-            Parse.serverURL = "https://"+serverURI+"/1";
-            
-            currentUser = Parse.User.current();
-            if (currentUser) {
-                // do stuff with the user
-                Parse.Session.current().then(function(session) {
-                    session.set("UI_sessionToken", "<%=session_token%>");
-                    session.save().then(function() {
-                        websocket_init(serverURI, "<%=session_token%>", null, Handle_Device_WebSocket_POST_Message, Handle_Device_WebSocket_GET_Message, null, null);
-                    });
-                });
-            }
-        <% } %>
+        websocket_init(serverURI, "<%=session_token%>", Handle_WebSocket_Init_Done, Handle_WebSocket_POST_Message, Handle_WebSocket_GET_Message, null, null);
     });
 
     (function () {
@@ -134,7 +112,6 @@
             <%- include("../sidebar/sidebar.ejs", {
                 session_token: session_token,
                 language: language,
-                username: username,
                 current_page_name: current_page_name,
                 page_group_list: nav_page_info.page_group_list
             }); %>
@@ -159,12 +136,6 @@
                             <div class="cell-md-3 offset-1" style="margin-bottom: 20px">
                                 <ul class="sidenav-simple sidenav-simple-expand-fs h-auto" style="background-color: #FFF">
                                     <% for(var k = 0; k<network_mgmt_page_info.page_list.length; k++){
-                                        if(network_mgmt_page_info.page_list[k].page_topic=="Zigbee"){
-                                            if(support_zigbee==false) {continue;}
-                                        }
-                                        if(network_mgmt_page_info.page_list[k].page_topic=="Bluetooth"){
-                                            if(support_ble==false) {continue;}
-                                        }
                                         if(network_mgmt_page_info.page_list[k].page_topic==network_type){ %>
                                             <li class="active <%=network_mgmt_page_info.page_list[k].page_background_color%>">
                                                 <a href="#">
@@ -223,9 +194,6 @@
                                             <%- include(ejs_path, {
                                                 session_token: session_token,
                                                 language: language,
-                                                username: username,
-                                                support_zigbee: support_zigbee,
-                                                support_ble: support_ble,
                                                 current_page_name: current_page_name,
                                                 current_network_type_page_info: current_network_type_page_info,
                                                 page_group_list: nav_page_info.page_group_list

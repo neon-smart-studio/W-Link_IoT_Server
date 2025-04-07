@@ -17,10 +17,9 @@ records_router.get('/', async function(req, res) {
 
     template_page_params['session_token'] = req.session.id;
     template_page_params['language'] = "Chinese";
-    template_page_params['username'] = username;
     template_page_params['topic'] = "Records";
     template_page_params['nav_page_info'] = JSON.parse(fs.readFileSync(html_asolute_path+"/website_map.json", "utf8"));
-    
+
     res.render(html_asolute_path + '/records/records', template_page_params);
 });
 module.exports = records_router;

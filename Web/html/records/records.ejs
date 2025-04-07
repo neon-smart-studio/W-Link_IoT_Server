@@ -100,26 +100,7 @@
         
     var currentUser = null;
     $(document).ready(function() {
-        
-        <% if(username=="everyone"){ %>
-            websocket_init(serverURI, "<%=session_token%>", Handle_WebSocket_Connect_Event, Handle_Records_WebSocket_POST_Message, Handle_Records_WebSocket_GET_Message, null, null);
-        <% }
-        else{ %>
-            Parse.initialize("1mKE4z1Ys3ZF6eHCVhkaqdOpxGJFcAgZreXqRkAN", "XzcesPGvhrRSC0ZOZRBCfkdH3y1dV5hgBVA0pH1P", "I5LnTbJiP0kuh1dLM3PZw4lXO8UpEilqU2TLzDiB");
-            Parse.serverURL = "https://"+serverURI+"/1";
-            
-            currentUser = Parse.User.current();
-            if (currentUser) {
-                // do stuff with the user
-                Parse.Session.current().then(function(session) {
-                    session.set("UI_sessionToken", "<%=session_token%>");
-                    session.save().then(function() {
-                        websocket_init(serverURI, "<%=session_token%>", Handle_WebSocket_Connect_Event, Handle_Records_WebSocket_POST_Message, Handle_Records_WebSocket_GET_Message, null, null);
-                    });
-                });
-            }
-        <% } %>
-        
+        websocket_init(serverURI, "<%=session_token%>", Handle_WebSocket_Connect_Event, Handle_Records_WebSocket_POST_Message, Handle_Records_WebSocket_GET_Message, null, null);
     });
 
     (function () {
@@ -456,7 +437,6 @@
             <%- include("../sidebar/sidebar.ejs", {
                 session_token: session_token,
                 language: language,
-                username: username,
                 topic: topic,
                 current_page_name: current_page_name,
                 page_group_list: nav_page_info.page_group_list

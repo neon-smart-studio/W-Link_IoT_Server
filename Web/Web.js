@@ -95,15 +95,12 @@ var Web = function () {
       
       if(config.get('support_SSL_Web')==true)
       {
-        webserver_exp.get('/Files/*', function (req, res) {
-          res.sendFile(html_asolute_path+req.url);
-        });
-        webserver_exp.get('*', function (req, res) {
+        webserver_exp.use(function (req, res, next) {
           res.redirect("https://" + req.headers['host'] + req.url);
         });
 
-        ssl_webserver_exp.get('*', function (req, res) {
-          res.render('404', { status: 404, title: '404錯誤' });
+        ssl_webserver_exp.use(function (req, res, next) {
+          res.status(404).render('404', { status: 404, title: '404 錯誤 - 找不到頁面' });
         });
 
         SSL_WebServer = require('https').createServer(web_ssl_options, ssl_webserver_exp);
@@ -111,16 +108,10 @@ var Web = function () {
           debug('ssl webserver running on port ' + httpsport + '.');
           debug('Make sure port ' + httpsport + ' is not used by another program. ex: VMWare Hostd(VMWare Workstation Remote Access).');
         });
-        
-        if(config.get('account_login')==true)
-        {
-          // This will enable the Live Query real-time server
-          ParseServer.createLiveQueryServer(SSL_WebServer);
-        }
       }
       else{
-        webserver_exp.get('*', function (req, res) {
-          res.render('404', { status: 404, title: '404錯誤' });
+        webserver_exp.use(function (req, res, next) {
+          res.status(404).render('404', { status: 404, title: '404 錯誤 - 找不到頁面' });
         });
       }
       

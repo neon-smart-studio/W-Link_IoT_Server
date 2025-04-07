@@ -88,7 +88,6 @@ var Device_MGMT_MQTT = function (){
             electricpower_mqtt.ElectricPower_MQTT_Init();
             weather_mqtt.Weather_MQTT_Init();
             air_quality_mqtt.Air_Quality_MQTT_Init();
-            traffic_mqtt.Traffic_MQTT_Init();
             accessories_mqtt.Accessories_MQTT_Init();
         }
         catch(e)

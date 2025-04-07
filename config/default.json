@@ -1,5 +1,5 @@
 {
-  "support_SSL_Web": false,
+  "support_SSL_Web": true,
   "config_Zigbee": {
     "config_port":{
       "baudrate": 115200,

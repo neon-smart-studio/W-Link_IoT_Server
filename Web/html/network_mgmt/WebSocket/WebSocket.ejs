@@ -116,19 +116,6 @@
                 <% for(var j = 0; j<page_group_list[i].page_list.length; j++){
                     if(page_group_list[i].page_list[j].page_topic=="WebSocket"){continue;}
                     
-                    if(page_group_list[i].page_list[j].page_topic=="Zigbee"){
-                        if(support_zigbee==false) {continue;}
-                    }
-                    if(page_group_list[i].page_list[j].page_topic=="Bluetooth"){
-                        if(support_ble==false) {continue;}
-                    }
-                    if(page_group_list[i].page_list[j].page_topic=="MiIO"){
-                        if(support_miio==false) {continue;}
-                    }
-                    if(page_group_list[i].page_list[j].page_topic=="Hue Bridge"){
-                        if(support_hue_bridge==false) {continue;}
-                    }
-
                     select_item_icon_data_template = "";
                     switch(page_group_list[i].page_list[j].page_icon_type)
                     {
