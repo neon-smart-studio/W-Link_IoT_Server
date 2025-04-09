@@ -1,10 +1,5 @@
 
 var debug = require('debug')(require('path').basename(__filename));
-/*
-const v3 = require('node-hue-api').v3
-  , model = v3.model
-;
-*/
 
 const config = require('config');
 

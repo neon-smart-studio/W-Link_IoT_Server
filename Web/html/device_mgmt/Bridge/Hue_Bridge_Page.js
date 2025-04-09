@@ -70,7 +70,7 @@ function Print_Discovered_Hue_Bridge_List(hue_bridge_list)
     {
         show_hue_bridge_list.push("<div class=\"grid\">");
         for (var i = 0; i < hue_bridge_list.num_of_hue_bridge; i++) {
-            var hue_bridge_info = hue_bridge_list.discovered_hue_bridge_list[i];
+            var hue_bridge_info = hue_bridge_list.discovered_hue_bridge_list[i].config;
             show_hue_bridge_list.push("<div class=\"row\">");
             show_hue_bridge_list.push("<div data-role=\"hint\" class=\"tile bg-mauve fg-white\" style=\"width:410px;height: 110px;margin-left: 7.5px;margin-bottom: 7.5px;\" \
                                         data-hint-position=\"top\" data-hint-text=\""+hue_bridge_info.name+"\">");

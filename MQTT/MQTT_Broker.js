@@ -95,7 +95,7 @@ async function MQTT_Broker_Handle_Client_Connect(client)
         MQTT_Client_Info = {
             device_Type: deviceType,
             device_ID: deviceID,
-
+            user: "everyone",
             online: true
         }
 
@@ -166,7 +166,7 @@ async function MQTT_Broker_Handle_Client_Disconnect(client)
         MQTT_Client_Info = {
             device_Type: deviceType,
             device_ID: deviceID,
-
+            user: "everyone",
             online: false
         }
 

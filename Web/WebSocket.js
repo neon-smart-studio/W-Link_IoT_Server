@@ -50,6 +50,7 @@ function WebSocket_Server_Init() {
                 var sessionIdProtocolFullCase = request.protocolFullCaseMap[sessionIdProtocol];
 
                 var connection = request.accept(sessionIdProtocol, request.origin);
+
                 websocket_connection_list.push(connection);
 
                 //debug((new Date()) + 'Websocket Connection accepted.');
@@ -109,7 +110,7 @@ async function Process_WebSocket_Incomming_Message(src_connection, data) {
                         for (i = 0; i < registered_ws_topic_list.length; i++) {
                             if (registered_ws_topic_list[i] == json_data.topic) {
                                 if (registered_ws_topic_post_callback_list[i] != null) {
-                                    await registered_ws_topic_post_callback_list[i](src_connection.username, json_data);
+                                    await registered_ws_topic_post_callback_list[i]("everyone", json_data);
                                     break;
                                 }
                             }
@@ -119,7 +120,7 @@ async function Process_WebSocket_Incomming_Message(src_connection, data) {
                         for (i = 0; i < registered_ws_topic_list.length; i++) {
                             if (registered_ws_topic_list[i] == json_data.topic) {
                                 if (registered_ws_topic_get_callback_list[i] != null) {
-                                    var rsp_json = await registered_ws_topic_get_callback_list[i](src_connection.username, json_data);
+                                    var rsp_json = await registered_ws_topic_get_callback_list[i]("everyone", json_data);
                                     if (rsp_json != null) {
                                         rsp_json.method = "GET_RSP";
                                         do_WebSocket_Send_Message(src_connection, 'utf8', JSON.stringify(rsp_json));

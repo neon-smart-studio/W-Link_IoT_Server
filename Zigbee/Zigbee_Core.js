@@ -306,20 +306,7 @@ var Zigbee_Core = function (){
             return {
                 type: 'device', device, mapped, endpoint, isDefaultEndpoint, endpointName,
             };
-            /*
-            const mapped = zigbeeHerdsmanConverters.findByZigbeeModel(device.modelID);
-            const endpoints = mapped && mapped.endpoint ? mapped.endpoint(device) : null;
-            let default_endpoint;
-            let endpoint_list = device.endpoints;
-            if (endpoints && endpoints['default']) {
-                default_endpoint = device.getEndpoint(endpoints['default']);
-            } else {
-                default_endpoint = device.endpoints[0];
-            }
-
-            return {
-                type: 'device', device, mapped, default_endpoint, endpoint_list,
-            };*/
+            
         } catch (e) {
             debug_err("[Zigbee_Core] Zigbee_Core_Resolve_Entity() Error: "+e);
         }

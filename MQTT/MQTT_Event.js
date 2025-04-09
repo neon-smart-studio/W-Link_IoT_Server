@@ -77,7 +77,7 @@ async function MQTT_Handle_Client_Message(topic, message) {
 
                 mqtt.MQTT_Subscribe_All_DataChannel(json_data.Device.device_ID);
 
-                device_mgmt_mqtt.Process_MQTT_Device_Registration_Event(json_data.Device.device_ID, json_data);
+                device_mgmt_mqtt.Process_MQTT_Device_Registration_Event("everyone", json_data.Device.device_ID, json_data);
             }
             else{
                 var ID_start_index = topic.indexOf("/");

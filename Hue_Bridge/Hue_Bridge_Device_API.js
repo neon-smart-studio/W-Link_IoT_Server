@@ -5,6 +5,9 @@ const v3 = require('node-hue-api').v3
   , discovery = v3.discovery
   , hueApi = v3.api 
 ;
+const { Client } = require('node-ssdp');
+const axios = require('axios');
+const xml2js = require('xml2js');
 
 const hueAppName = 'W-Link';
 
@@ -16,35 +19,76 @@ const Hue_Bridge_Device_Type = "Hue Bridge";
 var Hue_Bridge_Session_List = [];
 var Hue_Bridge_Configuration_List = [];
 
+async function discoverViaSSDP(timeoutMs = 4000) {
+    const ssdpClient = new Client();
+    const discoveryResults = [];
+    const found = new Set();
+
+    return new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+            ssdpClient.stop();
+            resolve(discoveryResults);
+        }, timeoutMs);
+
+        ssdpClient.on('response', async (headers, statusCode, rinfo) => {
+            if (headers.SERVER?.includes('IpBridge') && headers.LOCATION) {
+                const ip = rinfo.address;
+                if (found.has(ip)) return;
+                found.add(ip);
+
+                try {
+                    const xml = await axios.get(headers.LOCATION, { timeout: 3000 });
+                    const parsed = await xml2js.parseStringPromise(xml.data, { explicitArray: false });
+                    const device = parsed.root.device;
+
+                    if (device && device.modelName?.toLowerCase().includes('hue')) {
+                        discoveryResults.push({
+                            ip,
+                            location: headers.LOCATION,
+                            modelName: device.modelName,
+                            serialNumber: device.serialNumber,
+                            modelNumber: device.modelNumber,
+                            friendlyName: device.friendlyName
+                        });
+                    }
+                } catch (e) {
+                    debug("[Hue_Bridge_API] SSDP parse failed: " + e.message);
+                }
+            }
+        });
+
+        try {
+            ssdpClient.search('upnp:rootdevice');
+        } catch (e) {
+            clearTimeout(timeout);
+            debug("[Hue_Bridge_API] SSDP search error: " + e.message);
+            resolve([]);
+        }
+    });
+}
+
 var Hue_Bridge_API = function () {
     var self = this;
 
-    self.Discover_Nearby_Hue_Bridge = async function (){
+    self.Discover_Nearby_Hue_Bridge = async function () {
         try {
-            var discoveryResults = [];
-            try {
-                discoveryResults = await discovery.nupnpSearch();
-            }
-            catch (e) {
-                debug("[Hue_Bridge_API] Hue Bridge uPnP Search Error " + e);
-                return {
-                    num_of_hue_bridge: 0,
-                    discovered_hue_bridge_list: []
-                }
-            }  
-            
+            const discoveryResults = await discovery.nupnpSearch();
             return {
                 num_of_hue_bridge: discoveryResults.length,
                 discovered_hue_bridge_list: discoveryResults
-            }
-        }
-        catch (e) {
+            };
+        } catch (e) {
             debug("[Hue_Bridge_API] Discover_Hue_Bridge() Error " + e);
+            return {
+                num_of_hue_bridge: 0,
+                discovered_hue_bridge_list: []
+            };
         }
-    }
-
+    };
+    
     self.Link_To_Hue_Bridge = async function (username, hue_bridge_ip) {
         try {
+            debug("[Hue_Bridge_API] Discover_Hue_Bridge() hue_bridge_ip " + hue_bridge_ip);
             var authenticatedApi = Hue_Bridge_Session_List[hue_bridge_ip];
             if(authenticatedApi==null)
             {
