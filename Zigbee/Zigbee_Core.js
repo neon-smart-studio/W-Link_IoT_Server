@@ -149,7 +149,7 @@ var Zigbee_Core = function (){
             if (config.has('config_Zigbee.transmit_Power')) {
                 //set a transmit power (-22~19)
                 const transmitPower = config.get('config_Zigbee.transmit_Power');
-                await zigbee_herdsman_controller.setTransmitPower(transmitPower);
+                await zigbee_herdsman_controller.transmitPower(transmitPower);
                 debug(`Set transmit power to '${transmitPower}'`);
             }
         } catch (e) {

@@ -49,6 +49,7 @@ function WebSocket_Server_Init() {
                 var sessionIdProtocol =  request.requestedProtocols[0];
                 var sessionIdProtocolFullCase = request.protocolFullCaseMap[sessionIdProtocol];
 
+                var connection = request.accept(sessionIdProtocol, request.origin);
                 websocket_connection_list.push(connection);
 
                 //debug((new Date()) + 'Websocket Connection accepted.');
