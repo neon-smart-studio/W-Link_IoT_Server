@@ -65,19 +65,19 @@ function Get_Device_Type_Chinese_Name(index)
 function Print_Discovered_Hue_Bridge_List(hue_bridge_list)
 {
     var show_hue_bridge_list = [];
-    show_hue_bridge_list.push("<div data-role=\"panel\" style=\"min-height: 120px;\">");
+    show_hue_bridge_list.push("<div data-role=\"panel\" style=\"min-height: 120px; max-height: 400px; overflow-y: auto;\">");
     if(hue_bridge_list.num_of_hue_bridge>0)
     {
         show_hue_bridge_list.push("<div class=\"grid\">");
         for (var i = 0; i < hue_bridge_list.num_of_hue_bridge; i++) {
-            var hue_bridge_info = hue_bridge_list.discovered_hue_bridge_list[i].config;
+            var hue_bridge_info = hue_bridge_list.discovered_hue_bridge_list[i];
             show_hue_bridge_list.push("<div class=\"row\">");
-            show_hue_bridge_list.push("<div data-role=\"hint\" class=\"tile bg-mauve fg-white\" style=\"width:410px;height: 110px;margin-left: 7.5px;margin-bottom: 7.5px;\" \
-                                        data-hint-position=\"top\" data-hint-text=\""+hue_bridge_info.name+"\">");
-            show_hue_bridge_list.push("<h3 class=\"fg-white\" style=\"margin-left: 10px;margin-top: 10px;margin-bottom: 5px;\">"+hue_bridge_info.name+"("+hue_bridge_info.modelid+")</h3>");
+            show_hue_bridge_list.push("<div data-role=\"hint\" class=\"tile bg-mauve fg-white\" style=\"width:410px;height: 150px;margin-left: 7.5px;margin-bottom: 7.5px;\" \
+                                        data-hint-position=\"top\" data-hint-text=\""+hue_bridge_info.friendlyName+"\">");
+            show_hue_bridge_list.push("<h3 class=\"fg-white\" style=\"margin-left: 10px;margin-top: 10px;margin-bottom: 5px;\">"+hue_bridge_info.friendlyName+"("+hue_bridge_info.modelNumber+")</h3>");
             show_hue_bridge_list.push("<button data-role=\"hint\" data-hint-text=\"連線\" id=\"\" \
                                         class=\"button success square large fg-white\" style=\"float:right;margin-top: 7.5px;margin-right: 5px;\" \
-                                        onclick=\"onClick_Connect_To_Hue_Bridge_Btn('"+hue_bridge_info.ipaddress+"');\">");
+                                        onclick=\"onClick_Connect_To_Hue_Bridge_Btn('"+hue_bridge_info.ip+"');\">");
             show_hue_bridge_list.push("<span class=\"mif-link\"></span>");
             show_hue_bridge_list.push("</button>");
             show_hue_bridge_list.push("</div>");
@@ -174,6 +174,19 @@ function onClick_Connect_To_Hue_Bridge_Btn(ip_address)
 function onClick_Add_Hue_Bridge_Btn()
 {
     Metro.dialog.open('#add_hue_bridge_modal');
+
+    var show_scan_progress = [];
+    show_scan_progress.push("<h3 class=\"fg-orange\">搜尋中，這可能會需要一些時間!</h3><br><br>");
+    show_scan_progress.push("<div class=\"progress-ring\" style=\"position: relative;margin: 0 auto\">");
+    show_scan_progress.push("<div class=\"outer\"><div class=\"inner bg-orange\"></div></div>");
+    show_scan_progress.push("<div class=\"outer ball1\"><div class=\"inner bg-orange\"></div></div>");
+    show_scan_progress.push("<div class=\"outer ball2\"><div class=\"inner bg-orange\"></div></div>");
+    show_scan_progress.push("<div class=\"outer ball3\"><div class=\"inner bg-orange\"></div></div>");
+    show_scan_progress.push("<div class=\"outer ball4\"><div class=\"inner bg-orange\"></div></div>");
+    show_scan_progress.push("<div class=\"outer ball5\"><div class=\"inner bg-orange\"></div></div>");
+    show_scan_progress.push("</div>");
+    $('#new_hue_bridge_display_area').html('');
+    $('#new_hue_bridge_display_area').html(show_scan_progress.join(''));
 
     Discover_Nearby_Hue_Bridge(function(rsp_json){
         Print_Discovered_Hue_Bridge_List(rsp_json);

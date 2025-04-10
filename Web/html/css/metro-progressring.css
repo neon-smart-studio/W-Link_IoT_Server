@@ -1,0 +1,54 @@
+
+.progress-ring {
+  position: relative;
+  width: 35px;
+  height: 35px;
+}
+
+.outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  -webkit-animation: progress-ring 4.5s linear infinite;
+}
+
+.inner {
+  background: #fff;
+  border-radius: 10px;
+  width: 5px;
+  height: 5px;
+  background: #000;
+}
+
+.ball1{
+  -webkit-animation-delay: 0.167s;
+}
+
+.ball2{
+  -webkit-animation-delay: 0.334s;
+}
+
+.ball3{
+  -webkit-animation-delay: 0.501s;
+}
+
+.ball4{
+  -webkit-animation-delay: 0.668s;
+}
+
+.ball5{
+  -webkit-animation-delay: 0.835s;
+}
+
+@-webkit-keyframes progress-ring {
+  0% { opacity: 1; -webkit-transform: rotate(-110deg); }
+  9.622% { -webkit-transform: rotate(10deg); }
+  26.667% { -webkit-transform: rotate(93deg); }
+  35.933% { -webkit-transform: rotate(205deg); }
+  44.822% { -webkit-transform: rotate(357deg); }
+  61.844% { -webkit-transform: rotate(439deg); }
+  71.489% { opacity: 1; -webkit-transform: rotate(585deg); }
+  71.49% { opacity: 0; }
+  100% { opacity: 0; -webkit-transform: rotate(610deg); }
+}
