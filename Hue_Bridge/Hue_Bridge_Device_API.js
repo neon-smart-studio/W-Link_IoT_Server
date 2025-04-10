@@ -58,7 +58,7 @@ async function discoverViaSSDP(timeoutMs = 4000) {
         });
 
         try {
-            ssdpClient.search('upnp:rootdevice');
+            ssdpClient.search('upnp:all');
         } catch (e) {
             clearTimeout(timeout);
             debug("[Hue_Bridge_API] SSDP search error: " + e.message);
@@ -72,7 +72,7 @@ var Hue_Bridge_API = function () {
 
     self.Discover_Nearby_Hue_Bridge = async function () {
         try {
-            const discoveryResults = await discovery.nupnpSearch();
+            const discoveryResults = await discoverViaSSDP();
             return {
                 num_of_hue_bridge: discoveryResults.length,
                 discovered_hue_bridge_list: discoveryResults
