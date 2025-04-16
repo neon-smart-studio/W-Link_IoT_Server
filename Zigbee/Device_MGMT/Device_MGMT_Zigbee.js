@@ -22,8 +22,8 @@ var zigbee_device_ikea = new Zigbee_Device_IKEA();
 var Zigbee_Device_GE = require('./Zigbee_Device_GE.js');
 var zigbee_device_ge = new Zigbee_Device_GE();
 
-var Zigbee_Device_Xiaomi = require('./Zigbee_Device_Xiaomi.js');
-var zigbee_device_xiaomi = new Zigbee_Device_Xiaomi();
+var Zigbee_Device_Xiaomi_Aqara = require('./Zigbee_Device_Xiaomi_Aqara.js');
+var zigbee_device_xiaomi_aqara = new Zigbee_Device_Xiaomi_Aqara();
 
 var OnOff_Switch_Zigbee = require('./Accessories/OnOff_Switch_Zigbee.js');
 var onoff_switch_zigbee = new OnOff_Switch_Zigbee();
@@ -70,81 +70,48 @@ event_emitter.on('ZigbeeExecAction', function(target_address_ID, command_topic, 
 
 function Do_Resolve_Zigbee_Device_Type(resolv_dev_info)
 {
-    var supports = null;
-    var vendor = null;
+    if (!resolv_dev_info.mapped || !resolv_dev_info.mapped.exposes) return null;
 
-    if(resolv_dev_info.mapped==null)
-    {
-        return null;
-    }
+    const exposes = resolv_dev_info.mapped.exposes;
+    const vendor = resolv_dev_info.mapped.vendor || '';
 
-    if(resolv_dev_info.mapped.extend!=null)
-    {
-        supports = resolv_dev_info.mapped.extend.supports;
-    }
+    let hasBrightness = false;
+    let hasColorTemp = false;
+    let hasColorXY = false;
+    let hasOnOff = false;
 
-    else if(resolv_dev_info.mapped.supports!=null)
-    {
-        supports = resolv_dev_info.mapped.supports;
-    }
-
-    if(supports==null)
-    {
-        return null;
-    }
-    
-    vendor = resolv_dev_info.mapped.vendor;
-
-    var device_Type = null;
-
-    switch(supports)
-    {
-        case 'on/off, power-on behavior':
-            //OnOff Light
-            device_Type = "OnOff Light";
-            break;
-        case 'on/off, brightness':
-        case 'on/off, brightness, power-on behavior':
-            //Dimmable Light
-            device_Type = "Dimmable Light";
-            break;
-        case 'on/off, brightness, color temperature':
-        case 'on/off, brightness, color temperature, power-on behavior':
-            //Color Temperature Light
-            device_Type = "Color Temperature Light";
-            break;
-        case 'on/off, brightness, color xy':
-        case 'on/off, brightness, color xy, power-on behavior':
-            //Colored Light
-            device_Type = "Colored Light";
-            break;
-        case 'on/off, brightness, color temperature, color xy':
-        case 'on/off, brightness, color temperature, color xy, power-on behavior':
-            //Extended Colored Light
-            device_Type = "Extended Color Light";
-            break;
-        default:
-            {
-                switch(vendor)
-                {
-                    case "Philips":
-                        device_Type = zigbee_device_philips.Do_Resolve_Philips_Zigbee_Device_Type(resolv_dev_info);
-                        break;
-                    case "Quirky":
-                    case "GE":
-                        device_Type = zigbee_device_ge.Do_Resolve_GE_Zigbee_Device_Type(resolv_dev_info);
-                        break;
-                    case "IKEA":
-                        device_Type = zigbee_device_ikea.Do_Resolve_IKEA_Zigbee_Device_Type(resolv_dev_info);
-                        break;
-                    case "Xiaomi":
-                        device_Type = zigbee_device_xiaomi.Do_Resolve_Xiaomi_Zigbee_Device_Type(resolv_dev_info);
-                        break;
-                }
+    for (const expose of exposes) {
+        if (expose.type === 'light' && expose.features) {
+            for (const f of expose.features) {
+                if (f.name === 'state') hasOnOff = true;
+                if (f.name === 'brightness') hasBrightness = true;
+                if (f.name === 'color_temp') hasColorTemp = true;
+                if (f.name === 'color_xy') hasColorXY = true;
             }
-            break;
+        }
     }
-    return device_Type;
+
+    if (hasOnOff && !hasBrightness) return 'OnOff Light';
+    if (hasBrightness && !hasColorTemp && !hasColorXY) return 'Dimmable Light';
+    if (hasColorTemp && !hasColorXY) return 'Color Temperature Light';
+    if (hasColorXY && !hasColorTemp) return 'Colored Light';
+    if (hasColorTemp && hasColorXY) return 'Extended Color Light';
+
+    // fallback to vendor-specific resolver
+    switch (vendor) {
+        case 'Philips':
+            return zigbee_device_philips.Do_Resolve_Philips_Zigbee_Device_Type(resolv_dev_info);
+        case 'GE':
+        case 'Quirky':
+            return zigbee_device_ge.Do_Resolve_GE_Zigbee_Device_Type(resolv_dev_info);
+        case 'IKEA':
+            return zigbee_device_ikea.Do_Resolve_IKEA_Zigbee_Device_Type(resolv_dev_info);
+        case 'Xiaomi':
+        case 'Aqara':
+            return zigbee_device_xiaomi_aqara.Do_Resolve_Xiaomi_Aqara_Zigbee_Device_Type(resolv_dev_info);
+        default:
+            return null;
+    }
 }
 
 async function Device_MGMT_Zigbee_Device_Notify_Event(event_type, device_Type, device_ID, resolv_dev_info)
