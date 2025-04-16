@@ -103,6 +103,7 @@ var Zigbee_Core = function (){
             herdsmanSettings.acceptJoiningDeviceHandler = Zigbee_AcceptJoiningDeviceHandler;
             zigbee_herdsman_controller = new ZigbeeHerdsman.Controller(herdsmanSettings);
             await zigbee_herdsman_controller.start();
+            await zigbee_herdsman_controller.permitJoin(0);
 
             zigbee_herdsman_controller.on('adapterDisconnected', () => {
                 if(adapterDisconnected_callback!=null){
@@ -135,23 +136,14 @@ var Zigbee_Core = function (){
                 }
             });
 
+            zigbee_herdsman_controller.on('event', (type, data) => {
+                debug_warn(`[ZIGBEE EVENT] ${type} - ${JSON.stringify(data)}`);
+            });
+
             debug('zigbee-herdsman started');
             debug(`Coordinator firmware version: '${JSON.stringify(zigbee_herdsman_controller.getCoordinatorVersion())}'`);
             debug(`Zigbee network parameters: ${JSON.stringify(await zigbee_herdsman_controller.getNetworkParameters())}`);
 
-            // Check if we have to turn off the led
-            if (config.has('config_Zigbee.config_Zigbee_port.disable_led')) {
-                if (config.get('config_Zigbee.config_Zigbee_port.disable_led')==false) {
-                    await zigbee_herdsman_controller.setLED(false);
-                }
-            }
-
-            if (config.has('config_Zigbee.transmit_Power')) {
-                //set a transmit power (-22~19)
-                const transmitPower = config.get('config_Zigbee.transmit_Power');
-                await zigbee_herdsman_controller.transmitPower(transmitPower);
-                debug(`Set transmit power to '${transmitPower}'`);
-            }
         } catch (e) {
             debug_err("[Zigbee_Core] Zigbee_Core_Init() Error: "+e);
         }
@@ -182,16 +174,16 @@ var Zigbee_Core = function (){
     self.Zigbee_Core_Reset = async function()
     {
         try {
-            await zigbee_herdsman_controller.reset(type);
+            await zigbee_herdsman_controller.reset('soft');
         } catch (e) {
             debug_err("[Zigbee_Core] Zigbee_Core_Reset() Error: "+e);
         }
     }
 
-    self.Zigbee_Core_Permit_Join = async function(permit)
+    self.Zigbee_Core_Permit_Join = async function(time)
     {
         try {
-            await zigbee_herdsman_controller.permitJoin(permit);
+            await zigbee_herdsman_controller.permitJoin(time);
         } catch (e) {
             debug_err("[Zigbee_Core] Zigbee_Core_Permit_Join() Error: "+e);
         }
@@ -279,7 +271,7 @@ var Zigbee_Core = function (){
     }
 
     //ID: ieeeAddr or groupID
-    self.Zigbee_Core_Resolve_Entity = function(ID)
+    self.Zigbee_Core_Resolve_Entity = async function(ID)
     {
         try {
             const group = this.Zigbee_Core_Get_Group_By_ID(ID);
@@ -292,7 +284,8 @@ var Zigbee_Core = function (){
                 return null;
             }
 
-            const mapped = zigbeeHerdsmanConverters.findByZigbeeModel(device.modelID);
+            // 修正這一段：從 zigbeeDevices 陣列中搜尋符合 modelID 的項目
+            const mapped = await zigbeeHerdsmanConverters.findByDevice(device);
             const endpoints = mapped && mapped.endpoint ? mapped.endpoint(device) : null;
             let isDefaultEndpoint = true;
             let endpoint;

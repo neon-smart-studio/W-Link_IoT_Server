@@ -2,7 +2,6 @@
 var debug = require('debug')(require('path').basename(__filename));
 
 const v3 = require('node-hue-api').v3
-  , discovery = v3.discovery
   , hueApi = v3.api 
 ;
 const { Client } = require('node-ssdp');
@@ -94,6 +93,7 @@ var Hue_Bridge_API = function () {
             {
                 // Create an unauthenticated instance of the Hue API so that we can create a new user
                 const unauthenticatedApi = await hueApi.createLocal(hue_bridge_ip).connect();
+                debug("[Hue_Bridge_API] Discover_Hue_Bridge() authenticatedApi " + authenticatedApi);
                 
                 var errCode = 0;
                 var createdUser = null;
@@ -103,7 +103,9 @@ var Hue_Bridge_API = function () {
                 do
                 {
                     try{
+                        debug("[Hue_Bridge_API] Discover_Hue_Bridge() username " + username);
                         createdUser = await unauthenticatedApi.users.createUser(hueAppName, username);
+                        debug("[Hue_Bridge_API] Discover_Hue_Bridge() createdUser " + createdUser);
                         if(createdUser!=null)
                         {
                             errCode = 0;
@@ -125,12 +127,14 @@ var Hue_Bridge_API = function () {
             
                 // Create a new API instance that is authenticated with the new user we created
                 authenticatedApi = await hueApi.createLocal(hue_bridge_ip).connect(createdUser.username);
+                debug("[Hue_Bridge_API] Discover_Hue_Bridge() authenticatedApi " + authenticatedApi);
 
                 Hue_Bridge_Session_List[hue_bridge_ip] = authenticatedApi;
             }
             
             // Do something with the authenticated user/api
             var hue_bridge_configuration = await authenticatedApi.configuration.getConfiguration();
+            debug("[Hue_Bridge_API] Discover_Hue_Bridge() hue_bridge_configuration " + hue_bridge_configuration);
             Hue_Bridge_Configuration_List[hue_bridge_ip] = hue_bridge_configuration;
 
             var macPatternArray = hue_bridge_configuration.mac.split(":");

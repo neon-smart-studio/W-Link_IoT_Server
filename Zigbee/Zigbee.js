@@ -57,37 +57,40 @@ function Is_Group_Type_Entity(resolv_dev_info)
     return false;
 }
 
-function do_Resolve_Incomming_Raw_Date(zigbeeAddr, endpoint, cluster, type, raw_json_data, meta_data)
+async function do_Resolve_Incomming_Raw_Data(zigbeeAddr, endpoint, cluster, type, raw_json_data, meta_data)
 {
-    var resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
-    if(resolv_dev_info==null)
-    {
-        return null;
-    }
-    
-    if(Is_Group_Type_Entity(resolv_dev_info))
-    {
-        return null;
-    }
-
-    var converted_data = null;
-    const from_zigbee_converters = resolv_dev_info.mapped.fromZigbee;
-    for(var i = 0; i<from_zigbee_converters.length; i++)
-    {
-        if(from_zigbee_converters[i].type.includes(type) && cluster==from_zigbee_converters[i].cluster)
+    try{
+        var resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
+        if(resolv_dev_info==null)
         {
-            var orig_data = {
-                device: resolv_dev_info.device,
-                endpoint: endpoint,
-                data: raw_json_data,
-                meta: meta_data
-            }
-            converted_data = from_zigbee_converters[i].convert(resolv_dev_info.mapped, orig_data, null, null, {device: resolv_dev_info.device});
-            break;
+            return null;
         }
+        
+        if(Is_Group_Type_Entity(resolv_dev_info))
+        {
+            return null;
+        }
+
+        var converted_data = null;
+        const from_zigbee_converters = resolv_dev_info.mapped?.fromZigbee ?? [];
+        for (const converter of from_zigbee_converters) {
+            if (converter.type.includes(type) && converter.cluster === cluster) {
+                const orig_data = {
+                    device: resolv_dev_info.device,
+                    endpoint,
+                    data: raw_json_data,
+                    meta: meta_data
+                };
+                return converter.convert(resolv_dev_info.mapped, orig_data, null, null, {device: resolv_dev_info.device});
+            }
+        }
+        
+        return converted_data;
     }
-    
-    return converted_data;
+    catch(e)
+    {
+        debug("[Zigbee] do_Resolve_Incomming_Raw_Data() Error: " + e);
+    }
 }
 
 async function HandleZigbeeReadAttrRspMsg(zigbeeAddr, rsp_data, meta_data)
@@ -126,7 +129,7 @@ async function HandleZigbeeDeviceIncomingMsg(data)
             (data.hasOwnProperty('groupID') ? ` with groupID ${data.groupID}` : ``),
         );
 
-        var resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
+        var resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
         if(resolv_dev_info==null)
         {
             return;
@@ -137,7 +140,7 @@ async function HandleZigbeeDeviceIncomingMsg(data)
         case "attributeReport":
             if(on_Device_Attribute_Report_Callback!=null)
             {
-                var resolved_data = do_Resolve_Incomming_Raw_Date(zigbeeAddr, data.endpoint, data.cluster, "attributeReport", data.data, data.meta);
+                var resolved_data = await do_Resolve_Incomming_Raw_Data(zigbeeAddr, data.endpoint, data.cluster, "attributeReport", data.data, data.meta);
             
                 on_Device_Attribute_Report_Callback(zigbeeAddr, resolv_dev_info, data.endpoint, data.cluster, data.data, data.meta, resolved_data);
             }
@@ -152,7 +155,7 @@ async function HandleZigbeeDeviceIncomingMsg(data)
         default:
             if(on_Device_Cluster_Command_Callback!=null)
             {
-                var resolved_data = do_Resolve_Incomming_Raw_Date(zigbeeAddr, data.endpoint, data.cluster, data.type, data.data, data.meta);
+                var resolved_data = await do_Resolve_Incomming_Raw_Data(zigbeeAddr, data.endpoint, data.cluster, data.type, data.data, data.meta);
             
                 on_Device_Cluster_Command_Callback(zigbeeAddr, resolv_dev_info, data.endpoint, data.cluster, data.type, data.data, data.meta, resolved_data);
             }
@@ -236,7 +239,7 @@ async function HandleZigbeeDeviceInterviewEvent(data)
         }
         
         if (data.status === 'successful') {
-            var resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
+            var resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
             if(resolv_dev_info==null)
             {
                 return;
@@ -287,7 +290,7 @@ async function HandleZigbeeDeviceAnnounceEvent(data)
             return;
         }
 
-        var resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
+        var resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
         if(resolv_dev_info==null)
         {
             return;
@@ -334,7 +337,7 @@ async function Ensure_Zigbee_Device_Configured(zigbeeAddr, resolv_dev_info)
         
         if(resolv_dev_info==null)
         {
-            resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
+            resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
             if(resolv_dev_info==null)
             {
                 return;
@@ -391,7 +394,7 @@ var Zigbee = function () {
 
         Zigbee_Network_Permit_Join_Remain_Time = Zigbee_Network_PermitJoin_Timeout_Sec;
 
-        await zigbee_core.Zigbee_Core_Permit_Join(true);
+        await zigbee_core.Zigbee_Core_Permit_Join(Zigbee_Network_Permit_Join_Remain_Time);
         
         if(on_Permit_Join_Callback!=null)
         {
@@ -405,7 +408,7 @@ var Zigbee = function () {
                 clearInterval(Zigbee_Network_Permit_Join_Timer);
                 Zigbee_Network_Permit_Join_Timer = null;
                 
-                await zigbee_core.Zigbee_Core_Permit_Join(false);
+                await zigbee_core.Zigbee_Core_Permit_Join(0);
 
                 if(on_Refuse_Join_Callback!=null)
                 {
@@ -425,7 +428,7 @@ var Zigbee = function () {
         
         Zigbee_Network_Permit_Join_Remain_Time = 0;
 
-        await zigbee_core.Zigbee_Core_Permit_Join(false);
+        await zigbee_core.Zigbee_Core_Permit_Join(0);
         
         if(on_Refuse_Join_Callback!=null)
         {
@@ -534,7 +537,7 @@ var Zigbee = function () {
         }
     }
     
-    self.Zigbee_ResolveDeviceEntity = function(address_ID)
+    self.Zigbee_ResolveDeviceEntity = async function(address_ID)
     {
         try{
             if(Is_Broadcast_Addr(address_ID))
@@ -548,7 +551,7 @@ var Zigbee = function () {
                 zigbeeAddr = "0x"+zigbeeAddr
             }
             
-            var resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
+            var resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
             if(resolv_dev_info==null)
             {
                 return null;
@@ -576,7 +579,7 @@ var Zigbee = function () {
                 zigbeeAddr = "0x"+zigbeeAddr
             }
             
-            var resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
+            var resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
             if(resolv_dev_info==null)
             {
                 return null;
@@ -630,7 +633,7 @@ var Zigbee = function () {
                 zigbeeAddr = "0x"+zigbeeAddr
             }
             
-            var resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
+            var resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(zigbeeAddr);
             if(resolv_dev_info==null)
             {
                 return;
@@ -651,7 +654,7 @@ var Zigbee = function () {
         }
     }
 
-    self.Zigbee_ResolveIncomingRawData = function(address_ID, endpoint, cluster, type, raw_json_data, meta_data)
+    self.Zigbee_ResolveIncomingRawData = async function(address_ID, endpoint, cluster, type, raw_json_data, meta_data)
     {
         try{
             if(address_ID=="Broadcast" || address_ID=="broadcast")
@@ -665,7 +668,7 @@ var Zigbee = function () {
                 zigbeeAddr = "0x"+zigbeeAddr
             }
             
-            return do_Resolve_Incomming_Raw_Date(zigbeeAddr, endpoint, cluster, type, raw_json_data, meta_data);
+            return await do_Resolve_Incomming_Raw_Data(zigbeeAddr, endpoint, cluster, type, raw_json_data, meta_data);
         }
         catch(e)
         {
@@ -682,7 +685,7 @@ var Zigbee = function () {
                 return;
             }
 
-            var resolv_dev_info = zigbee_core.Zigbee_Core_Resolve_Entity(resolved_addr);
+            var resolv_dev_info = await zigbee_core.Zigbee_Core_Resolve_Entity(resolved_addr);
             if(resolv_dev_info==null)
             {
                 return;

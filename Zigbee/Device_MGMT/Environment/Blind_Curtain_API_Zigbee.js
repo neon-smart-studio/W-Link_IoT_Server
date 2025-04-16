@@ -9,7 +9,7 @@ var Blind_Curtain_API_Zigbee = function () {
     
     self.Blind_Curtain_Open_Close = async function (address_ID, open_close) {
         try {
-            var resolv_dev_info = zigbee.Zigbee_ResolveDeviceEntity(address_ID);
+            var resolv_dev_info = await zigbee.Zigbee_ResolveDeviceEntity(address_ID);
             if(resolv_dev_info==null)
             {
                 return;
@@ -54,7 +54,7 @@ var Blind_Curtain_API_Zigbee = function () {
     }
     self.Blind_Curtain_Toggle_State = async function (address_ID) {
         try{
-            var resolv_dev_info = zigbee.Zigbee_ResolveDeviceEntity(address_ID);
+            var resolv_dev_info = await zigbee.Zigbee_ResolveDeviceEntity(address_ID);
             if(resolv_dev_info==null)
             {
                 return null;
@@ -107,7 +107,7 @@ var Blind_Curtain_API_Zigbee = function () {
                 return;
             }
 
-            var resolv_dev_info = zigbee.Zigbee_ResolveDeviceEntity(address_ID);
+            var resolv_dev_info = await zigbee.Zigbee_ResolveDeviceEntity(address_ID);
             if(resolv_dev_info==null)
             {
                 return;
@@ -155,7 +155,7 @@ var Blind_Curtain_API_Zigbee = function () {
     }
     self.Blind_Curtain_Get_Current_Position = async function (address_ID) {
         try {
-            var resolv_dev_info = zigbee.Zigbee_ResolveDeviceEntity(address_ID);
+            var resolv_dev_info = await zigbee.Zigbee_ResolveDeviceEntity(address_ID);
             if(resolv_dev_info==null)
             {
                 return null;
