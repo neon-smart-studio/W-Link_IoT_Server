@@ -1,579 +1,211 @@
+// DataBase.js – updated for mongodb driver v6.x  (CommonJS)
+// ---------------------------------------------------------------
+// 用法範例：
+//   const DataBase = require('./DataBase');
+//   const db = new DataBase();
+//   await db.DataBase_Open('demo');
+//   await db.Database_Insert('demo', 'pets', { name: 'Mochi', age: 2 });
+//   const pets = await db.Database_Find('demo', 'pets', {});
+// ---------------------------------------------------------------
 
-var debug = require('debug')(require('path').basename(__filename));
+const debug = require('debug')(require('path').basename(__filename));
+const { MongoClient } = require('mongodb');
+const path = require('path');
 
-var fs = require("fs");
-var path = require('path');
-var appDir = path.dirname(require.main.filename);
-
-var mongodb_client = require('mongodb').MongoClient;
-
-class DataBase
-{
-
-  constructor()
-  {
+class DataBase {
+  constructor() {
     try {
-      this.mongo_client = null;
+      /** @type {MongoClient|null} */
+      this.mongo_client = null; // 單一連線池 (singleton)
 
-      this.db_type = 0;
-      this.db_list = [];
-    }
-    catch (e) {
-      debug("[DataBase] DataBase_Constructor() Error " + e);
-    }
-  }
-
-  async DataBase_Open(database_name)
-  {
-    try{
-      var result = false;
-
-      if(this.mongo_client==null)
-      {
-        var connected_client = null;
-        const do_mongodb_connect = function(){
-          return new Promise(function(resolve, reject) {
-            mongodb_client.connect("mongodb://localhost:27017", function(err, client) {
-              if (err) {
-                reject();
-                return;
-              }
-              connected_client = client;
-              resolve();
-            });
-          });
-        };
-  
-        await do_mongodb_connect();
-
-        this.mongo_client = connected_client;
-      }
-
-      if(this.db_list[database_name]!=null)
-      {
-        return true;
-      }
-      
-      this.db_list[database_name] = this.mongo_client.db(database_name);
-
-      result = true;
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] DataBase_Open() Error " + e);
+      /**
+       * 已開啟的資料庫快取
+       * key: db name  value: Db instance
+       * @type {Record<string, import('mongodb').Db>}
+       */
+      this.db_list = {};
+    } catch (e) {
+      debug('[DataBase] constructor() Error', e);
     }
   }
 
-  DataBase_Close(database_name)
-  {
-    try{
-      var result = false;
+  /**
+   * 連到 MongoDB 並快取指定資料庫
+   * @param {string} database_name
+   */
+  async DataBase_Open(database_name) {
+    try {
+      if (!this.mongo_client) {
+        this.mongo_client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017', {
+          // 建議開 strict API，提早發現 deprecated 語法
+          serverApi: { version: '1', strict: true },
+        });
+        await this.mongo_client.connect();
+      }
 
-      if(this.mongo_client==null)
-      {
-        return true;
+      if (!this.db_list[database_name]) {
+        this.db_list[database_name] = this.mongo_client.db(database_name);
       }
-      
-      if(this.db_list[database_name]==null)
-      {
-        return true;
-      }
-      
-      result = true;
+      return true;
+    } catch (e) {
+      debug('[DataBase] DataBase_Open() Error', e);
+      return false;
+    }
+  }
+
+  /**
+   * 關閉指定資料庫；若所有資料庫都關閉則關 client
+   * @param {string} database_name
+   */
+  async DataBase_Close(database_name) {
+    try {
+      if (!this.mongo_client || !this.db_list[database_name]) return true;
 
       delete this.db_list[database_name];
 
-      var num_op_opened_db = this.db_list.filter(db =>db!=null).length;
-      
-      if(num_op_opened_db<=0)
-      {
-        this.mongo_client.close();
+      if (Object.keys(this.db_list).length === 0) {
+        await this.mongo_client.close();
         this.mongo_client = null;
       }
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] DataBase_Close() Error " + e);
-    }
-  }
-
-  async Database_ListCollections(database_name)
-  {
-    try{
-      var result = [];
-
-      if(query==null)
-      {
-        query = {};
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_ListCollections() MongoDB Server Not Initialized");
-        return null;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return null;
-      }
-      
-      const do_db_list_collection = function(db){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.listCollections().toArray(function(err, items) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = items;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_list_collection(this.db_list[database_name]);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_ListCollections() Error " + e);
-    }
-  }
-
-  async Database_Find(database_name, collection_name, query, option)
-  {
-    try{
-      var result = [];
-
-      if(query==null)
-      {
-        query = {};
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_Find() MongoDB Server Not Initialized");
-        return null;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return null;
-      }
-      
-      const do_db_find = function(db, collection_name, query){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.collection(collection_name).find(query).sort({_id:1}).toArray(function(err, items) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = items;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_find(this.db_list[database_name], collection_name, query);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_Find() Error " + e);
-    }
-  }
-  
-  async Database_FindLimit(database_name, collection_name, query, limit_counts, option)
-  {
-    try{
-      var result = [];
-
-      if(query==null)
-      {
-        query = {};
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_Find() MongoDB Server Not Initialized");
-        return null;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return null;
-      }
-      
-      const do_db_find_limit = function(db, collection_name, query){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.collection(collection_name).find(query).sort({_id:1}).limit(limit_counts).toArray(function(err, items) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = items;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_find_limit(this.db_list[database_name], collection_name, query);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_Find() Error " + e);
-    }
-  }
-  
-  async Database_FindOne(database_name, collection_name, query)
-  {
-    try{
-      var result = [];
-
-      if(query==null)
-      {
-        query = {};
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_FindOne() MongoDB Server Not Initialized");
-        return null;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return null;
-      }
-      
-      const do_db_findone = function(db, collection_name, query){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            result = db.collection(collection_name).findOne(query);
-            resolve();
-          });
-        });
-      }
-
-      await do_db_findone(this.db_list[database_name], collection_name, query);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_FindOne() Error " + e);
-    }
-  }
-  
-  async Database_Count(database_name, collection_name, condition)
-  {
-    try{
-      var result = -1;
-
-      if(condition==null)
-      {
-        condition = {};
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_Count() MongoDB Server Not Initialized");
-        return -1;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return -1;
-      }
-      
-      const do_db_count = function(db, collection_name, condition){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.collection(collection_name).count(condition, function(err, count) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = count;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_count(this.db_list[database_name], collection_name, condition);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_Count() Error " + e);
-    }
-  }
-
-  async Database_Insert(database_name, collection_name, new_doc)
-  {
-    try{
-      var result = false;
-
-      if(new_doc["_id"]!=null){
-        delete new_doc["_id"];
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_Insert() MongoDB Server Not Initialized");
-        return false;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return false;
-      }
-      
-      const do_db_insert = function(db, collection_name, new_doc){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.collection(collection_name).insert(new_doc, {w:1}, function(err, op_result) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = true;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_insert(this.db_list[database_name], collection_name, new_doc);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_Insert() Error " + e);
-    }
-  }
-  
-  async Database_Update(database_name, collection_name, query, new_doc, multi)
-  {
-    try{
-      var result = false;
-
-      if(new_doc["_id"]!=null){
-        delete new_doc["_id"];
-      }
-
-      if(query==null)
-      {
-        query = {};
-      }
-
-      if(multi==null)
-      {
-        multi = false;
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_Update() MongoDB Server Not Initialized");
-        return false;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return false;
-      }
-      
-      var justone = !multi;
-
-      const do_db_update = function(db, collection_name, query, new_doc, justone){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.collection(collection_name).update(query, new_doc, {'safe': true, 'justOne': justone}, function(err) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = true;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_update(this.db_list[database_name], collection_name, query, new_doc, justone);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_Update() Error " + e);
-    }
-  }
-
-  async Database_Remove(database_name, collection_name, condition, justone)
-  {
-    try{
-      var result = false;
-
-      if(condition==null)
-      {
-        condition = {};
-      }
-
-      if(justone==null)
-      {
-        justone = false;
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_Remove() MongoDB Server Not Initialized");
-        return false;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return false;
-      }
-      
-      const do_db_remove = function(db, collection_name, condition, justone){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.collection(collection_name).remove(condition, {"justOne":justone}, function(err) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = true;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_remove(this.db_list[database_name], collection_name, condition, justone);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_Remove() Error " + e);
-    }
-  }
-
-  async Database_EnsureIndex(database_name, collection_name, fieldname, unique)
-  {
-    try{
       return true;
-      
-      var result = false;
-
-      if(fieldname==null)
-      {
-        return false;
-      }
-
-      if(unique==null)
-      {
-        unique = false;
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_EnsureIndex() MongoDB Server Not Initialized");
-        return false;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return false;
-      }
-      
-      const do_db_ensureIndex = function(db, collection_name, fieldname, unique){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.collection(collection_name).ensureIndex(fieldname, { 'unique': unique }, function(err) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = true;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_ensureIndex(this.db_list[database_name], collection_name, fieldname, unique);
-
-      return result;
-    }
-    catch(e)
-    {
-      debug("[DataBase] Database_EnsureIndex() Error " + e);
+    } catch (e) {
+      debug('[DataBase] DataBase_Close() Error', e);
+      return false;
     }
   }
 
-  async Database_RemoveIndex(database_name, collection_name, fieldname)
-  {
-    try{
-      var result = false;
+  /* ----------------------------- Helper ----------------------------- */
+  /** @private */ _ensureReady(database_name) {
+    if (!this.mongo_client) throw new Error('MongoDB client not initialised');
+    const db = this.db_list[database_name];
+    if (!db) throw new Error(`DB ${database_name} not opened`);
+    return db;
+  }
 
-      if(fieldname==null)
-      {
-        return false;
-      }
-
-      if(this.mongo_client==null)
-      {
-        debug("[DataBase] Database_RemoveIndex() MongoDB Server Not Initialized");
-        return false;
-      }
-
-      if(this.db_list[database_name]==null)
-      {
-        return false;
-      }
-      
-      const do_db_removeIndex = function(db, collection_name, fieldname){
-        return new Promise(function(resolve, reject) {
-          process.nextTick(() => {
-            db.collection(collection_name).removeIndex(fieldname, function(err) {
-              if (err) { 
-                reject();
-                throw err;
-              }
-              result = true;
-              resolve();
-            });
-          });
-        });
-      }
-
-      await do_db_removeIndex(this.db_list[database_name], collection_name, fieldname);
-
-      return result;
+  /* ----------------------------- LIST ----------------------------- */
+  async Database_ListCollections(database_name) {
+    try {
+      const db = this._ensureReady(database_name);
+      return await db.listCollections().toArray();
+    } catch (e) {
+      debug('[DataBase] Database_ListCollections() Error', e);
+      return null;
     }
-    catch(e)
-    {
-      debug("[DataBase] Database_RemoveIndex() Error " + e);
+  }
+
+  /* ----------------------------- READ ----------------------------- */
+  async Database_Find(database_name, collection_name, query = {}, option = {}) {
+    try {
+      const db = this._ensureReady(database_name);
+      return await db.collection(collection_name).find(query, option).sort({ _id: 1 }).toArray();
+    } catch (e) {
+      debug('[DataBase] Database_Find() Error', e);
+      return null;
+    }
+  }
+
+  async Database_FindLimit(database_name, collection_name, query = {}, limit_counts = 0, option = {}) {
+    try {
+      const db = this._ensureReady(database_name);
+      let cursor = db.collection(collection_name).find(query, option).sort({ _id: 1 });
+      if (limit_counts > 0) cursor = cursor.limit(limit_counts);
+      return await cursor.toArray();
+    } catch (e) {
+      debug('[DataBase] Database_FindLimit() Error', e);
+      return null;
+    }
+  }
+
+  async Database_FindOne(database_name, collection_name, query = {}, option = {}) {
+    try {
+      const db = this._ensureReady(database_name);
+      return await db.collection(collection_name).findOne(query, option);
+    } catch (e) {
+      debug('[DataBase] Database_FindOne() Error', e);
+      return null;
+    }
+  }
+
+  async Database_Count(database_name, collection_name, condition = {}) {
+    try {
+      const db = this._ensureReady(database_name);
+      return await db.collection(collection_name).countDocuments(condition);
+    } catch (e) {
+      debug('[DataBase] Database_Count() Error', e);
+      return -1;
+    }
+  }
+
+  /* ----------------------------- CREATE ----------------------------- */
+  async Database_Insert(database_name, collection_name, new_doc) {
+    try {
+      const db = this._ensureReady(database_name);
+      if (new_doc._id) delete new_doc._id;
+      await db.collection(collection_name).insertOne(new_doc);
+      return true;
+    } catch (e) {
+      debug('[DataBase] Database_Insert() Error', e);
+      return false;
+    }
+  }
+
+  /* ----------------------------- UPDATE ----------------------------- */
+  async Database_Update(database_name, collection_name, query = {}, new_doc = {}, multi = false) {
+    try {
+      const db = this._ensureReady(database_name);
+      if (new_doc._id) delete new_doc._id;
+
+      // 如果 new_doc 沒有操作符，預設走 $set
+      const updatePayload = Object.keys(new_doc).some(k => k.startsWith('$')) ? new_doc : { $set: new_doc };
+
+      if (multi) {
+        await db.collection(collection_name).updateMany(query, updatePayload);
+      } else {
+        await db.collection(collection_name).updateOne(query, updatePayload);
+      }
+      return true;
+    } catch (e) {
+      debug('[DataBase] Database_Update() Error', e);
+      return false;
+    }
+  }
+
+  /* ----------------------------- DELETE ----------------------------- */
+  async Database_Remove(database_name, collection_name, condition = {}, justone = false) {
+    try {
+      const db = this._ensureReady(database_name);
+      if (justone) {
+        await db.collection(collection_name).deleteOne(condition);
+      } else {
+        await db.collection(collection_name).deleteMany(condition);
+      }
+      return true;
+    } catch (e) {
+      debug('[DataBase] Database_Remove() Error', e);
+      return false;
+    }
+  }
+
+  /* ----------------------------- INDEX ----------------------------- */
+  async Database_EnsureIndex(database_name, collection_name, fieldname, unique = false) {
+    try {
+      const db = this._ensureReady(database_name);
+      await db.collection(collection_name).createIndex({ [fieldname]: 1 }, { unique });
+      return true;
+    } catch (e) {
+      debug('[DataBase] Database_EnsureIndex() Error', e);
+      return false;
+    }
+  }
+
+  async Database_RemoveIndex(database_name, collection_name, fieldname) {
+    try {
+      const db = this._ensureReady(database_name);
+      await db.collection(collection_name).dropIndex(fieldname);
+      return true;
+    } catch (e) {
+      debug('[DataBase] Database_RemoveIndex() Error', e);
+      return false;
     }
   }
 }

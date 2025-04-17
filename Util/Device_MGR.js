@@ -579,9 +579,9 @@ var Device_MGR = function (){
             }
             
             var db_query = null;
-            if(user!=null)
+            if(user!=null && user !="everyone")
             {
-                db_query = { $or: [ { 'user': user, 'device_ID': device_ID }, { 'user': 'everyone', 'device_ID': device_ID } ] };
+                db_query = {'user': user, 'device_ID': device_ID };
             }
             else{
                 db_query = {'device_ID': device_ID};
