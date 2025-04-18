@@ -16,28 +16,12 @@ var Devices_WebSocket = function (){
     self.Process_Devices_Topic_WebSocket_POST_Message = async function(username, post_device_json_data)
     {
         try{
-            var mapped_device_type = null
             if(post_device_json_data.device_type!=null){
-                switch(post_device_json_data.device_type)
-                {
-                    //Lighting
-                    case "OnOff Light":
-                    case "Dimmable Light":
-                    case "Color Temperature Light":
-                    case "Colored Light":
-                    case "Extended Color Light":
-                        mapped_device_type = "Lighting";
-                        break;
-                    default:
-                        mapped_device_type = post_device_json_data.device_type;
-                        break;
-                }
-                
                 if(post_device_json_data.command!=null){
                     switch(post_device_json_data.command){
                         case "Device Change Name":
                             if(post_device_json_data.device_ID!=null && post_device_json_data.device_Name!=null){
-                                await device_mgr.Device_Change_Name(mapped_device_type, username, post_device_json_data.device_ID, post_device_json_data.device_Name);
+                                await device_mgr.Device_Change_Name(post_device_json_data.device_type, username, post_device_json_data.device_ID, post_device_json_data.device_Name);
                                 
                                 switch(post_device_json_data.device_type)
                                 {
@@ -49,7 +33,7 @@ var Devices_WebSocket = function (){
                             break;
                         case "Remove One Device":
                             if(post_device_json_data.device_ID!=null){
-                                await device_mgr.Remove_Device(mapped_device_type, username, post_device_json_data.device_ID);
+                                await device_mgr.Remove_Device(post_device_json_data.device_type, username, post_device_json_data.device_ID);
                                 
                                 switch(post_device_json_data.device_type)
                                 {
