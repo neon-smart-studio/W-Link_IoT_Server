@@ -75,46 +75,11 @@ var Devices_WebSocket = function (){
             var rsp_json = null;
             var mapped_device_type = null
             if(get_device_json_data.device_type!=null){
-                switch(get_device_json_data.device_type)
-                {
-                    //Lighting
-                    case "OnOff Light":
-                    case "Dimmable Light":
-                    case "Color Temperature Light":
-                    case "Colored Light":
-                    case "Extended Color Light":
-                        mapped_device_type = "Lighting";
-                        break;
-                    default:
-                        mapped_device_type = get_device_json_data.device_type;
-                        break;
-                }
                 
                 if(get_device_json_data.command!=null){
                     switch(get_device_json_data.command){
                         case "Get All Device List":
-                            switch(get_device_json_data.device_type)
-                            {
-                                case "OnOff Light":
-                                case "Dimmable Light":
-                                case "Color Temperature Light":
-                                    rsp_json = await device_mgr.Get_Device_List_Specific_Sub_Types(mapped_device_type, username, get_device_json_data.device_type);
-                                    break;
-                                case "Colored Light":
-                                case "Extended Color Light":
-                                    var colored_light_dev_lst = await device_mgr.Get_Device_List_Specific_Sub_Types(mapped_device_type, username, "Colored Light");
-                                    var ext_color_light_dev_lst = await device_mgr.Get_Device_List_Specific_Sub_Types(mapped_device_type, username, "Extended Color Light");
-                                    var colored_light_dev_lst_array = colored_light_dev_lst.device_list;
-                                    var ext_color_light_dev_lst_array = ext_color_light_dev_lst.device_list;
-                                    rsp_json = {
-                                        device_list: colored_light_dev_lst_array.concat(ext_color_light_dev_lst_array)
-                                    }
-                                    break;
-                                case "Lighting":
-                                default:
-                                    rsp_json = await device_mgr.Get_Device_List_Specific_User(mapped_device_type, username);
-                                    break;
-                            }
+                            rsp_json = await device_mgr.Get_Device_List_Specific_User(get_device_json_data.device_type, username);
                             break;
                         case "Get Device Info":
                             if(get_device_json_data.device_ID!=null){

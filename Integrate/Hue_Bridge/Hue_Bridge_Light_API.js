@@ -15,7 +15,6 @@ var Hue_Bridge_API = require('./Hue_Bridge_Device_API.js');
 var hue_bridge_api = new Hue_Bridge_API();
 
 const Device_MGR_DB_Name = 'device';
-const Lighting_Device_Type = "Lighting";
 
 async function Delete_All_Hue_Bridge_Light(user, bridge_address_ID)
 {
@@ -31,7 +30,35 @@ async function Delete_All_Hue_Bridge_Light(user, bridge_address_ID)
         var db_query = { $or: [ { 'user': user, 'bridge_address_ID': bridge_address_ID}, 
                         { 'user': 'everyone', 'bridge_address_ID': bridge_address_ID} ] };
         
-        success = await database.Database_Remove(Device_MGR_DB_Name, Lighting_Device_Type, db_query, false);
+        success = await database.Database_Remove(Device_MGR_DB_Name, "Onoff light", db_query, false);
+        if(success==false)
+        {
+            database.DataBase_Close(Device_MGR_DB_Name);
+            return false;
+        }
+        
+        success = await database.Database_Remove(Device_MGR_DB_Name, "Dimmable Light", db_query, false);
+        if(success==false)
+        {
+            database.DataBase_Close(Device_MGR_DB_Name);
+            return false;
+        }
+        
+        success = await database.Database_Remove(Device_MGR_DB_Name, "Colored Light", db_query, false);
+        if(success==false)
+        {
+            database.DataBase_Close(Device_MGR_DB_Name);
+            return false;
+        }
+        
+        success = await database.Database_Remove(Device_MGR_DB_Name, "Extended Color Light", db_query, false);
+        if(success==false)
+        {
+            database.DataBase_Close(Device_MGR_DB_Name);
+            return false;
+        }
+        
+        success = await database.Database_Remove(Device_MGR_DB_Name, "Color Temperature Light", db_query, false);
         if(success==false)
         {
             database.DataBase_Close(Device_MGR_DB_Name);
@@ -62,16 +89,35 @@ var Hue_Bridge_Light_API = function () {
             const hue_bridge_db_query = { $or: [ { 'user': username, 'bridge_address_ID': bridge_address_ID, 'node_ID': Number(light_node_ID) },
                             { 'user': 'everyone', 'bridge_address_ID': bridge_address_ID, 'node_ID': Number(light_node_ID) } ] };
 
-            var dev_docs = await database.Database_Find(Device_MGR_DB_Name, Lighting_Device_Type, hue_bridge_db_query, null);
-            if(dev_docs==null || dev_docs.length==0)
+            let dev_docs
+            dev_docs = await database.Database_Find(Device_MGR_DB_Name, "On Off Light", hue_bridge_db_query, null);
+            if(dev_docs!=null && dev_docs.length!=0)
             {
                 database.DataBase_Close(Device_MGR_DB_Name);
-                return null;
+                return dev_docs[0].device_ID;
+            }
+            dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Dimmable Light", hue_bridge_db_query, null);
+            if(dev_docs!=null && dev_docs.length!=0)
+            {
+                database.DataBase_Close(Device_MGR_DB_Name);
+                return dev_docs[0].device_ID;
+            }
+            dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Colored Light", hue_bridge_db_query, null);
+            if(dev_docs!=null && dev_docs.length!=0)
+            {
+                database.DataBase_Close(Device_MGR_DB_Name);
+                return dev_docs[0].device_ID;
+            }
+            dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Color Temperature Light", hue_bridge_db_query, null);
+            if(dev_docs!=null && dev_docs.length!=0)
+            {
+                database.DataBase_Close(Device_MGR_DB_Name);
+                return dev_docs[0].device_ID;
             }
 
             database.DataBase_Close(Device_MGR_DB_Name);
 
-            return dev_docs[0].device_ID;
+            return null;
         }
         catch (e) {
             debug("[Hue_Bridge_Light_API] Hue_Bridge_Get_Light_Address_ID_By_Node_ID() Error " + e);
@@ -111,10 +157,8 @@ var Hue_Bridge_Light_API = function () {
                         light_type = "Dimmable Light";
                         break;
                     case "Colored light":
-                        light_type = "Colored Light";
-                        break;
                     case "Extended color light":
-                        light_type = "Extended Color Light";
+                        light_type = "Colored Light";
                         break;
                     case "Color temperature light":
                         light_type = "Color Temperature Light";
@@ -139,7 +183,7 @@ var Hue_Bridge_Light_API = function () {
                     config: light_info.config
                 }
             
-                await device_mgr.Save_Device_Info(Lighting_Device_Type, username, light_address_ID, light_device_info);
+                await device_mgr.Save_Device_Info(light_type, username, light_address_ID, light_device_info);
             }
             return true;
         }

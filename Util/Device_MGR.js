@@ -525,43 +525,6 @@ var Device_MGR = function (){
         }
     }
 
-    self.Get_Device_List_Specific_Sub_Types = async function(device_Type, user, specific_sub_types)
-    {
-        try{
-            if(device_Type==null){
-                return null;
-            }
-
-            var rsp_json = {};
-
-            var success = false;
-
-            success = await database.DataBase_Open(Device_MGR_DB_Name);
-            if(success==false)
-            {
-                return null;
-            }
-            
-            var db_query = { $or: [ { 'user': user, 'device_Type': specific_sub_types }, { 'user': 'everyone', 'device_Type': specific_sub_types } ] };
-            var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, db_query, null);
-            if(dev_docs==null)
-            {
-                database.DataBase_Close(Device_MGR_DB_Name);
-                return null;
-            }
-            
-            database.DataBase_Close(Device_MGR_DB_Name);
-            
-            rsp_json.device_list = dev_docs;
-
-            return rsp_json;
-        }
-        catch(e)
-        {
-            debug("[Device_MGR] Get_Device_List_Specific_Sub_Types() Error: " + e);
-        }
-    }
-
     self.Read_Device_Inf = async function(device_Type, user, device_ID)
     {
         try{
@@ -587,7 +550,7 @@ var Device_MGR = function (){
                 db_query = {'device_ID': device_ID};
             }
             
-            var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
+            var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, db_query, null);
             if(dev_docs==null || dev_docs.length==0)
             {
                 database.DataBase_Close(Device_MGR_DB_Name);
@@ -787,20 +750,9 @@ var Device_MGR = function (){
                 return false;
             }
 
-            var collection_name = device_Type;
             var db_query = { $or: [ { 'user': user}, { 'user': 'everyone'} ] };
 
-            if(device_Type=="OnOff Light" || 
-                device_Type=="Dimmable Light" || 
-                device_Type=="Color Temperature Light" || 
-                device_Type=="Colored Light" || 
-                device_Type=="Extended Color Light" )
-                {
-                    collection_name = "Lighting";
-                    db_query = { $or: [ { 'user': user, 'device_Type': device_Type}, { 'user': 'everyone', 'device_Type': device_Type} ] };
-                }
-            
-            var all_dev_docs = await database.Database_Find(Device_MGR_DB_Name, collection_name, db_query, null);
+            var all_dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, db_query, null);
             if(all_dev_docs==null)
             {
                 database.DataBase_Close(Device_MGR_DB_Name);

@@ -122,21 +122,7 @@ var Device_MGMT_API = function () {
                     device_type = "OnOff Socket";
                     break;
             }
-            switch(device_type){
-                case "OnOff Light":
-                case "OnOff Plug In Unit":
-                case "Dimmable Light":
-                case "Dimmable Plug In Unit":
-                case "Colored Light":
-                case "Color Temperature Light":
-                case "Extended Color Light":
-                    await device_mgr.Save_Device_Info("Lighting", username, device_ID, device_inf);
-                    break;
-                    
-                default:
-                    await device_mgr.Save_Device_Info(device_type, username, device_ID, device_inf);
-                    break;
-            }
+            await device_mgr.Save_Device_Info(device_type, username, device_ID, device_inf);
         }
         catch (e) {
             debug("[Device_MGMT_API] Device_MGMT_Save_Device_Info() Error " + e);
