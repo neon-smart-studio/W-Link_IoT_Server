@@ -44,8 +44,8 @@ var AirQuality_WebSocket = require('./Device_MGMT/AirQuality/Air_Quality_WebSock
 var airquality_websocket = new AirQuality_WebSocket();
 var Weather_WebSocket = require('./Device_MGMT/Weather/Weather_WebSocket.js');
 var weather_websocket = new Weather_WebSocket();
-var Bridge_WebSocket = require('./Device_MGMT/Bridge/Bridge_WebSocket.js');
-var bridge_websocket = new Bridge_WebSocket();
+var Integrate_WebSocket = require('./Device_MGMT/Integrate/Integrate_WebSocket.js');
+var integrate_websocket = new Integrate_WebSocket();
 
 var WebSocket_APP = function () {
     var self = this;
@@ -72,7 +72,7 @@ var WebSocket_APP = function () {
 
             websocket.Register_WebSocket_Topic_And_Callbacks("AirQuality", airquality_websocket.Process_Air_Quality_Topic_WebSocket_POST_Message, airquality_websocket.Process_Air_Quality_Topic_WebSocket_GET_Message);
             websocket.Register_WebSocket_Topic_And_Callbacks("Weather", weather_websocket.Process_Weather_Topic_WebSocket_POST_Message, weather_websocket.Process_Weather_Topic_WebSocket_GET_Message);
-            websocket.Register_WebSocket_Topic_And_Callbacks("Bridge", bridge_websocket.Process_Bridge_Topic_WebSocket_POST_Message, bridge_websocket.Process_Bridge_Topic_WebSocket_GET_Message);
+            websocket.Register_WebSocket_Topic_And_Callbacks("Integrate", integrate_websocket.Process_Integrate_Topic_WebSocket_POST_Message, integrate_websocket.Process_Integrate_Topic_WebSocket_GET_Message);
         }
         catch (e) {
             debug("[WebSocket APP] WebSocket_APP_Init() Error " + e);

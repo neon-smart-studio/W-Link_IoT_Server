@@ -7,7 +7,7 @@ var device_mgmt_api = new Device_MGMT_API();
 var Device_MGR = require('../../Util/Device_MGR.js');
 var device_mgr = new Device_MGR();
 
-var Hue_Bridge_Device_API = require('../../Hue_Bridge/Hue_Bridge_Device_API.js');
+var Hue_Bridge_Device_API = require('../../Integrate/Hue_Bridge/Hue_Bridge_Device_API.js');
 var hue_bridge_device_api = new Hue_Bridge_Device_API();
 
 var Devices_WebSocket = function (){

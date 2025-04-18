@@ -20,7 +20,7 @@ var mqtt_group = new MQTT_Group();
 var Zigbee_Group = require('../Zigbee/Zigbee_Group.js');
 var zigbee_group = new Zigbee_Group();
 
-var Hue_Bridge_Group = require('../Hue_Bridge/Hue_Bridge_Group_API.js');
+var Hue_Bridge_Group = require('../Integrate/Hue_Bridge/Hue_Bridge_Group_API.js');
 var hue_bridge_group = new Hue_Bridge_Group();
 
 const Group_MGR_DB_Name = 'group';

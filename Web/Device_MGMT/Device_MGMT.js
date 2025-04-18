@@ -14,7 +14,7 @@ var html_asolute_path = web.html_asolute_path;
 
 device_mgmt_router.use('/Weather', require('./Weather/Weather.js'));
 device_mgmt_router.use('/AirQuality', require('./AirQuality/Air_Quality.js'));
-device_mgmt_router.use('/Bridge', require('./Bridge/Bridge.js'));
+device_mgmt_router.use('/Integrate', require('./Integrate/Integrate.js'));
 device_mgmt_router.use('/Water', require('./Water/Water.js'));
 device_mgmt_router.use('/Lighting', require('./Lighting/Lighting.js'));
 device_mgmt_router.use('/Environment', require('./Environment/Environment.js'));

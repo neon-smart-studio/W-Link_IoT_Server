@@ -717,10 +717,10 @@
                     ]
                 },
                 {
-                    "page_name": "橋接器",
+                    "page_name": "第三方整合",
                     "page_title_icon": "/icons/device_mgmt_icons/Bridge.ico",
-                    "page_URL": "/device_mgmt/Bridge",
-                    "page_topic": "Bridge",
+                    "page_URL": "/device_mgmt/Integrate",
+                    "page_topic": "Integrate",
                     "page_text_color": "fg-mauve",
                     "page_icon_type": "css",
                     "page_icon_css": "mif-server",
@@ -732,27 +732,27 @@
                     [
                         {
                             "page_name": "Hue橋接器",
-                            "page_URL": "/device_mgmt/Bridge/Hue_Bridge",
+                            "page_URL": "/device_mgmt/Integrate/Hue_Bridge",
                             "page_topic": "Hue Bridge",
                             "page_text_color": "fg-mauve",
                             "page_icon_type": "URL",
-                            "page_icon_URL": "/icons/device_mgmt_icons/Bridge/hue_bridge_header_icon_w.png",
-                            "page_icon_color_URL": "/icons/device_mgmt_icons/Bridge/hue_bridge_header_icon_m.png",
+                            "page_icon_URL": "/icons/device_mgmt_icons/Integrate/hue_bridge_header_icon_w.png",
+                            "page_icon_color_URL": "/icons/device_mgmt_icons/Integrate/hue_bridge_header_icon_m.png",
                             "page_background_color": "bg-mauve",
-                            "page_control_js_URL": "/device_mgmt/Bridge/Hue_Bridge_Page.js",
-                            "device_control_js_URL": "/device_mgmt/Bridge/Hue_Bridge.js",
+                            "page_control_js_URL": "/device_mgmt/Integrate/Hue_Bridge_Page.js",
+                            "device_control_js_URL": "/device_mgmt/Integrate/Hue_Bridge.js",
                             "tile_size": "wide",
                             "tile_background_type": "css",
                             "tile_background_css": "bg-mauve",
                             "tile_icon_type": "URL",
-                            "tile_icon_URL": "/icons/device_mgmt_icons/Bridge/hue_bridge_tile_icon.png",
+                            "tile_icon_URL": "/icons/device_mgmt_icons/Integrate/hue_bridge_tile_icon.png",
                             "button_background_css": "bg-mauve",
                             "button_text_css": "fg-mauve",
                             "button_outline_css": "bd-mauve",
                             "device_tile_background_type": "css",
                             "device_tile_background_css": "bg-mauve",
                             "device_tile_icon_type": "URL",
-                            "device_tile_icon_URL": "/icons/device_mgmt_icons/Bridge/hue_bridge_tile_icon.png"
+                            "device_tile_icon_URL": "/icons/device_mgmt_icons/Integrate/hue_bridge_tile_icon.png"
                         }
                     ]
                 }

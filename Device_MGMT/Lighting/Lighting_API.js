@@ -13,7 +13,7 @@ var lighting_api_zigbee = new Lighting_API_Zigbee();
 var Lighting_API_BLE = require('../../Bluetooth/Device_MGMT/Lighting/Lighting_API_BLE.js');
 var lighting_api_ble = new Lighting_API_BLE();
 
-var Hue_Bridge_Lighting_API = require('../../Hue_Bridge/Hue_Bridge_Lighting_API.js');
+var Hue_Bridge_Lighting_API = require('../../Integrate/Hue_Bridge/Hue_Bridge_Lighting_API.js');
 var lighting_api_hue_bridge = new Hue_Bridge_Lighting_API();
 
 const ZB_CCT_Max = 6500;
