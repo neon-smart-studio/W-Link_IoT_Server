@@ -587,7 +587,7 @@ var Device_MGR = function (){
                 db_query = {'device_ID': device_ID};
             }
             
-            var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, db_query, null);
+            var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
             if(dev_docs==null || dev_docs.length==0)
             {
                 database.DataBase_Close(Device_MGR_DB_Name);

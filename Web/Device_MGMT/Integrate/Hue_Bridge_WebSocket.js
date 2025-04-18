@@ -32,7 +32,7 @@ var Hue_Bridge_WebSocket = function (){
                                     "bridge_IP": post_hue_bridge_json_data.bridge_IP,
                                 }
             
-                                websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Bridge', ws_report_cmd);
+                                websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Integrate', ws_report_cmd);
                             }
                         }
                         break;
@@ -55,7 +55,7 @@ var Hue_Bridge_WebSocket = function (){
                                     "device_ID": post_hue_bridge_json_data.device_ID
                                 }
                             }
-                            websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Bridge', ws_report_cmd);
+                            websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Integrate', ws_report_cmd);
                         }
                         break;
                     case "Hue Bridge Synchronize All Group Info":
@@ -77,7 +77,7 @@ var Hue_Bridge_WebSocket = function (){
                                     "device_ID": post_hue_bridge_json_data.device_ID
                                 }
                             }
-                            websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Bridge', ws_report_cmd);
+                            websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Integrate', ws_report_cmd);
                         }
                         break;
                 }

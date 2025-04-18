@@ -24,7 +24,7 @@ var Integrate_WebSocket = function (){
         }
     }
 
-    self.Process_Bridge_Topic_WebSocket_GET_Message = async function(username, get_json_data)
+    self.Process_Integrate_Topic_WebSocket_GET_Message = async function(username, get_json_data)
     {
         try{
             var rsp_json = null;

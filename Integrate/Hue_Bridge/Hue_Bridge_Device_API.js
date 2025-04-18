@@ -18,7 +18,7 @@ const Hue_Bridge_Device_Type = "Hue Bridge";
 var Hue_Bridge_Session_List = [];
 var Hue_Bridge_Configuration_List = [];
 
-async function discoverViaSSDP(timeoutMs = 4000) {
+async function discoverViaSSDP(timeoutMs = 10000) {
     const ssdpClient = new Client();
     const discoveryResults = [];
     const found = new Set();
@@ -87,13 +87,11 @@ var Hue_Bridge_API = function () {
     
     self.Link_To_Hue_Bridge = async function (username, hue_bridge_ip) {
         try {
-            debug("[Hue_Bridge_API] Discover_Hue_Bridge() hue_bridge_ip " + hue_bridge_ip);
             var authenticatedApi = Hue_Bridge_Session_List[hue_bridge_ip];
             if(authenticatedApi==null)
             {
                 // Create an unauthenticated instance of the Hue API so that we can create a new user
                 const unauthenticatedApi = await hueApi.createLocal(hue_bridge_ip).connect();
-                debug("[Hue_Bridge_API] Discover_Hue_Bridge() authenticatedApi " + authenticatedApi);
                 
                 var errCode = 0;
                 var createdUser = null;
@@ -103,9 +101,7 @@ var Hue_Bridge_API = function () {
                 do
                 {
                     try{
-                        debug("[Hue_Bridge_API] Discover_Hue_Bridge() username " + username);
                         createdUser = await unauthenticatedApi.users.createUser(hueAppName, username);
-                        debug("[Hue_Bridge_API] Discover_Hue_Bridge() createdUser " + createdUser);
                         if(createdUser!=null)
                         {
                             errCode = 0;
@@ -127,14 +123,12 @@ var Hue_Bridge_API = function () {
             
                 // Create a new API instance that is authenticated with the new user we created
                 authenticatedApi = await hueApi.createLocal(hue_bridge_ip).connect(createdUser.username);
-                debug("[Hue_Bridge_API] Discover_Hue_Bridge() authenticatedApi " + authenticatedApi);
 
                 Hue_Bridge_Session_List[hue_bridge_ip] = authenticatedApi;
             }
             
             // Do something with the authenticated user/api
             var hue_bridge_configuration = await authenticatedApi.configuration.getConfiguration();
-            debug("[Hue_Bridge_API] Discover_Hue_Bridge() hue_bridge_configuration " + hue_bridge_configuration);
             Hue_Bridge_Configuration_List[hue_bridge_ip] = hue_bridge_configuration;
 
             var macPatternArray = hue_bridge_configuration.mac.split(":");
