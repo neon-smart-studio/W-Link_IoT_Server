@@ -202,7 +202,7 @@ var Rule_MGR = function (){
             success = await database.Database_EnsureIndex(Rule_MGR_DB_Name, device_Type, "source_device_ID", true);
             if(success==false)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
@@ -239,7 +239,7 @@ var Rule_MGR = function (){
                 success = await database.Database_Update(Rule_MGR_DB_Name, device_Type, db_query, new_rule_doc, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Rule_MGR_DB_Name);
+                    await database.DataBase_Close(Rule_MGR_DB_Name);
                     return false;
                 }
             }
@@ -266,12 +266,12 @@ var Rule_MGR = function (){
                 success = await database.Database_Insert(Rule_MGR_DB_Name, device_Type, new_rule_doc);
                 if(success==false)
                 {
-                    database.DataBase_Close(Rule_MGR_DB_Name);
+                    await database.DataBase_Close(Rule_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
             
             return true;
         }
@@ -305,7 +305,7 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
@@ -315,11 +315,11 @@ var Rule_MGR = function (){
             success = await database.Database_Update(Rule_MGR_DB_Name, device_Type, db_query, new_rule_inf, false);
             if(success==false)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
             
             return true;
         }
@@ -345,11 +345,11 @@ var Rule_MGR = function (){
             var rule_docs = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_docs==null || rule_docs.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             rsp_json.rule_list = rule_docs;
 
@@ -380,11 +380,11 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return rule_doc[0];
         }
@@ -413,11 +413,11 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return rule_doc[0].conditions;
         }
@@ -446,11 +446,11 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return {
                 match_action: rule_doc[0].match_action,
@@ -482,11 +482,11 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return rule_doc[0].match_action;
         }
@@ -515,11 +515,11 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return rule_doc[0].mismatch_action;
         }
@@ -578,14 +578,14 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
             var new_rule_doc = rule_doc[0];
 
             if(new_rule_doc.action==null)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
             new_rule_doc.conditions = new_rule_conditions_docs;
@@ -593,11 +593,11 @@ var Rule_MGR = function (){
             success = await database.Database_Update(Rule_MGR_DB_Name, device_Type, db_query, new_rule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return true;
         }
@@ -642,14 +642,14 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
             var new_rule_doc = rule_doc[0];
 
             if(new_rule_doc.action==null)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
             new_rule_doc.match_action = new_rule_action_doc;
@@ -657,11 +657,11 @@ var Rule_MGR = function (){
             success = await database.Database_Update(Rule_MGR_DB_Name, device_Type, db_query, new_rule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return true;
         }
@@ -706,14 +706,14 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
             var new_rule_doc = rule_doc[0];
 
             if(new_rule_doc.action==null)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
             new_rule_doc.mismatch_action = new_rule_action_doc;
@@ -721,11 +721,11 @@ var Rule_MGR = function (){
             success = await database.Database_Update(Rule_MGR_DB_Name, device_Type, db_query, new_rule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return true;
         }
@@ -754,7 +754,7 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
@@ -763,11 +763,11 @@ var Rule_MGR = function (){
             success = await database.Database_Update(Rule_MGR_DB_Name, device_Type, db_query, rule_doc[0], false);
             if(success==false)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return true;
         }
@@ -796,7 +796,7 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
@@ -811,11 +811,11 @@ var Rule_MGR = function (){
             success = await database.Database_Update(Rule_MGR_DB_Name, device_Type, db_query, rule_doc[0], false);
             if(success==false)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return true;
         }
@@ -844,18 +844,18 @@ var Rule_MGR = function (){
             var rule_doc = await database.Database_Find(Rule_MGR_DB_Name, device_Type, db_query, null);
             if(rule_doc==null || rule_doc.length==0)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
             success = await database.Database_Remove(Rule_MGR_DB_Name, device_Type, db_query, true);
             if(success==false)
             {
-                database.DataBase_Close(Rule_MGR_DB_Name);
+                await database.DataBase_Close(Rule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Rule_MGR_DB_Name);
+            await database.DataBase_Close(Rule_MGR_DB_Name);
 
             return success;
         }

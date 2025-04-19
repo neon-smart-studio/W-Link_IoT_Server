@@ -16,8 +16,6 @@ var device_mgr = new Device_MGR();
 var Group_MGR = require('../../Util/Group_MGR.js');
 var group_mgr = new Group_MGR();
 
-const Lighting_Device_Type = "Lighting";
-
 const HUE_CCT_Max = 6500;
 const HUE_CCT_Min = 2000;
 const HUE_CCT_2000_Mapped_Mired_Val = 500;
@@ -36,22 +34,40 @@ async function Get_Light_Address_Info_And_Bridge_Session(address_ID)
     }
 
     var light_info = null;
-    var bridge_session = null;
     var group_info = null;
+    var bridge_session = null;
     var target_ID_list = [];
     var bridge_session_list = [];
     var target_type = address_info.target_type;
+    let support_dev_types = [
+        "OnOff Light",
+        "Dimmable Light",
+        "Colored Light",
+        "Extended Color Light",
+        "Color Temperature Light",
+    ];
+
     if(target_type=="Device")
     {
         if(address_info.host_hue_bridge_ID==null)
         {
             return null;
         }
-        light_info = await device_mgr.Read_Device_Inf(Lighting_Device_Type, null, address_ID);
+        
+        light_info = null;
+        for(let i = 0; i<support_dev_types.length; i++)
+        {
+            light_info = await device_mgr.Read_Device_Inf(support_dev_types[i], null, address_ID);
+            if(light_info!=null)
+            {
+                break;
+            }
+        }
         if(light_info==null)
         {
             return null;
         }
+
         bridge_session = await hue_bridge_api.Get_Hue_Bridge_Session_By_ID(light_info.user, address_info.host_hue_bridge_ID);
         if(bridge_session==null)
         {
@@ -62,11 +78,20 @@ async function Get_Light_Address_Info_And_Bridge_Session(address_ID)
     }
     else if(target_type=="Group")
     {
-        group_info = await group_mgr.Get_Group_Info(Lighting_Device_Type, null, address_ID);
-        if(group_info.Hue_Bridge_Group_List==null)
+        group_info = null;
+        for(let i = 0; i<support_dev_types.length; i++)
+        {
+            group_info = await group_mgr.Get_Group_Info(support_dev_types[i], null, address_ID);
+            if(group_info!=null)
+            {
+                break;
+            }
+        }
+        if(group_info==null)
         {
             return null;
         }
+        
         for(var i = 0; i<group_info.Hue_Bridge_Group_List.length; i++)
         {
             var bridge_session_item = await hue_bridge_api.Get_Hue_Bridge_Session_By_ID(group_info.user, group_info.Hue_Bridge_Group_List[i].Bridge_Address_ID);

@@ -101,7 +101,7 @@ var Group_MGR = function (){
             success = await database.Database_EnsureIndex(Group_MGR_DB_Name, device_Type, "group_ID", true);
             if(success==false)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return null;
             }
 
@@ -112,7 +112,7 @@ var Group_MGR = function (){
                 exist = true;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             if(exist==true)
             {
@@ -210,11 +210,11 @@ var Group_MGR = function (){
             success = await database.Database_Insert(Group_MGR_DB_Name, device_Type, new_group_doc);
             if(success==false)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             success = await address_mgr.Save_Address_Info(group_ID, "Group", "Any", "Any");
 
@@ -249,7 +249,7 @@ var Group_MGR = function (){
             var gp_doc = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_doc==null || gp_doc.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
@@ -259,11 +259,11 @@ var Group_MGR = function (){
             success = await database.Database_Update(Group_MGR_DB_Name, device_Type, db_query, new_gp_inf, false);
             if(success==false)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
             
             for(var i = 0; i<new_gp_inf.Hue_Bridge_Group_List.length; i++)
             {
@@ -297,7 +297,7 @@ var Group_MGR = function (){
             var gp_doc = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_doc==null || gp_doc.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
             var delete_gp_doc = gp_doc[0];
@@ -305,11 +305,11 @@ var Group_MGR = function (){
             success = await database.Database_Remove(Group_MGR_DB_Name, device_Type, db_query, true);
             if(success==false)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             success = await zigbee_group.Zigbee_DeleteGroup(delete_gp_doc.Mapped_Zigbee_Group_ID);
             if(success==false)
@@ -359,11 +359,11 @@ var Group_MGR = function (){
             var gp_docs = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_docs==null || gp_docs.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             rsp_json.group_list = gp_docs;
 
@@ -400,11 +400,11 @@ var Group_MGR = function (){
             var gp_doc = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_doc==null || gp_doc.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             return gp_doc[0];
         }
@@ -432,11 +432,11 @@ var Group_MGR = function (){
             var gp_doc = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_doc==null || gp_doc.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             return gp_doc[0].group_Ext_Info;
         }
@@ -464,7 +464,7 @@ var Group_MGR = function (){
             var gp_doc = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_doc==null || gp_doc.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
@@ -473,11 +473,11 @@ var Group_MGR = function (){
             success = await database.Database_Update(Group_MGR_DB_Name, device_Type, db_query, gp_doc[0], false);
             if(success==false)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             return true;
         }
@@ -508,11 +508,11 @@ var Group_MGR = function (){
             var gp_docs = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_docs==null || gp_docs.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             if(gp_docs[0].MQTT_Device_List!=null)
             {
@@ -554,7 +554,7 @@ var Group_MGR = function (){
                 }
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
             
             rsp_json.group_ID = group_ID;
             rsp_json.group_device_list = device_lst;
@@ -585,7 +585,7 @@ var Group_MGR = function (){
             var gp_docs = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_docs==null || gp_docs.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
@@ -594,7 +594,7 @@ var Group_MGR = function (){
                 var new_zigbee_group_ID = await zigbee_group.Zigbee_CreateGroup(group_ID);
                 if(new_zigbee_group_ID<0)
                 {
-                    database.DataBase_Close(Group_MGR_DB_Name);
+                    await database.DataBase_Close(Group_MGR_DB_Name);
                     return false;
                 }
                 gp_docs[0].Mapped_Zigbee_Group_ID = new_zigbee_group_ID;
@@ -602,12 +602,12 @@ var Group_MGR = function (){
                 success = await database.Database_Update(Group_MGR_DB_Name, device_Type, db_query, group_Doc, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Group_MGR_DB_Name);
+                    await database.DataBase_Close(Group_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             var Old_MQTT_Device_List = gp_docs[0].MQTT_Device_List;
             var Old_BLE_Device_List = gp_docs[0].BLE_Device_List;
@@ -797,11 +797,11 @@ var Group_MGR = function (){
             success = await database.Database_Update(Group_MGR_DB_Name, device_Type, db_query, new_group_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
             
             return true;
         }
@@ -835,7 +835,7 @@ var Group_MGR = function (){
             var gp_doc = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_doc==null || gp_doc.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
             
@@ -844,7 +844,7 @@ var Group_MGR = function (){
                 var new_zigbee_group_ID = await zigbee_group.Zigbee_CreateGroup(group_ID);
                 if(new_zigbee_group_ID<0)
                 {
-                    database.DataBase_Close(Group_MGR_DB_Name);
+                    await database.DataBase_Close(Group_MGR_DB_Name);
                     return false;
                 }
                 gp_docs[0].Mapped_Zigbee_Group_ID = new_zigbee_group_ID;
@@ -852,12 +852,12 @@ var Group_MGR = function (){
                 success = await database.Database_Update(Group_MGR_DB_Name, device_Type, db_query, group_Doc, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Group_MGR_DB_Name);
+                    await database.DataBase_Close(Group_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             var group_Doc = gp_doc[0];
 
@@ -962,11 +962,11 @@ var Group_MGR = function (){
             success = await database.Database_Update(Group_MGR_DB_Name, device_Type, db_query, group_Doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
             
             return true;
         }
@@ -1000,7 +1000,7 @@ var Group_MGR = function (){
             var gp_doc = await database.Database_Find(Group_MGR_DB_Name, device_Type, db_query, null);
             if(gp_doc==null || gp_doc.length==0)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
@@ -1009,7 +1009,7 @@ var Group_MGR = function (){
                 var new_zigbee_group_ID = await zigbee_group.Zigbee_CreateGroup(group_ID);
                 if(new_zigbee_group_ID<0)
                 {
-                    database.DataBase_Close(Group_MGR_DB_Name);
+                    await database.DataBase_Close(Group_MGR_DB_Name);
                     return false;
                 }
                 gp_docs[0].Mapped_Zigbee_Group_ID = new_zigbee_group_ID;
@@ -1017,12 +1017,12 @@ var Group_MGR = function (){
                 success = await database.Database_Update(Group_MGR_DB_Name, device_Type, db_query, group_Doc, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Group_MGR_DB_Name);
+                    await database.DataBase_Close(Group_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
 
             var group_Doc = gp_doc[0];
 
@@ -1137,11 +1137,11 @@ var Group_MGR = function (){
             success = await database.Database_Update(Group_MGR_DB_Name, device_Type, db_query, group_Doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Group_MGR_DB_Name);
+            await database.DataBase_Close(Group_MGR_DB_Name);
             
             return true;
         }

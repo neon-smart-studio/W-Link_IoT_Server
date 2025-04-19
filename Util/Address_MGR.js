@@ -50,11 +50,11 @@ var Address_MGR = function (){
             var addr_doc = await database.Database_Find(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address':address}, null);
             if(addr_doc==null || addr_doc.length==0)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             result = addr_doc[0].target_type;
 
@@ -85,11 +85,11 @@ var Address_MGR = function (){
             var addr_doc = await database.Database_Find(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address':address}, null);
             if(addr_doc==null || addr_doc.length==0)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             result = addr_doc[0].target_network;
 
@@ -120,11 +120,11 @@ var Address_MGR = function (){
             var addr_doc = await database.Database_Find(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address':address}, null);
             if(addr_doc==null || addr_doc.length==0)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             result = addr_doc[0].target_protocol;
 
@@ -159,11 +159,11 @@ var Address_MGR = function (){
             var addr_doc = await database.Database_Find(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address':address}, null);
             if(addr_doc==null || addr_doc.length==0)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             result = {
                 target_type: addr_doc[0].target_type,
@@ -214,14 +214,14 @@ var Address_MGR = function (){
             success = await database.Database_EnsureIndex(Address_MGR_DB_Name, Address_MGR_Collection_Name, "address", true);
             if(success==false)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
             var count = await database.Database_Count(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address});
             if(count<0)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
@@ -244,7 +244,7 @@ var Address_MGR = function (){
                 success = await database.Database_Update(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address}, address_info, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Address_MGR_DB_Name);
+                    await database.DataBase_Close(Address_MGR_DB_Name);
                     return false;
                 }
             }
@@ -252,12 +252,12 @@ var Address_MGR = function (){
                 success = await database.Database_Insert(Address_MGR_DB_Name, Address_MGR_Collection_Name, address_info);
                 if(success==false)
                 {
-                    database.DataBase_Close(Address_MGR_DB_Name);
+                    await database.DataBase_Close(Address_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             return true;
         }
@@ -284,14 +284,14 @@ var Address_MGR = function (){
             success = await database.Database_EnsureIndex(Address_MGR_DB_Name, Address_MGR_Collection_Name, "address", true);
             if(success==false)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
             var count = await database.Database_Count(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address});
             if(count<0)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
@@ -313,7 +313,7 @@ var Address_MGR = function (){
                 success = await database.Database_Update(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address}, address_info, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Address_MGR_DB_Name);
+                    await database.DataBase_Close(Address_MGR_DB_Name);
                     return false;
                 }
             }
@@ -321,12 +321,12 @@ var Address_MGR = function (){
                 success = await database.Database_Insert(Address_MGR_DB_Name, Address_MGR_Collection_Name, address_info);
                 if(success==false)
                 {
-                    database.DataBase_Close(Address_MGR_DB_Name);
+                    await database.DataBase_Close(Address_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             return true;
         }
@@ -358,14 +358,14 @@ var Address_MGR = function (){
             success = await database.Database_EnsureIndex(Address_MGR_DB_Name, Address_MGR_Collection_Name, "address", true);
             if(success==false)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
             var count = await database.Database_Count(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address});
             if(count<0)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
@@ -386,7 +386,7 @@ var Address_MGR = function (){
                 success = await database.Database_Update(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address}, address_info, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Address_MGR_DB_Name);
+                    await database.DataBase_Close(Address_MGR_DB_Name);
                     return false;
                 }
             }
@@ -394,12 +394,12 @@ var Address_MGR = function (){
                 success = await database.Database_Insert(Address_MGR_DB_Name, Address_MGR_Collection_Name, address_info);
                 if(success==false)
                 {
-                    database.DataBase_Close(Address_MGR_DB_Name);
+                    await database.DataBase_Close(Address_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             return true;
         }
@@ -431,11 +431,11 @@ var Address_MGR = function (){
             success = await database.Database_Remove(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address}, true);
             if(success==false)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             return true;
         }
@@ -458,11 +458,11 @@ var Address_MGR = function (){
             success = await database.Database_Remove(Address_MGR_DB_Name, Address_MGR_Collection_Name, query, true);
             if(success==false)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             return true;
         }
@@ -485,11 +485,11 @@ var Address_MGR = function (){
             success = await database.Database_Remove(Address_MGR_DB_Name, Address_MGR_Collection_Name, query, true);
             if(success==false)
             {
-                database.DataBase_Close(Address_MGR_DB_Name);
+                await database.DataBase_Close(Address_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Address_MGR_DB_Name);
+            await database.DataBase_Close(Address_MGR_DB_Name);
 
             return true;
         }

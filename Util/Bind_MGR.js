@@ -86,7 +86,7 @@ var Bind_MGR = function (){
             success = await database.Database_EnsureIndex(Bind_MGR_DB_Name, device_Type, "source_device_ID", true);
             if(success==false)
             {
-                database.DataBase_Close(Bind_MGR_DB_Name);
+                await database.DataBase_Close(Bind_MGR_DB_Name);
                 return false;
             }
 
@@ -118,7 +118,7 @@ var Bind_MGR = function (){
                 success = await database.Database_Update(Bind_MGR_DB_Name, device_Type, db_query, update_bind_doc, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Device_MGR_DB_Name);
+                    await database.DataBase_Close(Device_MGR_DB_Name);
                     return false;
                 }
             }
@@ -143,12 +143,12 @@ var Bind_MGR = function (){
                 success = await database.Database_Insert(Bind_MGR_DB_Name, device_Type, new_bind_doc);
                 if(success==false)
                 {
-                    database.DataBase_Close(Bind_MGR_DB_Name);
+                    await database.DataBase_Close(Bind_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Bind_MGR_DB_Name);
+            await database.DataBase_Close(Bind_MGR_DB_Name);
             
             return true;
         }
@@ -176,11 +176,11 @@ var Bind_MGR = function (){
             success = await database.Database_Remove(Bind_MGR_DB_Name, device_Type, db_query, true);
             if(success==false)
             {
-                database.DataBase_Close(Bind_MGR_DB_Name);
+                await database.DataBase_Close(Bind_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Bind_MGR_DB_Name);
+            await database.DataBase_Close(Bind_MGR_DB_Name);
 
             return true;
         }
@@ -208,11 +208,11 @@ var Bind_MGR = function (){
             var bind_doc = await database.Database_Find(Bind_MGR_DB_Name, device_Type, db_query, null);
             if(bind_doc==null || bind_doc.length==0)
             {
-                database.DataBase_Close(Bind_MGR_DB_Name);
+                await database.DataBase_Close(Bind_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Bind_MGR_DB_Name);
+            await database.DataBase_Close(Bind_MGR_DB_Name);
 
             return bind_doc[0];
         }
@@ -240,7 +240,7 @@ var Bind_MGR = function (){
             var bind_doc = await database.Database_Find(Bind_MGR_DB_Name, device_Type, db_query, null);
             if(bind_doc==null || bind_doc.length==0)
             {
-                database.DataBase_Close(Bind_MGR_DB_Name);
+                await database.DataBase_Close(Bind_MGR_DB_Name);
                 return false;
             }
 
@@ -249,11 +249,11 @@ var Bind_MGR = function (){
             success = await database.Database_Update(Bind_MGR_DB_Name, device_Type, db_query, bind_doc[0], false);
             if(success==false)
             {
-                database.DataBase_Close(Bind_MGR_DB_Name);
+                await database.DataBase_Close(Bind_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Bind_MGR_DB_Name);
+            await database.DataBase_Close(Bind_MGR_DB_Name);
 
             return true;
         }
@@ -281,7 +281,7 @@ var Bind_MGR = function (){
             var bind_doc = await database.Database_Find(Bind_MGR_DB_Name, device_Type, db_query, null);
             if(bind_doc==null || bind_doc.length==0)
             {
-                database.DataBase_Close(Bind_MGR_DB_Name);
+                await database.DataBase_Close(Bind_MGR_DB_Name);
                 return false;
             }
 
@@ -296,11 +296,11 @@ var Bind_MGR = function (){
             success = await database.Database_Update(Bind_MGR_DB_Name, device_Type, db_query, bind_doc[0], false);
             if(success==false)
             {
-                database.DataBase_Close(Bind_MGR_DB_Name);
+                await database.DataBase_Close(Bind_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Bind_MGR_DB_Name);
+            await database.DataBase_Close(Bind_MGR_DB_Name);
 
             return true;
         }

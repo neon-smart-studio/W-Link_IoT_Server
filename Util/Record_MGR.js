@@ -70,18 +70,18 @@ var Record_MGR = function (){
             success = await database.Database_EnsureIndex(Record_MGR_DB_Name, device_ID, "date", true);
             if(success==false)
             {
-                database.DataBase_Close(Record_MGR_DB_Name);
+                await database.DataBase_Close(Record_MGR_DB_Name);
                 return false;
             }
 
             success = await database.Database_Insert(Record_MGR_DB_Name, device_ID, store_state);
             if(success==false)
             {
-                database.DataBase_Close(Record_MGR_DB_Name);
+                await database.DataBase_Close(Record_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Record_MGR_DB_Name);
+            await database.DataBase_Close(Record_MGR_DB_Name);
             
             return true;
         }
@@ -138,18 +138,18 @@ var Record_MGR = function (){
             success = await database.Database_EnsureIndex(Record_MGR_DB_Name, db_collection_name, "date", true);
             if(success==false)
             {
-                database.DataBase_Close(Record_MGR_DB_Name);
+                await database.DataBase_Close(Record_MGR_DB_Name);
                 return false;
             }
 
             success = await database.Database_Insert(Record_MGR_DB_Name, db_collection_name, store_state);
             if(success==false)
             {
-                database.DataBase_Close(Record_MGR_DB_Name);
+                await database.DataBase_Close(Record_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Record_MGR_DB_Name);
+            await database.DataBase_Close(Record_MGR_DB_Name);
 
             return true;
         }
@@ -277,11 +277,11 @@ var Record_MGR = function (){
             }
             if(record_docs==null)
             {
-                database.DataBase_Close(Record_MGR_DB_Name);
+                await database.DataBase_Close(Record_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Record_MGR_DB_Name);
+            await database.DataBase_Close(Record_MGR_DB_Name);
             
             var return_obj = {};
 
@@ -403,11 +403,11 @@ var Record_MGR = function (){
             
             if(record_docs==null)
             {
-                database.DataBase_Close(Record_MGR_DB_Name);
+                await database.DataBase_Close(Record_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Record_MGR_DB_Name);
+            await database.DataBase_Close(Record_MGR_DB_Name);
             
             var return_obj = {};
 

@@ -18,7 +18,32 @@ const Hue_Bridge_Device_Type = "Hue Bridge";
 var Hue_Bridge_Session_List = [];
 var Hue_Bridge_Configuration_List = [];
 
-async function discoverViaSSDP(timeoutMs = 10000) {
+async function fetchSSDPInfoFromIP(ip) {
+    try {
+        const xml = await axios.get(`http://${ip}:80/description.xml`, { timeout: 3000 });
+        const parsed = await xml2js.parseStringPromise(xml.data, { explicitArray: false });
+        const device = parsed.root.device;
+
+        if (device && device.modelName?.toLowerCase().includes('hue')) {
+            return {
+                ip,
+                modelName: device.modelName,
+                friendlyName: device.friendlyName,
+                modelNumber: device.modelNumber,
+                serialNumber: device.serialNumber,
+                UDN: device.UDN, // 通常是 uuid:xxxxx
+                raw: device
+            };
+        }
+
+        return null;
+    } catch (e) {
+        console.warn(`[SSDP-IP] Failed to get descriptor from ${ip}: ${e.message}`);
+        return null;
+    }
+}
+
+async function discoverViaSSDP(timeoutMs = 1000) {
     const ssdpClient = new Client();
     const discoveryResults = [];
     const found = new Set();
@@ -36,19 +61,9 @@ async function discoverViaSSDP(timeoutMs = 10000) {
                 found.add(ip);
 
                 try {
-                    const xml = await axios.get(headers.LOCATION, { timeout: 3000 });
-                    const parsed = await xml2js.parseStringPromise(xml.data, { explicitArray: false });
-                    const device = parsed.root.device;
-
-                    if (device && device.modelName?.toLowerCase().includes('hue')) {
-                        discoveryResults.push({
-                            ip,
-                            location: headers.LOCATION,
-                            modelName: device.modelName,
-                            serialNumber: device.serialNumber,
-                            modelNumber: device.modelNumber,
-                            friendlyName: device.friendlyName
-                        });
+                    let bridge_xml_info = await fetchSSDPInfoFromIP(ip);
+                    if (bridge_xml_info!=null) {
+                        discoveryResults.push(bridge_xml_info);
                     }
                 } catch (e) {
                     debug("[Hue_Bridge_API] SSDP parse failed: " + e.message);
@@ -71,7 +86,7 @@ var Hue_Bridge_API = function () {
 
     self.Discover_Nearby_Hue_Bridge = async function () {
         try {
-            const discoveryResults = await discoverViaSSDP();
+            const discoveryResults = await discoverViaSSDP(10000);
             return {
                 num_of_hue_bridge: discoveryResults.length,
                 discovered_hue_bridge_list: discoveryResults
@@ -159,11 +174,50 @@ var Hue_Bridge_API = function () {
 
     self.Get_Hue_Bridge_Session_By_ID = async function (username, address_ID) {
         try{
-            var bridge_info = await device_mgr.Read_Device_Inf(Hue_Bridge_Device_Type, username, address_ID);
+            let bridge_info = await device_mgr.Read_Device_Inf(Hue_Bridge_Device_Type, username, address_ID);
             if(bridge_info==null)
             {
                 return null;
             }
+
+            let found = false;
+            let bridge_xml_info = await fetchSSDPInfoFromIP(bridge_info.IP_address);
+            let xmlAddressID = null;
+            if(bridge_xml_info!=null)
+            {
+                xmlAddressID = bridge_xml_info.modelNumber + bridge_xml_info.serialNumber;
+
+                if(xmlAddressID==bridge_info.device_ID)
+                {
+                    found = true;
+                }
+            }
+            if(!found)
+            {
+                let resolved = false;
+                const discoveryResults = await discoverViaSSDP(10000);
+                for(let i = 0; i< discoveryResults.length; i++)
+                {
+                    let result = discoveryResults[i];
+                    searchAddressID = result.modelNumber + result.serialNumber;
+                    if(searchAddressID==bridge_info.device_ID)
+                    {
+                        Hue_Bridge_Session_List[result.ip] = Hue_Bridge_Session_List[bridge_info.IP_address];
+                        Hue_Bridge_Session_List[bridge_info.IP_address] = null;
+                        bridge_info.IP_address = result.ip;
+                        resolved = true;
+                        await device_mgr.Save_Device_Info(Hue_Bridge_Device_Type, username, address_ID, bridge_info);
+                        break;
+                    }
+                }
+
+                if(!resolved)
+                {
+                    Hue_Bridge_Session_List[bridge_info.IP_address] = null;
+                    return null;
+                }
+            }
+
             if(bridge_info.authenticated_user==null)
             {
                 Hue_Bridge_Session_List[bridge_info.IP_address] = null;
@@ -171,7 +225,7 @@ var Hue_Bridge_API = function () {
             }
             if(Hue_Bridge_Session_List[bridge_info.IP_address]==null)
             {
-                var authenticatedApi
+                let authenticatedApi
                 try{
                     authenticatedApi = await hueApi.createLocal(bridge_info.IP_address).connect(bridge_info.authenticated_user.username);
                 }

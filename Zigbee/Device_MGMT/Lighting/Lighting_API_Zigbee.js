@@ -10,8 +10,6 @@ var color_converter = new Color_Converter();
 var Device_MGR = require('../../../Util/Device_MGR.js');
 var device_mgr = new Device_MGR();
 
-const Lighting_Device_Type = "Lighting";
-
 const ZB_CCT_Max = 6500;
 const ZB_CCT_Min = 2000;
 const ZB_CCT_2000_Mapped_Mired_Val = 500;
@@ -878,12 +876,30 @@ var Lighting_Zigbee_API = function () {
 
     self.Get_Zigbee_Light_All_Status = async function (address_ID) {
         try {
-            var username = await device_mgr.Get_Device_Owner(Lighting_Device_Type, address_ID);
+            let support_dev_types = [
+                "OnOff Light",
+                "Dimmable Light",
+                "Colored Light",
+                "Extended Color Light",
+                "Color Temperature Light",
+            ];
+            let username = null;
+            let device_type = null;
+            for(let i = 0; i<support_dev_types.length; i++)
+            {
+                username = await device_mgr.Get_Device_Owner(support_dev_types[i], address_ID);
+                if(username!=null)
+                {
+                    device_type = support_dev_types[i];
+                    break;
+                }
+            }
             if(username==null)
             {
                 return null;
             }
-            var device_inf = await device_mgr.Read_Device_Inf(Lighting_Device_Type, username, address_ID);
+
+            var device_inf = await device_mgr.Read_Device_Inf(device_type, username, address_ID);
             if(device_inf==null)
             {
                 return null;

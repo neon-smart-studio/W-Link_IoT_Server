@@ -60,14 +60,14 @@ var Device_MGR = function (){
             success = await database.Database_EnsureIndex(Device_MGR_DB_Name, device_Type, "device_ID", true);
             if(success==false)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
 
             var count = await database.Database_Count(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID});
             if(count<0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
 
@@ -85,7 +85,7 @@ var Device_MGR = function (){
                 var old_dev_info = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
                 if(old_dev_info==null)
                 {
-                    database.DataBase_Close(Device_MGR_DB_Name);
+                    await database.DataBase_Close(Device_MGR_DB_Name);
                     return false;
                 }
                 dev_name = old_dev_info[0].device_Name;
@@ -110,7 +110,7 @@ var Device_MGR = function (){
             switch(dev_inf_json.network_Type){
                 case "TCP/IP":
                     if(dev_inf_json.protocol_Type==null){
-                        database.DataBase_Close(Device_MGR_DB_Name);
+                        await database.DataBase_Close(Device_MGR_DB_Name);
                         return false;
                     }
         
@@ -276,7 +276,7 @@ var Device_MGR = function (){
                     }
                     break;
                 default:
-                    database.DataBase_Close(Device_MGR_DB_Name);
+                    await database.DataBase_Close(Device_MGR_DB_Name);
                     return false;
             }
 
@@ -289,7 +289,7 @@ var Device_MGR = function (){
                 success = await database.Database_Remove(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, true);
                 if(success==false)
                 {
-                    database.DataBase_Close(Device_MGR_DB_Name);
+                    await database.DataBase_Close(Device_MGR_DB_Name);
                     return false;
                 }
                 exist = false;
@@ -300,7 +300,7 @@ var Device_MGR = function (){
                 success = await database.Database_Update(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, devInf, false);
                 if(success==false)
                 {
-                    database.DataBase_Close(Device_MGR_DB_Name);
+                    await database.DataBase_Close(Device_MGR_DB_Name);
                     return false;
                 }
             }
@@ -308,12 +308,12 @@ var Device_MGR = function (){
                 success = await database.Database_Insert(Device_MGR_DB_Name, device_Type, devInf);
                 if(success==false)
                 {
-                    database.DataBase_Close(Device_MGR_DB_Name);
+                    await database.DataBase_Close(Device_MGR_DB_Name);
                     return false;
                 }
             }
 
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             if(device_protocol_type=="Hue API Tunnel")
             {
@@ -364,14 +364,14 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
             if(dev_docs==null || dev_docs.length==0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
             var dev_doc = dev_docs[0];
             
             if(dev_doc.user!=old_user && dev_doc.user!="everyone")
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
 
@@ -380,11 +380,11 @@ var Device_MGR = function (){
             success = await database.Database_Update(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, dev_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             if(success)
             {
@@ -417,14 +417,14 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
             if(dev_docs==null || dev_docs.length==0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
             var dev_doc = dev_docs[0];
             
             if(dev_doc.user!=user && dev_doc.user!="everyone")
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return;
             }
 
@@ -433,11 +433,11 @@ var Device_MGR = function (){
             success = await database.Database_Update(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, dev_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             if(success)
             {
@@ -472,11 +472,11 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {}, null);
             if(dev_docs==null)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             rsp_json.device_list = dev_docs;
 
@@ -509,11 +509,11 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, db_query, null);
             if(dev_docs==null)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             rsp_json.device_list = dev_docs;
 
@@ -553,11 +553,11 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, db_query, null);
             if(dev_docs==null || dev_docs.length==0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             result = dev_docs[0];
 
@@ -588,11 +588,11 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
             if(dev_docs==null || dev_docs.length==0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             result = dev_docs[0].network_Type;
 
@@ -623,11 +623,11 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
             if(dev_docs==null || dev_docs.length==0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             result = dev_docs[0].model;
 
@@ -658,11 +658,11 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
             if(dev_docs==null || dev_docs.length==0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return null;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             result = dev_docs[0].user;
             
@@ -694,18 +694,18 @@ var Device_MGR = function (){
             var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, db_query, null);
             if(dev_docs==null || dev_docs.length==0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return null;
             }
             
             success = await database.Database_Remove(Device_MGR_DB_Name, device_Type, db_query, true);
             if(success==false)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
             
             success = await address_mgr.Delete_Address_Info(device_ID);
             if(success==false)
@@ -755,18 +755,18 @@ var Device_MGR = function (){
             var all_dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, db_query, null);
             if(all_dev_docs==null)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return null;
             }
             
             success = await database.Database_Remove(Device_MGR_DB_Name, device_Type, db_query, false);
             if(success==false)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return false;
             }
             
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             for(var i = 0; i<all_dev_docs.length; i++)
             {

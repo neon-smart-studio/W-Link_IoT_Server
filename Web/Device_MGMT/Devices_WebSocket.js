@@ -57,27 +57,48 @@ var Devices_WebSocket = function (){
     {
         try{
             var rsp_json = null;
-            var mapped_device_type = null
             if(get_device_json_data.device_type!=null){
                 
                 if(get_device_json_data.command!=null){
                     switch(get_device_json_data.command){
                         case "Get All Device List":
-                            rsp_json = await device_mgr.Get_Device_List_Specific_User(get_device_json_data.device_type, username);
+                            switch(get_device_json_data.device_type)
+                            {
+                                case "Colored Light":
+                                    let colored_light_dev_lst = await device_mgr.Get_Device_List_Specific_User("Colored Light", username);
+                                    let ext_color_light_dev_lst = await device_mgr.Get_Device_List_Specific_User("Extended Color Light", username);
+                                    let colored_light_dev_lst_array = [];
+                                    if(colored_light_dev_lst!=null)
+                                    {
+                                        colored_light_dev_lst_array = colored_light_dev_lst.device_list;
+                                    }
+                                    let ext_color_light_dev_lst_array = [];
+                                    if(ext_color_light_dev_lst!=null)
+                                    {
+                                        ext_color_light_dev_lst_array = ext_color_light_dev_lst.device_list;
+                                    }
+                                    rsp_json = {
+                                        device_list: colored_light_dev_lst_array.concat(ext_color_light_dev_lst_array)
+                                    }
+                                    break;
+                                default:
+                                    rsp_json = await device_mgr.Get_Device_List_Specific_User(get_device_json_data.device_type, username);
+                                    break;
+                            }
                             break;
                         case "Get Device Info":
                             if(get_device_json_data.device_ID!=null){
-                                rsp_json = await device_mgr.Read_Device_Inf(mapped_device_type, username, get_device_json_data.device_ID);
+                                rsp_json = await device_mgr.Read_Device_Inf(get_device_json_data.device_type, username, get_device_json_data.device_ID);
                             }
                             break;
                         case "Get Device Num Of Node":
                             if(get_device_json_data.device_ID!=null){
-                                rsp_json = await device_mgmt_api.Device_MGMT_Get_Device_Num_Of_Node(mapped_device_type, get_device_json_data.device_ID);
+                                rsp_json = await device_mgmt_api.Device_MGMT_Get_Device_Num_Of_Node(get_device_json_data.device_type, get_device_json_data.device_ID);
                             }
                             break;
                         case "Get Device Support Attributes":
                             if(get_device_json_data.device_ID!=null){
-                                rsp_json = await device_mgmt_api.Get_Device_Support_Attributes(mapped_device_type, get_device_json_data.device_ID);
+                                rsp_json = await device_mgmt_api.Get_Device_Support_Attributes(get_device_json_data.device_type, get_device_json_data.device_ID);
                             }
                             break;
                     }

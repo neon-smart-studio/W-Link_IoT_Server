@@ -30,7 +30,7 @@ async function Delete_All_Hue_Bridge_Light(user, bridge_address_ID)
         var db_query = { $or: [ { 'user': user, 'bridge_address_ID': bridge_address_ID}, 
                         { 'user': 'everyone', 'bridge_address_ID': bridge_address_ID} ] };
         
-        success = await database.Database_Remove(Device_MGR_DB_Name, "Onoff light", db_query, false);
+        success = await database.Database_Remove(Device_MGR_DB_Name, "OnOff light", db_query, false);
         if(success==false)
         {
             database.DataBase_Close(Device_MGR_DB_Name);
@@ -90,7 +90,7 @@ var Hue_Bridge_Light_API = function () {
                             { 'user': 'everyone', 'bridge_address_ID': bridge_address_ID, 'node_ID': Number(light_node_ID) } ] };
 
             let dev_docs
-            dev_docs = await database.Database_Find(Device_MGR_DB_Name, "On Off Light", hue_bridge_db_query, null);
+            dev_docs = await database.Database_Find(Device_MGR_DB_Name, "OnOff Light", hue_bridge_db_query, null);
             if(dev_docs!=null && dev_docs.length!=0)
             {
                 database.DataBase_Close(Device_MGR_DB_Name);
@@ -103,6 +103,12 @@ var Hue_Bridge_Light_API = function () {
                 return dev_docs[0].device_ID;
             }
             dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Colored Light", hue_bridge_db_query, null);
+            if(dev_docs!=null && dev_docs.length!=0)
+            {
+                database.DataBase_Close(Device_MGR_DB_Name);
+                return dev_docs[0].device_ID;
+            }
+            dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Extended Color Light", hue_bridge_db_query, null);
             if(dev_docs!=null && dev_docs.length!=0)
             {
                 database.DataBase_Close(Device_MGR_DB_Name);
@@ -157,8 +163,10 @@ var Hue_Bridge_Light_API = function () {
                         light_type = "Dimmable Light";
                         break;
                     case "Colored light":
-                    case "Extended color light":
                         light_type = "Colored Light";
+                        break;
+                    case "Extended color light":
+                        light_type = "Extended Color Light";
                         break;
                     case "Color temperature light":
                         light_type = "Color Temperature Light";

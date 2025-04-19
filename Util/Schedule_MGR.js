@@ -174,14 +174,14 @@ var Schedule_MGR = function (){
             success = await database.Database_EnsureIndex(Schedule_MGR_DB_Name, device_Type, "schedule_ID", true);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
             var count = await database.Database_Count(Schedule_MGR_DB_Name, device_Type, {'schedule_ID': schedule_ID});
             if(count<0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
@@ -192,18 +192,18 @@ var Schedule_MGR = function (){
 
             if(exist==true)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
             success = await database.Database_Insert(Schedule_MGR_DB_Name, device_Type, new_schedule_doc);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
             
             return schedule_ID;
         }
@@ -262,7 +262,7 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
@@ -278,11 +278,11 @@ var Schedule_MGR = function (){
             success = await database.Database_Update(Schedule_MGR_DB_Name, device_Type, db_query, update_schedule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
             
             return true;
         }
@@ -311,7 +311,7 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
@@ -321,11 +321,11 @@ var Schedule_MGR = function (){
             success = await database.Database_Update(Schedule_MGR_DB_Name, device_Type, db_query, update_schedule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
             
             return true;
         }
@@ -351,11 +351,11 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             rsp_json.schedule_list = schedule_docs;
 
@@ -382,11 +382,11 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return schedule_docs;
         }
@@ -410,11 +410,11 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return schedule_docs[0];
         }
@@ -438,11 +438,11 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return schedule_docs[0].execute_time;
         }
@@ -474,7 +474,7 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
@@ -484,11 +484,11 @@ var Schedule_MGR = function (){
             success = await database.Database_Update(Schedule_MGR_DB_Name, device_Type, db_query, update_schedule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return true;
         }
@@ -512,11 +512,11 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return schedule_docs[0].repeat;
         }
@@ -544,7 +544,7 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
@@ -554,11 +554,11 @@ var Schedule_MGR = function (){
             success = await database.Database_Update(Schedule_MGR_DB_Name, device_Type, db_query, update_schedule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return true;
         }
@@ -582,11 +582,11 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return null;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return schedule_docs[0].action;
         }
@@ -614,7 +614,7 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
@@ -624,11 +624,11 @@ var Schedule_MGR = function (){
             success = await database.Database_Update(Schedule_MGR_DB_Name, device_Type, db_query, update_schedule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return true;
         }
@@ -652,7 +652,7 @@ var Schedule_MGR = function (){
             var schedule_docs = await database.Database_Find(Schedule_MGR_DB_Name, device_Type, db_query, null);
             if(schedule_docs==null || schedule_docs.length==0)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
@@ -662,11 +662,11 @@ var Schedule_MGR = function (){
             success = await database.Database_Update(Schedule_MGR_DB_Name, device_Type, db_query, update_schedule_doc, false);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return true;
         }
@@ -690,11 +690,11 @@ var Schedule_MGR = function (){
             success = await database.Database_Remove(Schedule_MGR_DB_Name, device_Type, db_query, true);
             if(success==false)
             {
-                database.DataBase_Close(Schedule_MGR_DB_Name);
+                await database.DataBase_Close(Schedule_MGR_DB_Name);
                 return false;
             }
 
-            database.DataBase_Close(Schedule_MGR_DB_Name);
+            await database.DataBase_Close(Schedule_MGR_DB_Name);
 
             return success;
         }
