@@ -13,8 +13,8 @@ var lighting_api_zigbee = new Lighting_API_Zigbee();
 var Lighting_API_BLE = require('../../Bluetooth/Device_MGMT/Lighting/Lighting_API_BLE.js');
 var lighting_api_ble = new Lighting_API_BLE();
 
-var Hue_Bridge_Lighting_API = require('../../Integrate/Hue_Bridge/Hue_Bridge_Lighting_API.js');
-var lighting_api_hue_bridge = new Hue_Bridge_Lighting_API();
+var Lighting_API_Integrate = require('../../Integrate/Lighting_API_Integrate.js');
+var lighting_api_integrate = new Lighting_API_Integrate();
 
 const ZB_CCT_Max = 6500;
 const ZB_CCT_Min = 2000;
@@ -42,9 +42,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Identify_Normal(address_ID, duration);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Identify_Normal(address_ID, duration);
+                        lighting_api_integrate.Integrate_Light_Identify_Normal(address_info.target_type, address_info.target_protocol, address_ID, duration);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -54,8 +54,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Identify_Normal(address_ID, duration);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Identify_Normal(address_ID, duration);
                 lighting_api_zigbee.Zigbee_Light_Identify_Normal(address_ID, duration);
+                lighting_api_integrate.Integrate_Light_Identify_Normal(address_info.target_type, address_info.target_protocol, address_ID, duration);
             }
         }
         catch (e) {
@@ -75,9 +75,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Identify_With_Effect(address_ID, effect);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Identify_With_Effect(address_ID, effect);
+                        lighting_api_integrate.Integrate_Light_Identify_With_Effect(address_info.target_type, address_info.target_protocol, address_ID, effect);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -87,8 +87,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Identify_With_Effect(address_ID, effect);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Identify_With_Effect(address_ID, effect);
                 lighting_api_zigbee.Zigbee_Light_Identify_With_Effect(address_ID, effect);
+                lighting_api_integrate.Integrate_Light_Identify_With_Effect(address_info.target_type, address_info.target_protocol, address_ID, effect);
             }
         }
         catch (e) {
@@ -108,9 +108,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Turn_On_Off(address_ID, on_off);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Turn_On_Off(address_ID, on_off);
+                        lighting_api_integrate.Integrate_Light_Turn_On_Off(address_info.target_type, address_info.target_protocol, address_ID, on_off);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -124,9 +124,9 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Turn_On_Off(address_ID, on_off);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Turn_On_Off(address_ID, on_off);
                 lighting_api_zigbee.Zigbee_Light_Turn_On_Off(address_ID, on_off);
                 lighting_api_ble.BLE_Light_Turn_On_Off(address_ID, on_off);
+                lighting_api_integrate.Integrate_Light_Turn_On_Off(address_info.target_type, address_info.target_protocol, address_ID, on_off);
             }
         }
         catch (e) {
@@ -146,9 +146,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Toggle_OnOff(address_ID);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Toggle_OnOff(address_ID);
+                        lighting_api_integrate.Integrate_Light_Toggle_OnOff(address_info.target_type, address_info.target_protocol, address_ID);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -162,9 +162,9 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Toggle_OnOff(address_ID);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Toggle_OnOff(address_ID);
                 lighting_api_zigbee.Zigbee_Light_Toggle_OnOff(address_ID);
                 lighting_api_ble.BLE_Light_Toggle_OnOff(address_ID);
+                lighting_api_integrate.Integrate_Light_Toggle_OnOff(address_info.target_type, address_info.target_protocol, address_ID);
             }
         }
         catch (e) {
@@ -184,9 +184,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Turn_On_With_Timed_Off(address_ID, keep_on_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Turn_On_With_Timed_Off(address_ID, keep_on_time);
+                        lighting_api_integrate.Integrate_Light_Turn_On_With_Timed_Off(address_info.target_type, address_info.target_protocol, address_ID, keep_on_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -200,9 +200,9 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Turn_On_With_Timed_Off(address_ID, keep_on_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Turn_On_With_Timed_Off(address_ID, keep_on_time);
                 lighting_api_zigbee.Zigbee_Light_Turn_On_With_Timed_Off(address_ID, keep_on_time);
                 lighting_api_ble.BLE_Light_Turn_On_With_Timed_Off(address_ID, keep_on_time);
+                lighting_api_integrate.Integrate_Light_Turn_On_With_Timed_Off(address_info.target_type, address_info.target_protocol, address_ID, keep_on_time);
             }
         }
         catch (e) {
@@ -226,9 +226,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
+                        lighting_api_integrate.Integrate_Light_Move_To_Level(address_info.target_type, address_info.target_protocol, address_ID, level, trans_time, with_on_off);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -242,9 +242,9 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
                 lighting_api_ble.BLE_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
+                lighting_api_integrate.Integrate_Light_Move_To_Level(address_info.target_type, address_info.target_protocol, address_ID, level, trans_time, with_on_off);
             }
         }
         catch (e) {
@@ -268,9 +268,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_Level_Up_Down(address_ID, move_rate, direction, with_on_off);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_Level_Up_Down(address_ID, move_rate, direction, with_on_off);
+                        lighting_api_integrate.Integrate_Light_Move_Level_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate, direction, with_on_off);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -280,8 +280,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_Level_Up_Down(address_ID, move_rate, direction, with_on_off);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_Level_Up_Down(address_ID, move_rate, direction, with_on_off);
                 lighting_api_zigbee.Zigbee_Light_Move_Level_Up_Down(address_ID, move_rate, direction, with_on_off);
+                lighting_api_integrate.Integrate_Light_Move_Level_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate, direction, with_on_off);
             }
         }
         catch (e) {
@@ -305,9 +305,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Step_Level_Up_Down(address_ID, step_level, direction, trans_time, with_on_off);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Step_Level_Up_Down(address_ID, step_level, direction, trans_time, with_on_off);
+                        lighting_api_integrate.Integrate_Light_Step_Level_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_level, direction, trans_time, with_on_off);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -317,8 +317,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Step_Level_Up_Down(address_ID, step_level, direction, trans_time, with_on_off);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Step_Level_Up_Down(address_ID, step_level, direction, trans_time, with_on_off);
                 lighting_api_zigbee.Zigbee_Light_Step_Level_Up_Down(address_ID, step_level, direction, trans_time, with_on_off);
+                lighting_api_integrate.Integrate_Light_Step_Level_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_level, direction, trans_time, with_on_off);
             }
         }
         catch (e) {
@@ -338,9 +338,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Stop_Level_Command(address_ID);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Stop_Level_Command(address_ID);
+                        lighting_api_integrate.Integrate_Light_Stop_Level_Command(address_info.target_type, address_info.target_protocol, address_ID);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -350,8 +350,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Stop_Level_Command(address_ID);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Stop_Level_Command(address_ID);
                 lighting_api_zigbee.Zigbee_Light_Stop_Level_Command(address_ID);
+                lighting_api_integrate.Integrate_Light_Stop_Level_Command(address_info.target_type, address_info.target_protocol, address_ID);
             }
         }
         catch (e) {
@@ -375,9 +375,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Hue(address_ID, hue, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Hue(address_ID, hue, trans_time);
+                        lighting_api_integrate.Integrate_Light_Move_To_Hue(address_info.target_type, address_info.target_protocol, address_ID, hue, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -387,8 +387,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Hue(address_ID, hue, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Hue(address_ID, hue, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Hue(address_ID, hue, trans_time);
+                lighting_api_integrate.Integrate_Light_Move_To_Hue(address_info.target_type, address_info.target_protocol, address_ID, hue, trans_time);
             }
         }
         catch (e) {
@@ -412,9 +412,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Enhanced_Hue(address_ID, hue, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Enhanced_Hue(address_ID, hue, trans_time);
+                        lighting_api_integrate.Integrate_Light_Move_To_Enhanced_Hue(address_info.target_type, address_info.target_protocol, address_ID, hue, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -424,8 +424,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Enhanced_Hue(address_ID, hue, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Enhanced_Hue(address_ID, hue, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Enhanced_Hue(address_ID, hue, trans_time);
+                lighting_api_integrate.Integrate_Light_Move_To_Enhanced_Hue(address_info.target_type, address_info.target_protocol, address_ID, hue, trans_time);
             }
         }
         catch (e) {
@@ -449,9 +449,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Saturation(address_ID, saturation, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Saturation(address_ID, saturation, trans_time);
+                        lighting_api_integrate.Integrate_Light_Move_To_Saturation(address_info.target_type, address_info.target_protocol, address_ID, saturation, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -461,8 +461,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Saturation(address_ID, saturation, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Saturation(address_ID, saturation, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Saturation(address_ID, saturation, trans_time);
+                lighting_api_integrate.Integrate_Light_Move_To_Saturation(address_info.target_type, address_info.target_protocol, address_ID, saturation, trans_time);
             }
         }
         catch (e) {
@@ -490,9 +490,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
+                        lighting_api_integrate.Integrate_Light_Move_To_Hue_And_Saturation(address_info.target_type, address_info.target_protocol, address_ID, hue, saturation, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -506,9 +506,9 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
                 lighting_api_ble.BLE_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
+                lighting_api_integrate.Integrate_Light_Move_To_Hue_And_Saturation(address_info.target_type, address_info.target_protocol, address_ID, hue, saturation, trans_time);
             }
         }
         catch (e) {
@@ -536,9 +536,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Enhanced_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Enhanced_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
+                        lighting_api_integrate.Integrate_Light_Move_To_Enhanced_Hue_And_Saturation(address_info.target_type, address_info.target_protocol, address_ID, hue, saturation, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -552,9 +552,9 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Enhanced_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Enhanced_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Enhanced_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
                 lighting_api_ble.BLE_Light_Move_To_Enhanced_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
+                lighting_api_integrate.Integrate_Light_Move_To_Enhanced_Hue_And_Saturation(address_info.target_type, address_info.target_protocol, address_ID, hue, saturation, trans_time);
             }
         }
         catch (e) {
@@ -582,9 +582,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Color_XY(address_ID, x, y, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Color_XY(address_ID, x, y, trans_time);
+                        lighting_api_integrate.Integrate_Light_Move_To_Color_XY(address_info.target_type, address_info.target_protocol, address_ID, x, y, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -594,8 +594,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Color_XY(address_ID, x, y, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Color_XY(address_ID, x, y, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Color_XY(address_ID, x, y, trans_time);
+                lighting_api_integrate.Integrate_Light_Move_To_Color_XY(address_info.target_type, address_info.target_protocol, address_ID, x, y, trans_time);
             }
         }
         catch (e) {
@@ -619,9 +619,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_Hue_Up_Down(address_ID, move_rate, direction);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_Hue_Up_Down(address_ID, move_rate, direction);
+                        lighting_api_integrate.Integrate_Light_Move_Hue_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate, direction);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -631,8 +631,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_Hue_Up_Down(address_ID, move_rate, direction);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_Hue_Up_Down(address_ID, move_rate, direction);
                 lighting_api_zigbee.Zigbee_Light_Move_Hue_Up_Down(address_ID, move_rate, direction);
+                lighting_api_integrate.Integrate_Light_Move_Hue_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate, direction);
             }
         }
         catch (e) {
@@ -656,9 +656,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_Enhanced_Hue_Up_Down(address_ID, move_rate, direction);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_Enhanced_Hue_Up_Down(address_ID, move_rate, direction);
+                        lighting_api_integrate.Integrate_Light_Move_Enhanced_Hue_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate, direction);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -668,8 +668,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_Enhanced_Hue_Up_Down(address_ID, move_rate, direction);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_Enhanced_Hue_Up_Down(address_ID, move_rate, direction);
                 lighting_api_zigbee.Zigbee_Light_Move_Enhanced_Hue_Up_Down(address_ID, move_rate, direction);
+                lighting_api_integrate.Integrate_Light_Move_Enhanced_Hue_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate, direction);
             }
         }
         catch (e) {
@@ -693,9 +693,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_Saturation_Up_Down(address_ID, move_rate, direction);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_Saturation_Up_Down(address_ID, move_rate, direction);
+                        lighting_api_integrate.Integrate_Light_Move_Saturation_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate, direction);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -705,8 +705,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_Saturation_Up_Down(address_ID, move_rate, direction);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_Saturation_Up_Down(address_ID, move_rate, direction);
                 lighting_api_zigbee.Zigbee_Light_Move_Saturation_Up_Down(address_ID, move_rate, direction);
+                lighting_api_integrate.Integrate_Light_Move_Saturation_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate, direction);
             }
         }
         catch (e) {
@@ -734,9 +734,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_Color_XY_Up_Down(address_ID, move_rate_x, move_rate_y, direction);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_Color_XY_Up_Down(address_ID, move_rate_x, move_rate_y, direction);
+                        lighting_api_integrate.Integrate_Light_Move_Color_XY_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate_x, move_rate_y, direction);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -746,8 +746,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_Color_XY_Up_Down(address_ID, move_rate_x, move_rate_y, direction);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_Color_XY_Up_Down(address_ID, move_rate_x, move_rate_y, direction);
                 lighting_api_zigbee.Zigbee_Light_Move_Color_XY_Up_Down(address_ID, move_rate_x, move_rate_y, direction);
+                lighting_api_integrate.Integrate_Light_Move_Color_XY_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, move_rate_x, move_rate_y, direction);
             }
         }
         catch (e) {
@@ -771,9 +771,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Step_Hue_Up_Down(address_ID, step_hue, direction, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Step_Hue_Up_Down(address_ID, step_hue, direction, trans_time);
+                        lighting_api_integrate.Integrate_Light_Step_Hue_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_hue, direction, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -783,8 +783,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Step_Hue_Up_Down(address_ID, step_hue, direction, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Step_Hue_Up_Down(address_ID, step_hue, direction, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Step_Hue_Up_Down(address_ID, step_hue, direction, trans_time);
+                lighting_api_integrate.Integrate_Light_Step_Hue_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_hue, direction, trans_time);
             }
         }
         catch (e) {
@@ -808,9 +808,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Step_Enhanced_Hue_Up_Down(address_ID, step_enhanced_hue, direction, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Step_Enhanced_Hue_Up_Down(address_ID, step_enhanced_hue, direction, trans_time);
+                        lighting_api_integrate.Integrate_Light_Step_Enhanced_Hue_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_enhanced_hue, direction, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -820,8 +820,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Step_Enhanced_Hue_Up_Down(address_ID, step_enhanced_hue, direction, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Step_Enhanced_Hue_Up_Down(address_ID, step_enhanced_hue, direction, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Step_Enhanced_Hue_Up_Down(address_ID, step_enhanced_hue, direction, trans_time);
+                lighting_api_integrate.Integrate_Light_Step_Enhanced_Hue_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_enhanced_hue, direction, trans_time);
             }
         }
         catch (e) {
@@ -845,9 +845,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Step_Saturation_Up_Down(address_ID, step_saturation, direction, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Step_Saturation_Up_Down(address_ID, step_saturation, direction, trans_time);
+                        lighting_api_integrate.Integrate_Light_Step_Saturation_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_saturation, direction, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -857,8 +857,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Step_Saturation_Up_Down(address_ID, step_saturation, direction, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Step_Saturation_Up_Down(address_ID, step_saturation, direction, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Step_Saturation_Up_Down(address_ID, step_saturation, direction, trans_time);
+                lighting_api_integrate.Integrate_Light_Step_Saturation_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_saturation, direction, trans_time);
             }
         }
         catch (e) {
@@ -886,9 +886,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Step_Color_XY_Up_Down(address_ID, step_x, step_y, direction, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Step_Color_XY_Up_Down(address_ID, step_x, step_y, direction, trans_time);
+                        lighting_api_integrate.Integrate_Light_Step_Color_XY_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_x, step_y, direction, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -898,8 +898,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Step_Color_XY_Up_Down(address_ID, step_x, step_y, direction, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Step_Color_XY_Up_Down(address_ID, step_x, step_y, direction, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Step_Color_XY_Up_Down(address_ID, step_x, step_y, direction, trans_time);
+                lighting_api_integrate.Integrate_Light_Step_Color_XY_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_x, step_y, direction, trans_time);
             }
         }
         catch (e) {
@@ -919,9 +919,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Stop_Hue_Command(address_ID);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Stop_Hue_Command(address_ID);
+                        lighting_api_integrate.Integrate_Light_Stop_Hue_Command(address_info.target_type, address_info.target_protocol, address_ID);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -931,8 +931,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Stop_Hue_Command(address_ID);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Stop_Hue_Command(address_ID);
                 lighting_api_zigbee.Zigbee_Light_Stop_Hue_Command(address_ID);
+                lighting_api_integrate.Integrate_Light_Stop_Hue_Command(address_info.target_type, address_info.target_protocol, address_ID);
             }
         }
         catch (e) {
@@ -952,9 +952,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Stop_Enhanced_Hue_Command(address_ID);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Stop_Enhanced_Hue_Command(address_ID);
+                        lighting_api_integrate.Integrate_Light_Stop_Enhanced_Hue_Command(address_info.target_type, address_info.target_protocol, address_ID);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -964,8 +964,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Stop_Enhanced_Hue_Command(address_ID);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Stop_Enhanced_Hue_Command(address_ID);
                 lighting_api_zigbee.Zigbee_Light_Stop_Enhanced_Hue_Command(address_ID);
+                lighting_api_integrate.Integrate_Light_Stop_Enhanced_Hue_Command(address_info.target_type, address_info.target_protocol, address_ID);
             }
         }
         catch (e) {
@@ -985,9 +985,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Stop_Saturation_Command(address_ID);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Stop_Saturation_Command(address_ID);
+                        lighting_api_integrate.Integrate_Light_Stop_Saturation_Command(address_info.target_type, address_info.target_protocol, address_ID);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -997,8 +997,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Stop_Saturation_Command(address_ID);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Stop_Saturation_Command(address_ID);
                 lighting_api_zigbee.Zigbee_Light_Stop_Saturation_Command(address_ID);
+                lighting_api_integrate.Integrate_Light_Stop_Saturation_Command(address_info.target_type, address_info.target_protocol, address_ID);
             }
         }
         catch (e) {
@@ -1018,9 +1018,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
+                        lighting_api_integrate.Integrate_Light_Move_To_Color_Temperature(address_info.target_type, address_info.target_protocol, address_ID, color_temp, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -1034,9 +1034,9 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
                 lighting_api_ble.BLE_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
+                lighting_api_integrate.Integrate_Light_Move_To_Color_Temperature(address_info.target_type, address_info.target_protocol, address_ID, color_temp, trans_time);
             }
         }
         catch (e) {
@@ -1056,9 +1056,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Move_To_Mired_Color_Temperature(address_ID, mired_color_temp, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Mired_Color_Temperature(address_ID, mired_color_temp, trans_time);
+                        lighting_api_integrate.Integrate_Light_Move_To_Mired_Color_Temperature(address_info.target_type, address_info.target_protocol, address_ID, mired_color_temp, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -1072,9 +1072,9 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Move_To_Mired_Color_Temperature(address_ID, mired_color_temp, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Move_To_Mired_Color_Temperature(address_ID, mired_color_temp, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Move_To_Mired_Color_Temperature(address_ID, mired_color_temp, trans_time);
                 lighting_api_ble.BLE_Light_Move_To_Mired_Color_Temperature(address_ID, mired_color_temp, trans_time);
+                lighting_api_integrate.Integrate_Light_Move_To_Mired_Color_Temperature(address_info.target_type, address_info.target_protocol, address_ID, mired_color_temp, trans_time);
             }
         }
         catch (e) {
@@ -1094,9 +1094,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Step_Color_Temperature_Up_Down(address_ID, step_color_temp, direction, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Step_Color_Temperature_Up_Down(address_ID, step_color_temp, direction, trans_time);
+                        lighting_api_integrate.Integrate_Light_Step_Color_Temperature_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_color_temp, direction, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -1106,8 +1106,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Step_Color_Temperature_Up_Down(address_ID, step_color_temp, direction, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Step_Color_Temperature_Up_Down(address_ID, step_color_temp, direction, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Step_Color_Temperature_Up_Down(address_ID, step_color_temp, direction, trans_time);
+                lighting_api_integrate.Integrate_Light_Step_Color_Temperature_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_color_temp, direction, trans_time);
             }
         }
         catch (e) {
@@ -1127,9 +1127,9 @@ var Lighting_API = function () {
                     {
                         lighting_api_mqtt.MQTT_Light_Step_Mired_Color_Temperature_Up_Down(address_ID, step_mired_color_temp, direction, trans_time);
                     }
-                    if(address_info.target_protocol=="Hue API Tunnel")
+                    else
                     {
-                        lighting_api_hue_bridge.Hue_Bridge_Light_Step_Mired_Color_Temperature_Up_Down(address_ID, step_mired_color_temp, direction, trans_time);
+                        lighting_api_integrate.Integrate_Light_Step_Mired_Color_Temperature_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_mired_color_temp, direction, trans_time);
                     }
                 }
                 else if(address_info.target_network=="Zigbee")
@@ -1139,8 +1139,8 @@ var Lighting_API = function () {
             }
             else{
                 lighting_api_mqtt.MQTT_Light_Step_Mired_Color_Temperature_Up_Down(address_ID, step_mired_color_temp, direction, trans_time);
-                lighting_api_hue_bridge.Hue_Bridge_Light_Step_Mired_Color_Temperature_Up_Down(address_ID, step_mired_color_temp, direction, trans_time);
                 lighting_api_zigbee.Zigbee_Light_Step_Mired_Color_Temperature_Up_Down(address_ID, step_mired_color_temp, direction, trans_time);
+                lighting_api_integrate.Integrate_Light_Step_Mired_Color_Temperature_Up_Down(address_info.target_type, address_info.target_protocol, address_ID, step_mired_color_temp, direction, trans_time);
             }
         }
         catch (e) {
@@ -1164,9 +1164,9 @@ var Lighting_API = function () {
                 {
                     result = await lighting_api_mqtt.Get_MQTT_Light_On_Off_Status(address_ID);
                 }
-                if(address_info.target_protocol=="Hue API Tunnel")
+                else
                 {
-                    result = await lighting_api_hue_bridge.Get_Hue_Bridge_Light_On_Off_Status(address_ID);
+                    result = await lighting_api_integrate.Get_Integrate_Light_On_Off_Status(address_info.target_type, address_info.target_protocol, address_ID);
                 }
             }
             else if(address_info.target_network=="Zigbee")
@@ -1219,9 +1219,9 @@ var Lighting_API = function () {
                 {
                     result = await lighting_api_mqtt.Get_MQTT_Light_Current_Level(address_ID);
                 }
-                if(address_info.target_protocol=="Hue API Tunnel")
+                else
                 {
-                    result = await lighting_api_hue_bridge.Get_Hue_Bridge_Light_Current_Level(address_ID);
+                    result = await lighting_api_integrate.Get_Integrate_Light_Current_Level(address_info.target_type, address_info.target_protocol, address_ID);
                 }
             }
             else if(address_info.target_network=="Zigbee")
@@ -1274,9 +1274,9 @@ var Lighting_API = function () {
                 {
                     result = await lighting_api_mqtt.Get_MQTT_Light_Current_Color(address_ID);
                 }
-                if(address_info.target_protocol=="Hue API Tunnel")
+                else
                 {
-                    result = await lighting_api_hue_bridge.Get_Hue_Bridge_Light_Current_Color(address_ID);
+                    result = await lighting_api_integrate.Get_Integrate_Light_Current_Color(address_info.target_type, address_info.target_protocol, address_ID);
                 }
             }
             else if(address_info.target_network=="Zigbee")
@@ -1329,9 +1329,9 @@ var Lighting_API = function () {
                 {
                     result = await lighting_api_mqtt.Get_MQTT_Light_Current_Color_Temperature(address_ID);
                 }
-                if(address_info.target_protocol=="Hue API Tunnel")
+                else
                 {
-                    result = await lighting_api_hue_bridge.Get_Hue_Bridge_Light_Current_Color_Temperature(address_ID);
+                    result = await lighting_api_integrate.Get_Integrate_Light_Current_Color_Temperature(address_info.target_type, address_info.target_protocol, address_ID);
                 }
             }
             else if(address_info.target_network=="Zigbee")
@@ -1383,9 +1383,9 @@ var Lighting_API = function () {
                 {
                     result = await lighting_api_mqtt.Get_MQTT_Light_All_Status(address_ID);
                 }
-                if(address_info.target_protocol=="Hue API Tunnel")
+                else
                 {
-                    result = await lighting_api_hue_bridge.Get_Hue_Bridge_Light_All_Status(address_ID);
+                    result = await lighting_api_integrate.Get_Integrate_Light_All_Status(address_info.target_type, address_info.target_protocol, address_ID);
                 }
             }
             else if(address_info.target_network=="Zigbee")
