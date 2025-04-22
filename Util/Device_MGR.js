@@ -321,6 +321,45 @@ var Device_MGR = function (){
         }
     }
 
+    self.Is_Exist = async function(device_Type, user, device_ID)
+    {
+        try{
+            if(device_Type==null){
+                return false;
+            }
+
+            var success = false;
+
+            success = await database.DataBase_Open(Device_MGR_DB_Name);
+            if(success==false)
+            {
+                return false;
+            }
+            
+            var dev_docs = await database.Database_Find(Device_MGR_DB_Name, device_Type, {'device_ID': device_ID}, null);
+            if(dev_docs==null || dev_docs.length==0)
+            {
+                await database.DataBase_Close(Device_MGR_DB_Name);
+                return false;
+            }
+            var dev_doc = dev_docs[0];
+            
+            if(dev_doc.user!=user && dev_doc.user!="everyone")
+            {
+                await database.DataBase_Close(Device_MGR_DB_Name);
+                return false;
+            }
+
+            await database.DataBase_Close(Device_MGR_DB_Name);
+
+            return true;
+        }
+        catch(e)
+        {
+            debug("[Device_MGR] Device_Change_Name() Error: " + e);
+        }
+    }
+
     self.Device_Change_Name = async function(device_Type, user, device_ID, new_Name)
     {
         try{
@@ -347,7 +386,7 @@ var Device_MGR = function (){
             if(dev_doc.user!=user && dev_doc.user!="everyone")
             {
                 await database.DataBase_Close(Device_MGR_DB_Name);
-                return;
+                return false;
             }
 
             dev_doc.device_Name = new_Name;

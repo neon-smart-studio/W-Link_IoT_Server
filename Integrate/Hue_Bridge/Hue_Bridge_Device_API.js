@@ -18,7 +18,7 @@ const Hue_Bridge_Device_Type = "Hue Bridge";
 var Hue_Bridge_Session_List = [];
 var Hue_Bridge_Configuration_List = [];
 
-async function fetchSSDPInfoFromIP(ip) {
+async function fetchBridgeInfoFromIP(ip) {
     try {
         const xml = await axios.get(`http://${ip}:80/description.xml`, { timeout: 3000 });
         const parsed = await xml2js.parseStringPromise(xml.data, { explicitArray: false });
@@ -60,7 +60,7 @@ async function discoverViaSSDP(timeoutMs = 1000) {
                 found.add(ip);
 
                 try {
-                    let bridge_xml_info = await fetchSSDPInfoFromIP(ip);
+                    let bridge_xml_info = await fetchBridgeInfoFromIP(ip);
                     if (bridge_xml_info!=null) {
                         discoveryResults.push(bridge_xml_info);
                     }
@@ -180,7 +180,7 @@ var Hue_Bridge_API = function () {
             }
 
             let found = false;
-            let bridge_xml_info = await fetchSSDPInfoFromIP(bridge_info.IP_address);
+            let bridge_xml_info = await fetchBridgeInfoFromIP(bridge_info.IP_address);
             let xmlAddressID = null;
             if(bridge_xml_info!=null)
             {

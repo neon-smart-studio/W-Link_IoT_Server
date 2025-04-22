@@ -1617,7 +1617,7 @@ var Hue_Bridge_Lighting_API = function () {
                 
                 switch(session.light_info.device_Type)
                 {
-                    case "On Off Light":
+                    case "OnOff Light":
                         return {
                             on_off: current_state.on
                         };

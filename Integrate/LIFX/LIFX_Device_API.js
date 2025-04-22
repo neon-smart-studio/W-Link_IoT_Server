@@ -2,13 +2,11 @@ var debug = require('debug')(require('path').basename(__filename));
 
 const lifx = require('node-lifx-lan');
 
+var Address_MGR = require('../../Util/Address_MGR.js');
+var address_mgr = new Address_MGR();
+
 var Device_MGR = require('../../Util/Device_MGR.js');
 var device_mgr = new Device_MGR();
-
-var lifx_discovered_device_obj_list = {};
-var lifx_linked_device_obj_list = {};
-
-const Lifx_Device_Type = "Lighting";
 
 async function discoverViaLifxLan(timeoutMs = 1000) {
     try {
@@ -59,7 +57,7 @@ var Lifx_Device_API = function () {
             {
                 case "LIFX Mini Color":
                 case "LIFX Color 1000":
-                    device_type = "Colored Light";
+                    device_type = "Extended Color Light";
                     break;
                 case "LIFX Mini White":
                     device_type = "Dimmable Light";
@@ -94,7 +92,15 @@ var Lifx_Device_API = function () {
     
     self.Rename_Lifx_Device = async function (username, device_ID, new_name) {
         try {
-            return await device_mgr.Device_Change_Name(Lifx_Device_Type, username, device_ID, new_name);
+            if(await device_mgr.Is_Exist("Colored Light", username, device_ID))
+            {
+                return await device_mgr.Device_Change_Name("Colored Light", username, device_ID, new_name);
+            }
+            if(await device_mgr.Is_Exist("Dimmable Light", username, device_ID))
+            {
+                return await device_mgr.Device_Change_Name("Dimmable Light", username, device_ID, new_name);
+            }
+            return false;
         } catch (e) {
             debug("[Lifx_Device_API] Rename_Lifx_Device() Error " + e);
         }
@@ -102,8 +108,15 @@ var Lifx_Device_API = function () {
 
     self.Remove_Lifx_Device = async function (username, device_ID) {
         try {
-            delete lifx_linked_device_obj_list[device_ID];
-            return await device_mgr.Remove_Device(Lifx_Device_Type, username, device_ID);
+            if(await device_mgr.Is_Exist("Colored Light", username, device_ID))
+            {
+                return await device_mgr.Remove_Device("Colored Light", username, device_ID);
+            }
+            if(await device_mgr.Is_Exist("Dimmable Light", username, device_ID))
+            {
+                return await device_mgr.Remove_Device("Dimmable Light", username, device_ID);
+            }
+            return false;
         } catch (e) {
             debug("[Lifx_Device_API] Remove_Lifx_Device() Error " + e);
         }
@@ -111,16 +124,30 @@ var Lifx_Device_API = function () {
 
     self.Get_Lifx_Device_Session = async function (username, device_ID) {
         try {
-            var session = lifx_linked_device_obj_list[device_ID];
-            if (!session) {
-                var device_inf = await device_mgr.Read_Device_Inf(Lifx_Device_Type, username, device_ID);
-                if (!device_inf) return null;
+            var address_inf = await address_mgr.Read_Address_Info(device_ID);
+            if (!address_inf) return null;
 
-                session = lifx_discovered_device_obj_list[device_ID];
-                lifx_linked_device_obj_list[device_ID] = session;
+            let lifx_device_obj = await lifx.createDevice({ ip: address_inf.ip_address, mac: address_inf.mac_address });
+            let deviceInfo = await lifx_device_obj.getDeviceInfo();
+
+            let device_type = null;
+            switch(deviceInfo.productName)
+            {
+                case "LIFX Mini Color":
+                case "LIFX Color 1000":
+                    device_type = "Extended Color Light";
+                    break;
+                case "LIFX Mini White":
+                    device_type = "Dimmable Light";
+                    break;
+                default:
+                    return;
             }
 
-            return session;
+            lifx_device_obj["deviceInfo"] = deviceInfo;
+            lifx_device_obj["device_Type"] = device_type;
+            
+            return lifx_device_obj;
         } catch (e) {
             debug("[Lifx_Device_API] Get_Lifx_Device_Session() Error " + e);
         }

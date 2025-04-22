@@ -4,6 +4,9 @@ var debug = require('debug')(require('path').basename(__filename));
 var Hue_Bridge_Lighting_API = require('./Hue_Bridge/Hue_Bridge_Lighting_API.js');
 var hue_bridge_lighting_api = new Hue_Bridge_Lighting_API();
 
+var LIFX_Lighting_API = require('./LIFX/LIFX_Lighting_API.js');
+var lifx_lighting_api = new LIFX_Lighting_API();
+
 const ZB_CCT_Max = 6500;
 const ZB_CCT_Min = 2000;
 const ZB_CCT_2000_Mapped_Mired_Val = 500;
@@ -62,6 +65,10 @@ var Lighting_API_Integrate = function () {
                 {
                     hue_bridge_lighting_api.Hue_Bridge_Light_Turn_On_Off(address_ID, on_off);
                 }
+                else if(target_protocol=="LIFX LAN")
+                {
+                    await lifx_lighting_api.Lifx_Light_Turn_On_Off(address_ID, on_off);
+                }
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Turn_On_Off(address_ID, on_off);
@@ -79,6 +86,10 @@ var Lighting_API_Integrate = function () {
                 if(target_protocol=="Hue API Tunnel")
                 {
                     hue_bridge_lighting_api.Hue_Bridge_Light_Toggle_OnOff(address_ID);
+                }
+                else if(target_protocol=="LIFX LAN")
+                {
+                    await lifx_lighting_api.Lifx_Light_Toggle_OnOff(address_ID);
                 }
             }
             else{
@@ -119,6 +130,10 @@ var Lighting_API_Integrate = function () {
                 if(target_protocol=="Hue API Tunnel")
                 {
                     hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
+                }
+                else if(target_protocol=="LIFX LAN")
+                {
+                    await lifx_lighting_api.Lifx_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
                 }
             }
             else{
@@ -204,6 +219,10 @@ var Lighting_API_Integrate = function () {
                 {
                     hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Hue(address_ID, hue, trans_time);
                 }
+                else if(target_protocol=="LIFX LAN")
+                {
+                    await lifx_lighting_api.Lifx_Light_Move_To_Hue(address_ID, hue, trans_time);
+                }
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Hue(address_ID, hue, trans_time);
@@ -248,6 +267,10 @@ var Lighting_API_Integrate = function () {
                 {
                     hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Saturation(address_ID, saturation, trans_time);
                 }
+                else if(target_protocol=="LIFX LAN")
+                {
+                    await lifx_lighting_api.Lifx_Light_Move_To_Saturation(address_ID, saturation, trans_time);
+                }
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Saturation(address_ID, saturation, trans_time);
@@ -273,6 +296,10 @@ var Lighting_API_Integrate = function () {
                 if(target_protocol=="Hue API Tunnel")
                 {
                     hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
+                }
+                else if(target_protocol=="LIFX LAN")
+                {
+                    await lifx_lighting_api.Lifx_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
                 }
             }
             else{
@@ -582,6 +609,10 @@ var Lighting_API_Integrate = function () {
                 {
                     hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
                 }
+                else if(target_protocol=="LIFX LAN")
+                {
+                    await lifx_lighting_api.Lifx_Light_Move_To_Color_Temperature(address_ID);
+                }
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
@@ -659,6 +690,10 @@ var Lighting_API_Integrate = function () {
             {
                 result = await hue_bridge_lighting_api.Get_Hue_Bridge_Light_On_Off_Status(address_ID);
             }
+            else if(target_protocol=="LIFX LAN")
+            {
+                result = await lifx_lighting_api.Get_Lifx_Light_On_Off_Status(address_ID);
+            }
             
             if(result==null)
             {
@@ -701,6 +736,10 @@ var Lighting_API_Integrate = function () {
             if(target_protocol=="Hue API Tunnel")
             {
                 result = await hue_bridge_lighting_api.Get_Hue_Bridge_Light_Current_Level(address_ID);
+            }
+            else if(target_protocol=="LIFX LAN")
+            {
+                result = await lifx_lighting_api.Get_Lifx_Light_Current_Level(address_ID);
             }
             
             if(result==null)
@@ -745,6 +784,10 @@ var Lighting_API_Integrate = function () {
             {
                 result = await hue_bridge_lighting_api.Get_Hue_Bridge_Light_Current_Color(address_ID);
             }
+            else if(target_protocol=="LIFX LAN")
+            {
+                result = await lifx_lighting_api.Get_Lifx_Light_Current_Color(address_ID);
+            }
             
             if(result==null)
             {
@@ -788,6 +831,10 @@ var Lighting_API_Integrate = function () {
             {
                 result = await hue_bridge_lighting_api.Get_Hue_Bridge_Light_Current_Color_Temperature(address_ID);
             }
+            else if(target_protocol=="LIFX LAN")
+            {
+                result = await lifx_lighting_api.Get_Lifx_Light_Current_Color_Temperature(address_ID);
+            }
             
             if(result==null)
             {
@@ -829,6 +876,10 @@ var Lighting_API_Integrate = function () {
             if(target_protocol=="Hue API Tunnel")
             {
                 result = await hue_bridge_lighting_api.Get_Hue_Bridge_Light_All_Status(address_ID);
+            }
+            else if(target_protocol=="LIFX LAN")
+            {
+                result = await lifx_lighting_api.Get_Lifx_Light_All_Status(address_ID);
             }
             
             if(result==null)

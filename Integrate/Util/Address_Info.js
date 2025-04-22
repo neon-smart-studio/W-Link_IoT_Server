@@ -223,10 +223,10 @@ async function Save_Twinkly_API_Tunnel_Device_Address_Info(address, twinkly_ligh
     }
 };
 
-async function Save_LIFX_LAN_Device_Address_Info(address, lifx_light_IP)
+async function Save_LIFX_LAN_Device_Address_Info(address, lifx_light_IP, lifx_light_mac)
 {
     try{
-        if(address==null || lifx_light_IP==null)
+        if(address==null || lifx_light_IP==null || lifx_light_mac==null)
         {
             return false;
         }
@@ -261,7 +261,8 @@ async function Save_LIFX_LAN_Device_Address_Info(address, lifx_light_IP)
             target_type: "Device",
             target_network: "TCP/IP",
             target_protocol: "LIFX LAN",
-            ip_address: lifx_light_IP
+            ip_address: lifx_light_IP,
+            mac_address: lifx_light_mac
         };
 
         if(exist==true)
@@ -315,6 +316,7 @@ var Address_Info = function (){
                     if(addr_doc[0].target_type=="Device")
                     {
                         result["ip_address"] = addr_doc[0].ip_address;
+                        result["mac_address"] = addr_doc[0].mac_address;
                     }
                 }
                 else if(addr_doc[0].target_protocol=="Twinkly API Tunnel")
@@ -350,7 +352,7 @@ var Address_Info = function (){
             }
             else if(target_protocol=="LIFX LAN")
             {
-                success = await Save_LIFX_LAN_Device_Address_Info(address, dev_inf_json.ip_address);
+                success = await Save_LIFX_LAN_Device_Address_Info(address, dev_inf_json.ip_address, dev_inf_json.mac_address);
             }
             else if(target_protocol=="Twinkly API Tunnel")
             {
