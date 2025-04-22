@@ -168,7 +168,7 @@ function onClick_Connect_To_Hue_Bridge_Btn(ip_address)
 {
     Link_To_Hue_Bridge(ip_address);
 
-    Print_Link_Hue_Bridge_Page();
+    Update_Device_List();
 }
 
 function onClick_Add_Hue_Bridge_Btn()

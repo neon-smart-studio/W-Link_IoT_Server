@@ -83,6 +83,11 @@ var Lifx_Device_API = function () {
                 "vendorName": deviceInfo.vendorName,
             };
     
+            if(!await device_mgr.Save_Device_Info("LIFX", username, device_ID, lifx_new_dev_info))
+            {
+                return false;
+            }
+
             return await device_mgr.Save_Device_Info(device_type, username, device_ID, lifx_new_dev_info);
         } catch (e) {
             debug("[Lifx_Device_API] Link_To_Lifx_Device() Error " + e);
@@ -92,6 +97,10 @@ var Lifx_Device_API = function () {
     
     self.Rename_Lifx_Device = async function (username, device_ID, new_name) {
         try {
+            if(!await device_mgr.Device_Change_Name("LIFX", username, device_ID, new_name))
+            {
+                return false;
+            }
             if(await device_mgr.Is_Exist("Extended Color Light", username, device_ID))
             {
                 return await device_mgr.Device_Change_Name("Extended Color Light", username, device_ID, new_name);
@@ -108,6 +117,10 @@ var Lifx_Device_API = function () {
 
     self.Remove_Lifx_Device = async function (username, device_ID) {
         try {
+            if(!await device_mgr.Remove_Device("LIFX", username, device_ID))
+            {
+                return false;
+            }
             if(await device_mgr.Is_Exist("Extended Color Light", username, device_ID))
             {
                 return await device_mgr.Remove_Device("Extended Color Light", username, device_ID);

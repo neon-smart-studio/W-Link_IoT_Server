@@ -1,7 +1,5 @@
 $('head').append('<link rel="stylesheet" type="text/css" href="../../css/circle-meter.css">');
 
-var link_button_auth_timer = null;
-
 function Handle_Device_WebSocket_POST_Message(in_json)
 {
     if(in_json.topic!=null){
@@ -12,12 +10,7 @@ function Handle_Device_WebSocket_POST_Message(in_json)
                         if(in_json.command!=null){
                             switch(in_json.command){
                                 case "Report LIFX Link Successfully":
-                                    if(link_button_auth_timer!=null)
-                                    {
-                                        Print_LIFX_Link_Successfully_Page();
-                                        clearInterval(link_button_auth_timer);
-                                        link_button_auth_timer = null;
-                                    }
+                                    Print_LIFX_Link_Successfully_Page();
                                     break;
                             }
                         }
@@ -70,11 +63,34 @@ function Print_Discovered_LIFX_List(lifx_list)
     $('#new_lifx_display_area').html(show_lifx_list.join(''));
 }
 
+function Print_LIFX_Link_Successfully_Page()
+{
+    var show_link_lifx_status = [];
+
+    show_link_lifx_status.push("<div class=\"grid\">");
+    show_link_lifx_status.push("<div class=\"row\">");
+    show_link_lifx_status.push("<div class=\"cell-6 offset-3\" style=\"text-align: center;\">");
+    show_link_lifx_status.push("<span class=\"fg-green mif-checkmark mif-5x\"></span>");
+    show_link_lifx_status.push("</div>");
+    show_link_lifx_status.push("<div class=\"cell-3\"/>");
+    show_link_lifx_status.push("</div>");
+    show_link_lifx_status.push("<div class=\"row\">");
+    show_link_lifx_status.push("<div class=\"cell-6 offset-3\" style=\"text-align: center;\">");
+    show_link_lifx_status.push("<h2 class=\"fg-green\" style=\"margin-top:0px;\">連接成功</h2>");
+    show_link_lifx_status.push("</div>");
+    show_link_lifx_status.push("<div class=\"cell-3\"/>");
+    show_link_lifx_status.push("</div>");
+    show_link_lifx_status.push("</div>");
+
+    $('#new_lifx_display_area').html('');
+    $('#new_lifx_display_area').html(show_link_lifx_status.join(''));
+
+    Update_Device_List();
+}
+
 function onClick_Connect_To_LIFX_Btn(ip_address, mac_address)
 {
     Link_To_LIFX(ip_address, mac_address);
-
-    Device_MGMT_Update_Device_List();
 }
 
 function onClick_Add_LIFX_Btn()
@@ -133,82 +149,4 @@ function Print_Device_Operation_Toolbar(index, print_info_dst_id)
 
 function Show_Device_Operation_Settings(index, print_info_dst_id, update_online_status_cb)
 {
-    var show_device_op_settings = [];
-
-    show_device_op_settings.push("<div class=\"row\">");
-    show_device_op_settings.push("<h2 class=\"fg-mauve\">操作:</h2>");
-    show_device_op_settings.push("</div>");
-
-    show_device_op_settings.push("<div class=\"row\">");
-    show_device_op_settings.push("<div class=\"cell-11\">");
-    show_device_op_settings.push("<div class=\"tiles-grid\">");
-
-    show_device_op_settings.push("<div data-role=\"tile\" data-size=\"medium\" class=\"bg-orange fg-white\" onclick=\"onClick_Sync_LIFX_Lights_Tile('"+index+"')\">");
-    show_device_op_settings.push("<span class=\"mif-lamp mif-4x icon\"></span>");
-    show_device_op_settings.push("<span class=\"branding-bar\">同步燈光裝置</span>");
-    show_device_op_settings.push("</div>");
-
-    show_device_op_settings.push("<div data-role=\"tile\" data-size=\"medium\" class=\"bg-red fg-white\" onclick=\"onClick_Sync_LIFX_Groups_Tile('"+index+"')\">");
-    show_device_op_settings.push("<span class=\"mif-dialpad mif-4x icon\"></span>");
-    show_device_op_settings.push("<span class=\"branding-bar\">同步群組設定</span>");
-    show_device_op_settings.push("</div>");
-
-    show_device_op_settings.push("<div data-role=\"tile\" data-size=\"medium\" class=\"bg-green fg-white\">");
-    show_device_op_settings.push("<span class=\"mif-cogs mif-4x icon\"></span>");
-    show_device_op_settings.push("<span class=\"branding-bar\">同步全部設定</span>");
-    show_device_op_settings.push("</div>");
-
-    show_device_op_settings.push("</div>");
-    show_device_op_settings.push("</div>");
-    show_device_op_settings.push("<div class=\"cell-1\"></div>");
-    show_device_op_settings.push("</div>");
-
-    show_device_op_settings.push("<div class=\"dialog\" data-role=\"dialog\" id=\"lifx_"+index+"_sync_lights_modal\">");
-    show_device_op_settings.push("<div class=\"dialog-title\"><h2 class=\"fg-mauve\">同步燈光裝置</h2></div>");
-    show_device_op_settings.push("<div class=\"dialog-content\">");
-    show_device_op_settings.push("<div id=\"lifx_"+index+"_sync_lights_status_display_area\"/>");
-    show_device_op_settings.push("</div>");
-    show_device_op_settings.push("<div class=\"dialog-actions text-right\">");
-    show_device_op_settings.push("<button class=\"button alert js-dialog-close\" id=\"lifx_"+index+"_sync_lights_modal_exit_btn\">離開</button>");
-    show_device_op_settings.push("</div>");
-    show_device_op_settings.push("</div>");
-
-    show_device_op_settings.push("<div class=\"dialog\" data-role=\"dialog\" id=\"lifx_"+index+"_sync_groups_modal\">");
-    show_device_op_settings.push("<div class=\"dialog-title\"><h2 class=\"fg-mauve\">同步群組設定</h2></div>");
-    show_device_op_settings.push("<div class=\"dialog-content\">");
-    show_device_op_settings.push("<div id=\"lifx_"+index+"_sync_groups_status_display_area\"/>");
-    show_device_op_settings.push("</div>");
-    show_device_op_settings.push("<div class=\"dialog-actions text-right\">");
-    show_device_op_settings.push("<button class=\"button alert js-dialog-close\" id=\"lifx_"+index+"_sync_groups_modal_exit_btn\">離開</button>");
-    show_device_op_settings.push("</div>");
-    show_device_op_settings.push("</div>");
-
-    $('#'+print_info_dst_id).html('');
-    $('#'+print_info_dst_id).html(show_device_op_settings.join(''));
-
-    update_online_status_cb(true);
-}
-
-function onClick_Sync_LIFX_Lights_Tile(index_str)
-{
-    $('#lifx_'+index_str+'_sync_lights_modal_exit_btn').addClass('disabled');
-
-    Metro.dialog.open('#lifx_'+index_str+'_sync_lights_modal');
-
-    LIFX_Synchronize_All_Light_Info(Get_Device_ID_By_Index(Number(index_str)));
-
-    $('#lifx_'+index_str+'_sync_lights_status_display_area').html('');
-    $('#lifx_'+index_str+'_sync_lights_status_display_area').html('<div data-role="progress" data-type="line"></div>');
-}
-
-function onClick_Sync_LIFX_Groups_Tile(index_str)
-{
-    $('#lifx_'+index_str+'_sync_groups_modal_exit_btn').addClass('disabled');
-
-    Metro.dialog.open('#lifx_'+index_str+'_sync_groups_modal');
-
-    LIFX_Synchronize_All_Group_Info(Get_Device_ID_By_Index(Number(index_str)));
-
-    $('#lifx_'+index_str+'_sync_groups_status_display_area').html('');
-    $('#lifx_'+index_str+'_sync_groups_status_display_area').html('<div data-role="progress" data-type="line"></div>');
 }
