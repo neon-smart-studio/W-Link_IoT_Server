@@ -50,7 +50,6 @@ async function discoverViaSSDP(timeoutMs = 1000) {
 
     return new Promise((resolve) => {
         const timeout = setTimeout(() => {
-            ssdpClient.stop();
             resolve(discoveryResults);
         }, timeoutMs);
 

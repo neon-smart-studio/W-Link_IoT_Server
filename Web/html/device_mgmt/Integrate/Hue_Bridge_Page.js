@@ -247,11 +247,6 @@ function Show_Device_Operation_Settings(index, print_info_dst_id, update_online_
     show_device_op_settings.push("<span class=\"branding-bar\">同步群組設定</span>");
     show_device_op_settings.push("</div>");
 
-    show_device_op_settings.push("<div data-role=\"tile\" data-size=\"medium\" class=\"bg-green fg-white\">");
-    show_device_op_settings.push("<span class=\"mif-cogs mif-4x icon\"></span>");
-    show_device_op_settings.push("<span class=\"branding-bar\">同步全部設定</span>");
-    show_device_op_settings.push("</div>");
-
     show_device_op_settings.push("</div>");
     show_device_op_settings.push("</div>");
     show_device_op_settings.push("<div class=\"cell-1\"></div>");

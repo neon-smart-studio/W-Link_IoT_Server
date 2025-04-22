@@ -8,6 +8,9 @@ var util = require("util");
 var DataBase = require('../DataBase/DataBase.js');
 var database = new DataBase();
 
+var Integrate_Address_Info = require('../Integrate/Util/Address_Info.js');
+var integrate_address_info = new Integrate_Address_Info();
+
 const Address_MGR_DB_Name = 'address';
 const Address_MGR_Collection_Name = 'All_Address_List';
 
@@ -148,8 +151,6 @@ var Address_MGR = function (){
                 }
             }
 
-            var result = null;
-
             var success = await database.DataBase_Open(Address_MGR_DB_Name);
             if(success==false)
             {
@@ -165,174 +166,17 @@ var Address_MGR = function (){
             
             await database.DataBase_Close(Address_MGR_DB_Name);
 
-            result = {
-                target_type: addr_doc[0].target_type,
-                target_network: addr_doc[0].target_network,
-                target_protocol: addr_doc[0].target_protocol
-            };
+            let result = integrate_address_info.Fetch_Integrate_Ext_Address_Info(addr_doc);
 
-            if(addr_doc[0].target_network=="TCP/IP")
-            {
-                if(addr_doc[0].target_protocol=="Hue API Tunnel")
-                {
-                    if(addr_doc[0].target_type=="Device")
-                    {
-                        result["host_hue_bridge_ID"] = addr_doc[0].host_hue_bridge_ID;
-                        result["device_no_ID"] = addr_doc[0].device_no_ID;
-                    }
-                }
-                if(addr_doc[0].target_protocol=="Twinkly API Tunnel")
-                {
-                    if(addr_doc[0].target_type=="Device")
-                    {
-                        result["ip_address"] = addr_doc[0].ip_address;
-                    }
-                }
-            }
+            result["target_type"] = addr_doc[0].target_type;
+            result["target_network"] = addr_doc[0].target_network;
+            result["target_protocol"] = addr_doc[0].target_protocol;
+
             return result;
         }
         catch(e)
         {
             debug("[Address_MGR] Read_Address_Info() Error: " + e);
-        }
-    };
-
-    self.Save_Hue_API_Tunnel_Device_Address_Info = async function(address, host_hue_bridge_ID, device_no_ID)
-    {
-        try{
-            if(address==null || host_hue_bridge_ID==null)
-            {
-                return false;
-            }
-
-            var success = await database.DataBase_Open(Address_MGR_DB_Name);
-            if(success==false)
-            {
-                return null;
-            }
-
-            success = await database.Database_EnsureIndex(Address_MGR_DB_Name, Address_MGR_Collection_Name, "address", true);
-            if(success==false)
-            {
-                await database.DataBase_Close(Address_MGR_DB_Name);
-                return false;
-            }
-
-            var count = await database.Database_Count(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address});
-            if(count<0)
-            {
-                await database.DataBase_Close(Address_MGR_DB_Name);
-                return false;
-            }
-
-            var exist = false;
-            if(count>0){
-                exist = true;
-            }
-
-            var address_info = {
-                address: address,
-                target_type: "Device",
-                target_network: "TCP/IP",
-                target_protocol: "Hue API Tunnel",
-                host_hue_bridge_ID: host_hue_bridge_ID,
-                device_no_ID: device_no_ID
-            };
-
-            if(exist==true)
-            {
-                success = await database.Database_Update(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address}, address_info, false);
-                if(success==false)
-                {
-                    await database.DataBase_Close(Address_MGR_DB_Name);
-                    return false;
-                }
-            }
-            else{
-                success = await database.Database_Insert(Address_MGR_DB_Name, Address_MGR_Collection_Name, address_info);
-                if(success==false)
-                {
-                    await database.DataBase_Close(Address_MGR_DB_Name);
-                    return false;
-                }
-            }
-
-            await database.DataBase_Close(Address_MGR_DB_Name);
-
-            return true;
-        }
-        catch(e)
-        {
-            debug("[Address_MGR] Save_Hue_API_Tunnel_Device_Address_Info() Error: " + e);
-        }
-    };
-
-    self.Save_Twinkly_API_Tunnel_Device_Address_Info = async function(address, twinkly_light_IP)
-    {
-        try{
-            if(address==null || twinkly_light_IP==null)
-            {
-                return false;
-            }
-
-            var success = await database.DataBase_Open(Address_MGR_DB_Name);
-            if(success==false)
-            {
-                return null;
-            }
-
-            success = await database.Database_EnsureIndex(Address_MGR_DB_Name, Address_MGR_Collection_Name, "address", true);
-            if(success==false)
-            {
-                await database.DataBase_Close(Address_MGR_DB_Name);
-                return false;
-            }
-
-            var count = await database.Database_Count(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address});
-            if(count<0)
-            {
-                await database.DataBase_Close(Address_MGR_DB_Name);
-                return false;
-            }
-
-            var exist = false;
-            if(count>0){
-                exist = true;
-            }
-
-            var address_info = {
-                address: address,
-                target_type: "Device",
-                target_network: "TCP/IP",
-                target_protocol: "Twinkly API Tunnel",
-                ip_address: twinkly_light_IP
-            };
-
-            if(exist==true)
-            {
-                success = await database.Database_Update(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address}, address_info, false);
-                if(success==false)
-                {
-                    await database.DataBase_Close(Address_MGR_DB_Name);
-                    return false;
-                }
-            }
-            else{
-                success = await database.Database_Insert(Address_MGR_DB_Name, Address_MGR_Collection_Name, address_info);
-                if(success==false)
-                {
-                    await database.DataBase_Close(Address_MGR_DB_Name);
-                    return false;
-                }
-            }
-
-            await database.DataBase_Close(Address_MGR_DB_Name);
-
-            return true;
-        }
-        catch(e)
-        {
-            debug("[Address_MGR] Save_Twinkly_API_Tunnel_Device_Address_Info() Error: " + e);
         }
     };
 

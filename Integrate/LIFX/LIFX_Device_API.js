@@ -1,9 +1,8 @@
 var debug = require('debug')(require('path').basename(__filename));
 
-const LifxLan = require('node-lifx-lan');
-var lifx = new LifxLan();
+const lifx = require('node-lifx-lan');
 
-var Device_MGR = require('../Util/Device_MGR.js');
+var Device_MGR = require('../../Util/Device_MGR.js');
 var device_mgr = new Device_MGR();
 
 var lifx_discovered_device_obj_list = {};
@@ -11,64 +10,88 @@ var lifx_linked_device_obj_list = {};
 
 const Lifx_Device_Type = "Lighting";
 
+async function discoverViaLifxLan(timeoutMs = 1000) {
+    try {
+        let results = [];
+        let discoveryResults = await lifx.discover({"wait": timeoutMs});
+        discoveryResults.forEach(dev => {
+            results.push({
+                "ip": dev.ip,
+                "mac": dev.mac,
+                "name": dev.deviceInfo.label,
+                "port": dev._lifxLanUdp._UDP_PORT,
+                "hwVersion": dev.deviceInfo.hwVersion,
+                "productId": dev.deviceInfo.productId,
+                "productName": dev.deviceInfo.productName,
+                "vendorId": dev.deviceInfo.vendorId,
+                "vendorName": dev.deviceInfo.vendorName,
+            });
+        });
+        return results;
+    } catch (e) {
+        debug("[Lifx_Device_API] discoverViaLifxLan() Error " + e);
+        return null;
+    }
+}
+
 var Lifx_Device_API = function () {
     var self = this;
 
-    self.Discover_Lifx_Device = async function (discover_duration) {
+    self.Discover_Nearby_LIFX = async function (username) {
         try {
-            if (discover_duration >= 60000) {
-                discover_duration = 60000;
-            }
-
-            var discover_results = await lifx.discover(discover_duration);
-            discover_results.forEach(dev => {
-                if (dev.macAddress) {
-                    lifx_discovered_device_obj_list[dev.macAddress] = dev;
-                }
-            });
-
-            return discover_results;
+            let discoveryResults = await discoverViaLifxLan(5000);
+            return {
+                num_of_lifx: discoveryResults.length,
+                discovered_lifx_list: discoveryResults
+            };
         } catch (e) {
-            debug("[Lifx_Device_API] Discover_Lifx_Device() Error " + e);
+            debug("[Lifx_Device_API] Discover_Nearby_LIFX() Error " + e);
         }
     };
-
-    self.Link_To_Lifx_Device = async function (username, lifx_ID) {
+    self.Link_To_Lifx_Device = async function (username, ip, mac) {
         try {
-            if (!lifx_discovered_device_obj_list[lifx_ID]) {
-                let results = await lifx.discover(5000);
-                results.forEach(dev => {
-                    if (dev.macAddress) {
-                        lifx_discovered_device_obj_list[dev.macAddress] = dev;
-                    }
-                });
+            let lifx_device_obj = await lifx.createDevice({ ip: ip, mac: mac });
+            let deviceInfo = await lifx_device_obj.getDeviceInfo();
+            
+            let device_type = null;
 
-                if (!lifx_discovered_device_obj_list[lifx_ID]) {
-                    return false;
-                }
+            switch(deviceInfo.productName)
+            {
+                case "LIFX Mini Color":
+                case "LIFX Color 1000":
+                    device_type = "Colored Light";
+                    break;
+                case "LIFX Mini White":
+                    device_type = "Dimmable Light";
+                    break;
+                default:
+                    return;
             }
 
-            var lifx_device_obj = lifx_discovered_device_obj_list[lifx_ID];
-            var device_Type = "Colored Light";
-            var light_name = `LIFX ${lifx_device_obj.productName || 'Light'}`;
+            let device_ID = lifx_device_obj.mac.replace(/:/g, "") + deviceInfo.productId.toString() + deviceInfo.hwVersion.toString();
 
-            lifx_linked_device_obj_list[lifx_ID] = lifx_device_obj;
-
-            var lifx_new_dev_info = {
-                "device_Name": light_name,
-                "network_Type": "LAN",
-                "protocol_Type": "LIFX LAN Protocol",
-                "device_Type": device_Type,
-                "model": lifx_device_obj.productName,
+            const lifx_new_dev_info = {
+                "device_Name": deviceInfo.label,
+                "network_Type": "TCP/IP",
+                "protocol_Type": "LIFX LAN",
+                "device_Type": device_type,
                 "ip_address": lifx_device_obj.ip,
-                "port": 56700 // default LIFX UDP port
+                "mac_address": lifx_device_obj.mac,
+                "port": lifx_device_obj._lifxLanUdp._UDP_PORT,
+                "hwVersion": deviceInfo.hwVersion,
+                "productId": deviceInfo.productId,
+                "productName": deviceInfo.productName,
+                "vendorId": deviceInfo.vendorId,
+                "vendorName": deviceInfo.vendorName,
             };
-            return await device_mgr.Save_Device_Info(Lifx_Device_Type, username, lifx_ID, lifx_new_dev_info);
+    
+            return await device_mgr.Save_Device_Info(device_type, username, device_ID, lifx_new_dev_info);
         } catch (e) {
             debug("[Lifx_Device_API] Link_To_Lifx_Device() Error " + e);
+            return false;
         }
     };
-
+    
     self.Rename_Lifx_Device = async function (username, device_ID, new_name) {
         try {
             return await device_mgr.Device_Change_Name(Lifx_Device_Type, username, device_ID, new_name);

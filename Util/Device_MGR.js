@@ -15,6 +15,12 @@ var bind_mgr = new Bind_MGR();
 var DataBase = require('../DataBase/DataBase.js');
 var database = new DataBase();
 
+var Integrate_Address_Info = require('../Integrate/Util/Address_Info.js');
+var integrate_address_info = new Integrate_Address_Info();
+
+var Integrate_Device_Info = require('../Integrate/Util/Device_Info.js');
+var integrate_device_info = new Integrate_Device_Info();
+
 const Device_MGR_DB_Name = 'device';
 
 /*  schema
@@ -105,7 +111,6 @@ var Device_MGR = function (){
             }
 
             var device_protocol_type = "Any";
-            var bridge_address_ID = dev_inf_json.bridge_address_ID;
 
             switch(dev_inf_json.network_Type){
                 case "TCP/IP":
@@ -142,85 +147,9 @@ var Device_MGR = function (){
                             devInf["sensor_model"] = dev_inf_json.sensor_model;
                         }
                     }
-                    else if(device_protocol_type=="Hue API Tunnel")
+                    else
                     {
-                        if(dev_inf_json.device_Type=="Hue Bridge")
-                        {
-                            devInf = {
-                                "user": user,
-                                "device_ID":device_ID,
-                                "device_Name":dev_name,
-                                "network_Type":dev_inf_json.network_Type,
-                                "protocol_Type":dev_inf_json.protocol_Type,
-                                "device_Type":dev_inf_json.device_Type,
-                                "IP_address": dev_inf_json.IP_address,
-                                "software_version": dev_inf_json.software_version,
-                                "apiversion": dev_inf_json.apiversion,
-                                "manufacture": dev_inf_json.manufacture,
-                                "modelID": dev_inf_json.modelID,
-                                "authenticated_user": dev_inf_json.authenticated_user,
-                                "bridge_configuration": dev_inf_json.bridge_configuration
-                            };
-                        }
-                        else{
-                            bridge_address_ID = dev_inf_json.bridge_address_ID;
-                            devInf = {
-                                "user": user,
-                                "device_ID":device_ID,
-                                "device_Name":dev_name,
-                                "network_Type":dev_inf_json.network_Type,
-                                "protocol_Type":dev_inf_json.protocol_Type,
-                                "device_Network":dev_inf_json.device_Network,
-                                "device_Type":dev_inf_json.device_Type,
-                                "bridge_address_ID": bridge_address_ID,
-                                "node_ID": Number(dev_inf_json.node_ID),
-                                "unique_ID": dev_inf_json.unique_ID,
-                                "software_version": dev_inf_json.software_version,
-                                "manufacture": dev_inf_json.manufacture,
-                                "modelID": dev_inf_json.modelID,
-                                "capabilities": dev_inf_json.capabilities,
-                                "config": dev_inf_json.config
-                            };
-                        }
-                    }
-                    else if(device_protocol_type=="Twinkly API Tunnel")
-                    {
-                        devInf = {
-                            "user": user,
-                            "device_ID":device_ID,
-                            "device_Name": dev_inf_json.device_name,
-                            "network_Type":dev_inf_json.network_Type,
-                            "protocol_Type":dev_inf_json.protocol_Type,
-                            "device_Type":dev_inf_json.device_Type,
-                            "led_profile": dev_inf_json.led_profile,
-                            "led_type": Number(dev_inf_json.led_type),
-                            "wire_type": Number(dev_inf_json.wire_type),
-                            "uuid": dev_inf_json.uuid,
-                            "ip_address": dev_inf_json.ip_address,
-                            "mac": dev_inf_json.mac,
-                            "product_name": dev_inf_json.product_name,
-                            "product_code": dev_inf_json.product_code,
-                            "hw_id": dev_inf_json.hw_id,
-                            "hw_version": dev_inf_json.hw_version,
-                            "fw_family": dev_inf_json.fw_family,
-                            "number_of_led": Number(dev_inf_json.number_of_led),
-                            "max_supported_led": Number(dev_inf_json.max_supported_led),
-                            "frame_rate": Number(dev_inf_json.frame_rate),
-                            "movie_capacity": Number(dev_inf_json.movie_capacity)
-                        };
-                    }
-                    else if(device_protocol_type=="Yeelink API Tunnel")
-                    {
-                        devInf = {
-                            "user": user,
-                            "device_Name": dev_inf_json.device_name,
-                            "network_Type": "TCP/IP",
-                            "protocol_Type": "Yeelink API Tunnel",
-                            "device_Type":dev_inf_json.device_Type,
-                            "model": dev_inf_json.model,
-                            "ip_address": dev_inf_json.ip_address,
-                            "port": dev_inf_json.port
-                        };
+                        devInf = integrate_device_info.Map_Device_Info(user, device_ID, dev_name, device_protocol_type, dev_inf_json);
                     }
                     break;
                 case "Zigbee":
@@ -315,29 +244,22 @@ var Device_MGR = function (){
 
             await database.DataBase_Close(Device_MGR_DB_Name);
 
-            if(device_protocol_type=="Hue API Tunnel")
+            if(dev_inf_json.network_Type=="TCP/IP")
             {
-                if(dev_inf_json.device_Type=="Hue Bridge")
+                if(device_protocol_type!="MQTT")
+                {
+                    success = await integrate_address_info.Save_Integrate_Address_Info(device_ID, "Device", dev_inf_json.network_Type, device_protocol_type, dev_inf_json);
+                }
+                else
                 {
                     success = await address_mgr.Save_Address_Info(device_ID, "Device", dev_inf_json.network_Type, device_protocol_type);
                 }
-                else{
-                    success = await address_mgr.Save_Hue_API_Tunnel_Device_Address_Info(device_ID, bridge_address_ID, Number(dev_inf_json.node_ID));
-                }
             }
-            else if(device_protocol_type=="Twinkly API Tunnel")
+            else
             {
-                success = await address_mgr.Save_Twinkly_API_Tunnel_Device_Address_Info(device_ID, dev_inf_json.ip_address);
-            }
-            else{
                 success = await address_mgr.Save_Address_Info(device_ID, "Device", dev_inf_json.network_Type, device_protocol_type);
             }
-
-            if(success)
-            {
-                await spreadsheet_device_mgr.Save_Device_Info(device_Type, device_ID, devInf);
-            }
-
+            
             return success;
         }
         catch(e)
