@@ -611,7 +611,7 @@ var Lighting_API_Integrate = function () {
                 }
                 else if(target_protocol=="LIFX LAN")
                 {
-                    await lifx_lighting_api.Lifx_Light_Move_To_Color_Temperature(address_ID);
+                    await lifx_lighting_api.Lifx_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
                 }
             }
             else{

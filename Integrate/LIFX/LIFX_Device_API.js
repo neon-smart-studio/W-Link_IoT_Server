@@ -92,9 +92,9 @@ var Lifx_Device_API = function () {
     
     self.Rename_Lifx_Device = async function (username, device_ID, new_name) {
         try {
-            if(await device_mgr.Is_Exist("Colored Light", username, device_ID))
+            if(await device_mgr.Is_Exist("Extended Color Light", username, device_ID))
             {
-                return await device_mgr.Device_Change_Name("Colored Light", username, device_ID, new_name);
+                return await device_mgr.Device_Change_Name("Extended Color Light", username, device_ID, new_name);
             }
             if(await device_mgr.Is_Exist("Dimmable Light", username, device_ID))
             {
@@ -108,9 +108,9 @@ var Lifx_Device_API = function () {
 
     self.Remove_Lifx_Device = async function (username, device_ID) {
         try {
-            if(await device_mgr.Is_Exist("Colored Light", username, device_ID))
+            if(await device_mgr.Is_Exist("Extended Color Light", username, device_ID))
             {
-                return await device_mgr.Remove_Device("Colored Light", username, device_ID);
+                return await device_mgr.Remove_Device("Extended Color Light", username, device_ID);
             }
             if(await device_mgr.Is_Exist("Dimmable Light", username, device_ID))
             {

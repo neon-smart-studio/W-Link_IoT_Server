@@ -215,7 +215,7 @@ var Lifx_Lighting_API = function () {
                     hue: current_state.color.hue,
                     saturation: current_state.color.saturation,
                     brightness: current_state.color.brightness,
-                    kelvin: color_temp
+                    kelvin: Math.round(color_temp)
                 },
                 duration: trans_time
             });
@@ -284,7 +284,7 @@ var Lifx_Lighting_API = function () {
             const current_state = await session.getLightState();
             if(current_state==null){return null;}
 
-            return {color_temperature: cct_convert_func(current_state.kelvin)};
+            return {color_temperature: current_state.color.kelvin};
         }
         catch (e) {
             debug("[Lifx_Lighting_API] Get_Lifx_Light_Current_Color_Temperature() Error " + e);
@@ -321,14 +321,14 @@ var Lifx_Lighting_API = function () {
                         level: bri_convert_func(current_state.color.brightness),
                         hue: hue_convert_func(current_state.color.hue),
                         saturation: sat_convert_func(current_state.color.saturation),
-                        color_temperature: current_state.kelvin
+                        color_temperature: current_state.color.kelvin
                     };
                     break;
                 case "Color Temperature Light":
                     return {
                         on_off: current_state.power,
                         level: bri_convert_func(current_state.color.brightness),
-                        color_temperature: current_state.kelvin
+                        color_temperature: current_state.color.kelvin
                     };
                 default:
                     return null;

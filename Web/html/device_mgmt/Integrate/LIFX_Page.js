@@ -52,7 +52,7 @@ function Print_Discovered_LIFX_List(lifx_list)
                                         data-hint-position=\"top\" data-hint-text=\""+lifx_info.name+"\">");
             show_lifx_list.push("<h3 class=\"fg-white\" style=\"margin-left: 10px;margin-top: 10px;margin-bottom: 5px;\">"+lifx_info.name+"("+lifx_info.productName+")</h3>");
             show_lifx_list.push("<button data-role=\"hint\" data-hint-text=\"連線\" id=\"\" \
-                                        class=\"button success square large fg-white\" style=\"float:right;margin-top: 7.5px;margin-right: 5px;\" \
+                                        class=\"button success square large fg-white\" style=\"position:absolute; bottom:5px; right:5px;\" \
                                         onclick=\"onClick_Connect_To_LIFX_Btn('"+lifx_info.ip+"', '"+lifx_info.mac+"');\">");
             show_lifx_list.push("<span class=\"mif-link\"></span>");
             show_lifx_list.push("</button>");

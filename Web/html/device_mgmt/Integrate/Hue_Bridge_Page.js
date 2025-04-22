@@ -76,7 +76,7 @@ function Print_Discovered_Hue_Bridge_List(hue_bridge_list)
                                         data-hint-position=\"top\" data-hint-text=\""+hue_bridge_info.friendlyName+"\">");
             show_hue_bridge_list.push("<h3 class=\"fg-white\" style=\"margin-left: 10px;margin-top: 10px;margin-bottom: 5px;\">"+hue_bridge_info.friendlyName+"("+hue_bridge_info.modelNumber+")</h3>");
             show_hue_bridge_list.push("<button data-role=\"hint\" data-hint-text=\"連線\" id=\"\" \
-                                        class=\"button success square large fg-white\" style=\"float:right;margin-top: 7.5px;margin-right: 5px;\" \
+                                        class=\"button success square large fg-white\" style=\"position:absolute; bottom:5px; right:5px;\" \
                                         onclick=\"onClick_Connect_To_Hue_Bridge_Btn('"+hue_bridge_info.ip+"');\">");
             show_hue_bridge_list.push("<span class=\"mif-link\"></span>");
             show_hue_bridge_list.push("</button>");
