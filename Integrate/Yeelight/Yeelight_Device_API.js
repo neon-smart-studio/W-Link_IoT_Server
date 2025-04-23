@@ -354,12 +354,18 @@ const Yeelight_Device_API = function () {
         }
     };
 
-    self.Get_Yeelight_Device_Session = async function (username, device_ID) {
+    self.Get_Yeelight_Device_Session = async function (device_ID) {
         try {
             var address_inf = await address_mgr.Read_Address_Info(device_ID);
             if (!address_inf) return null;
 
-            const device = new Yeelight("yeelight://"+address_inf.ip_address, port);
+            let device_Info = await device_mgr.Read_Device_Inf("Yeelight", null, device_ID);
+            if(!device_Info)
+            {
+                return null;
+            }
+        
+            const device = new Yeelight("yeelight://"+address_inf.ip_address, address_inf.port);
         
             // 等待連線與初始化
             await new Promise((resolve, reject) => {
@@ -370,7 +376,9 @@ const Yeelight_Device_API = function () {
             // 執行 sync 等待裝置回傳資訊
             await device.sync();
 
-            return light;
+            device["device_Type"] = device_Info.device_Type;
+
+            return device;
         } catch (e) {
             debug("[Yeelight_Device_API] Get_Yeelight_Device_Session Error", e);
         }

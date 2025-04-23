@@ -135,7 +135,7 @@ var Lifx_Device_API = function () {
         }
     };
 
-    self.Get_Lifx_Device_Session = async function (username, device_ID) {
+    self.Get_Lifx_Device_Session = async function (device_ID) {
         try {
             var address_inf = await address_mgr.Read_Address_Info(device_ID);
             if (!address_inf) return null;

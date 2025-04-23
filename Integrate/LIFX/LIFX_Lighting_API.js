@@ -9,7 +9,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Turn_On_Off = async function (address_ID, on_off) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
 
             if(on_off)
@@ -30,7 +30,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Toggle_OnOff = async function (address_ID) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             const current_state = await session.getLightState();
@@ -54,7 +54,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Move_To_Level = async function (address_ID, level, trans_time, with_on_off) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             const current_state = await session.getLightState();
@@ -79,7 +79,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Step_Level_Up_Down = async function (address_ID, step_level, direction, trans_time, with_on_off) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             const current_state = await session.getLightState();
@@ -107,7 +107,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Move_Level_Up_Down = async function (address_ID, move_rate, direction, with_on_off) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             const current_state = await session.getLightState();
@@ -133,7 +133,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Move_To_Hue = async function (address_ID, hue, trans_time) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             const current_state = await session.getLightState();
@@ -156,7 +156,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Move_To_Saturation = async function (address_ID, saturation, trans_time) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             const current_state = await session.getLightState();
@@ -180,7 +180,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Move_To_Hue_And_Saturation = async function (address_ID, hue, saturation, trans_time) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
 
             const current_state = await session.getLightState();
@@ -204,7 +204,7 @@ var Lifx_Lighting_API = function () {
 
     self.Lifx_Light_Move_To_Color_Temperature = async function (address_ID, color_temp, trans_time) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
 
             const current_state = await session.getLightState();
@@ -227,7 +227,7 @@ var Lifx_Lighting_API = function () {
 
     self.Get_Lifx_Light_On_Off_Status = async function (address_ID) {
         try {
-            var session = await Get_Lifx_Device_Session(null, address_ID);
+            var session = await Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
 
             const current_state = await session.getLightState();
@@ -242,7 +242,7 @@ var Lifx_Lighting_API = function () {
 
     self.Get_Lifx_Light_Current_Level = async function (address_ID) {
         try {
-            var session = await Get_Lifx_Device_Session(null, address_ID);
+            var session = await Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
 
             const current_state = await session.getLightState();
@@ -257,7 +257,7 @@ var Lifx_Lighting_API = function () {
 
     self.Get_Lifx_Light_Current_Color = async function (address_ID) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             var hue_convert_func = function(hue){return Math.round(hue*360);}
@@ -278,7 +278,7 @@ var Lifx_Lighting_API = function () {
 
     self.Get_Lifx_Light_Current_Color_Temperature = async function (address_ID) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             const current_state = await session.getLightState();
@@ -293,7 +293,7 @@ var Lifx_Lighting_API = function () {
 
     self.Get_Lifx_Light_All_Status = async function (address_ID) {
         try {
-            const session = await lifx_device_api.Get_Lifx_Device_Session(null, address_ID);
+            const session = await lifx_device_api.Get_Lifx_Device_Session(address_ID);
             if (!session) return false;
             
             var bri_convert_func = function(bri){return Math.round(bri*100);}

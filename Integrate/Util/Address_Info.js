@@ -388,7 +388,7 @@ var Address_Info = function (){
                     if(target_type=="Device")
                     {
                         result["ip_address"] = addr_doc[0].ip_address;
-                        result["mac_address"] = addr_doc[0].mac_address;
+                        result["port"] = addr_doc[0].port;
                     }
                 }
                 else if(target_protocol=="LIFX LAN")
@@ -401,10 +401,9 @@ var Address_Info = function (){
                 }
                 else if(target_protocol=="Twinkly API Tunnel")
                 {
-                    if(target_type=="Device")
+                    if(addr_doc[0].target_type=="Device")
                     {
                         result["ip_address"] = addr_doc[0].ip_address;
-                        result["port"] = addr_doc[0].port;
                     }
                 }
             }
