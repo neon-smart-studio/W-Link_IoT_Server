@@ -223,6 +223,76 @@ async function Save_Twinkly_API_Tunnel_Device_Address_Info(address, twinkly_ligh
     }
 };
 
+async function Save_Yeelight_Device_Address_Info(address, yeelight_IP, yeelight_port)
+{
+    try{
+        if(address==null || yeelight_IP==null || yeelight_port==null)
+        {
+            return false;
+        }
+
+        var success = await database.DataBase_Open(Address_MGR_DB_Name);
+        if(success==false)
+        {
+            return null;
+        }
+
+        success = await database.Database_EnsureIndex(Address_MGR_DB_Name, Address_MGR_Collection_Name, "address", true);
+        if(success==false)
+        {
+            await database.DataBase_Close(Address_MGR_DB_Name);
+            return false;
+        }
+
+        var count = await database.Database_Count(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address});
+        if(count<0)
+        {
+            await database.DataBase_Close(Address_MGR_DB_Name);
+            return false;
+        }
+
+        var exist = false;
+        if(count>0){
+            exist = true;
+        }
+
+        var address_info = {
+            address: address,
+            target_type: "Device",
+            target_network: "TCP/IP",
+            target_protocol: "Yeelight API Tunnel",
+            ip_address: yeelight_IP,
+            port: yeelight_port
+        };
+
+        if(exist==true)
+        {
+            success = await database.Database_Update(Address_MGR_DB_Name, Address_MGR_Collection_Name, {'address': address}, address_info, false);
+            if(success==false)
+            {
+                await database.DataBase_Close(Address_MGR_DB_Name);
+                return false;
+            }
+        }
+        else{
+            success = await database.Database_Insert(Address_MGR_DB_Name, Address_MGR_Collection_Name, address_info);
+            if(success==false)
+            {
+                await database.DataBase_Close(Address_MGR_DB_Name);
+                return false;
+            }
+        }
+
+        await database.DataBase_Close(Address_MGR_DB_Name);
+
+        return true;
+    }
+    catch(e)
+    {
+        debug("[Address_Info] Save_Yeelight_Device_Address_Info() Error: " + e);
+    }
+};
+
 async function Save_LIFX_LAN_Device_Address_Info(address, lifx_light_IP, lifx_light_mac)
 {
     try{
@@ -303,27 +373,38 @@ var Address_Info = function (){
 
             if(addr_doc[0].target_network=="TCP/IP")
             {
-                if(addr_doc[0].target_protocol=="Hue API Tunnel")
+                let target_protocol = addr_doc[0].target_protocol;
+                let target_type = addr_doc[0].target_type;
+                if(target_protocol=="Hue API Tunnel")
                 {
-                    if(addr_doc[0].target_type=="Device")
+                    if(target_type=="Device")
                     {
                         result["host_hue_bridge_ID"] = addr_doc[0].host_hue_bridge_ID;
                         result["device_no_ID"] = addr_doc[0].device_no_ID;
                     }
                 }
-                else if(addr_doc[0].target_protocol=="LIFX LAN")
+                else if(target_protocol=="Yeelight API Tunnel")
                 {
-                    if(addr_doc[0].target_type=="Device")
+                    if(target_type=="Device")
                     {
                         result["ip_address"] = addr_doc[0].ip_address;
                         result["mac_address"] = addr_doc[0].mac_address;
                     }
                 }
-                else if(addr_doc[0].target_protocol=="Twinkly API Tunnel")
+                else if(target_protocol=="LIFX LAN")
                 {
-                    if(addr_doc[0].target_type=="Device")
+                    if(target_type=="Device")
                     {
                         result["ip_address"] = addr_doc[0].ip_address;
+                        result["mac_address"] = addr_doc[0].mac_address;
+                    }
+                }
+                else if(target_protocol=="Twinkly API Tunnel")
+                {
+                    if(target_type=="Device")
+                    {
+                        result["ip_address"] = addr_doc[0].ip_address;
+                        result["port"] = addr_doc[0].port;
                     }
                 }
             }
@@ -349,6 +430,10 @@ var Address_Info = function (){
                 else{
                     success = await Save_Hue_API_Tunnel_Device_Address_Info(address, bridge_address_ID, Number(dev_inf_json.node_ID));
                 }
+            }
+            else if(target_protocol=="Yeelight API Tunnel")
+            {
+                success = await Save_Yeelight_Device_Address_Info(address, dev_inf_json.ip_address, dev_inf_json.port);
             }
             else if(target_protocol=="LIFX LAN")
             {

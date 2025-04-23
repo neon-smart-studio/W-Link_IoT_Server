@@ -6,11 +6,11 @@ function Handle_Device_WebSocket_POST_Message(in_json)
         if(in_json.topic=='Integrate'){
             if(in_json.command_type!=null){
                 switch(in_json.command_type){
-                    case "LIFX":
+                    case "Yeelight":
                         if(in_json.command!=null){
                             switch(in_json.command){
-                                case "Report LIFX Link Successfully":
-                                    Print_LIFX_Link_Successfully_Page();
+                                case "Report Yeelight Link Successfully":
+                                    Print_Yeelight_Link_Successfully_Page();
                                     break;
                             }
                         }
@@ -28,10 +28,10 @@ function Handle_Device_WebSocket_GET_Message(in_json)
 
 function Get_Device_Type_Chinese_Name(index)
 {
-    return "LIFX 智慧燈";
+    return "Yeelight 智慧燈";
 }
 
-function Print_Discovered_LIFX_List(yeelight_list)
+function Print_Discovered_Yeelight_List(yeelight_list)
 {
     var show_yeelight_list = [];
     show_yeelight_list.push("<div data-role=\"panel\" style=\"min-height: 120px; max-height: 400px; overflow-y: auto;\">");
@@ -43,10 +43,10 @@ function Print_Discovered_LIFX_List(yeelight_list)
             show_yeelight_list.push("<div class=\"row\">");
             show_yeelight_list.push("<div data-role=\"hint\" class=\"tile bg-mauve fg-white\" style=\"width:410px;height: 135px;margin-left: 7.5px;margin-bottom: 7.5px;\" \
                                         data-hint-position=\"top\" data-hint-text=\""+yeelight_info.name+"\">");
-            show_yeelight_list.push("<h3 class=\"fg-white\" style=\"margin-left: 10px;margin-top: 10px;margin-bottom: 5px;\">"+yeelight_info.name+"("+yeelight_info.productName+")</h3>");
+            show_yeelight_list.push("<h3 class=\"fg-white\" style=\"margin-left: 10px;margin-top: 10px;margin-bottom: 5px;\">"+yeelight_info.name+"("+yeelight_info.ip+")</h3>");
             show_yeelight_list.push("<button data-role=\"hint\" data-hint-text=\"連線\" id=\"\" \
                                         class=\"button success square large fg-white\" style=\"position:absolute; bottom:5px; right:5px;\" \
-                                        onclick=\"onClick_Connect_To_LIFX_Btn('"+yeelight_info.ip+"', '"+yeelight_info.mac+"');\">");
+                                        onclick=\"onClick_Connect_To_Yeelight_Btn('"+yeelight_info.ip+"');\">");
             show_yeelight_list.push("<span class=\"mif-link\"></span>");
             show_yeelight_list.push("</button>");
             show_yeelight_list.push("</div>");
@@ -55,7 +55,7 @@ function Print_Discovered_LIFX_List(yeelight_list)
         show_yeelight_list.push("</div>");
     }
     else{
-        show_yeelight_list.push("<h2 class=\"fg-red\" style=\"margin-left: 10px;\">沒有找到任何LIFX燈泡 :(</h2>");
+        show_yeelight_list.push("<h2 class=\"fg-red\" style=\"margin-left: 10px;\">沒有找到任何Yeelight燈泡 :(</h2>");
     }
     show_yeelight_list.push("</div>");
 
@@ -63,7 +63,7 @@ function Print_Discovered_LIFX_List(yeelight_list)
     $('#new_yeelight_display_area').html(show_yeelight_list.join(''));
 }
 
-function Print_LIFX_Link_Successfully_Page()
+function Print_Yeelight_Link_Successfully_Page()
 {
     var show_link_yeelight_status = [];
 
@@ -88,12 +88,12 @@ function Print_LIFX_Link_Successfully_Page()
     Update_Device_List();
 }
 
-function onClick_Connect_To_LIFX_Btn(ip_address, mac_address)
+function onClick_Connect_To_Yeelight_Btn(ip_address)
 {
-    Link_To_LIFX(ip_address, mac_address);
+    Link_To_Yeelight(ip_address);
 }
 
-function onClick_Add_LIFX_Btn()
+function onClick_Add_Yeelight_Btn()
 {
     Metro.dialog.open('#add_yeelight_modal');
 
@@ -110,8 +110,8 @@ function onClick_Add_LIFX_Btn()
     $('#new_yeelight_display_area').html('');
     $('#new_yeelight_display_area').html(show_scan_progress.join(''));
 
-    Discover_Nearby_LIFX(function(rsp_json){
-        Print_Discovered_LIFX_List(rsp_json);
+    Discover_Nearby_Yeelight(function(rsp_json){
+        Print_Discovered_Yeelight_List(rsp_json);
     });
 }
 
@@ -119,13 +119,13 @@ function Print_Device_Management_Toolbar(print_info_dst_id)
 {
     var print_toolbar = [];
     
-    print_toolbar.push("<button data-role=\"hint\" data-hint-text=\"新增LIFX燈泡\" id=\"\"\
+    print_toolbar.push("<button data-role=\"hint\" data-hint-text=\"新增Yeelight燈泡\" id=\"\"\
                                 class=\"button square large outline fg-mauve bd-mauve\"\
-                                onclick=\"onClick_Add_LIFX_Btn();\">");
+                                onclick=\"onClick_Add_Yeelight_Btn();\">");
     print_toolbar.push("<span class=\"mif-plus\"></span>");
     print_toolbar.push("</button>");
     print_toolbar.push("<div class=\"dialog\" data-role=\"dialog\" id=\"add_yeelight_modal\">");
-    print_toolbar.push("<div class=\"dialog-title\"><h2 class=\"fg-mauve\">新增LIFX燈泡</h2></div>");
+    print_toolbar.push("<div class=\"dialog-title\"><h2 class=\"fg-mauve\">新增Yeelight燈泡</h2></div>");
     print_toolbar.push("<div class=\"dialog-content\">");
     print_toolbar.push("<div id=\"new_yeelight_display_area\"/>");
     print_toolbar.push("</div>");

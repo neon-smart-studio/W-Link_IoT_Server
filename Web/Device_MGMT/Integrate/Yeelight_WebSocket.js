@@ -16,15 +16,14 @@ var Yeelight_WebSocket = function (){
             if(post_yeelight_json_data.command!=null){
                 switch(post_yeelight_json_data.command){
                     case "Link To Yeelight":
-                        if(post_yeelight_json_data.ip!=null && post_yeelight_json_data.mac!=null){
-                            var link_status = await yeelight_device_api.Link_To_Lifx_Device(username, post_yeelight_json_data.ip, post_yeelight_json_data.mac);
+                        if(post_yeelight_json_data.ip!=null){
+                            var link_status = await yeelight_device_api.Link_To_Yeelight_Device(username, post_yeelight_json_data.ip);
                             if(link_status)
                             {
                                 var ws_report_cmd = {
                                     "command_type": "Yeelight",
                                     "command": "Report Yeelight Link Successfully",
-                                    "ip": post_yeelight_json_data.ip,
-                                    "mac": post_yeelight_json_data.mac,
+                                    "ip": post_yeelight_json_data.ip
                                 }
             
                                 websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Integrate', ws_report_cmd);

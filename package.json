@@ -29,6 +29,8 @@
     "uuid": "^11.1.0",
     "websocket": "^1.0.35",
     "xml2js": "^0.6.2",
+    "yeelight-platform": "^1.0.10",
+    "yeelight2": "^1.3.9",
     "zigbee-herdsman": "^3.5.1",
     "zigbee-herdsman-converters": "^23.22.0"
   },

@@ -75,14 +75,14 @@ var Map_Device_Info = function (){
                 "movie_capacity": Number(dev_inf_json.movie_capacity)
             };
         }
-        else if(device_protocol_type=="Yeelink API Tunnel")
+        else if(device_protocol_type=="Yeelight API Tunnel")
         {
             devInf = {
                 "user": user,
                 "device_ID":device_ID,
                 "device_Name": device_Name,
                 "network_Type": "TCP/IP",
-                "protocol_Type": "Yeelink API Tunnel",
+                "protocol_Type": "Yeelight API Tunnel",
                 "device_Type":dev_inf_json.device_Type,
                 "model": dev_inf_json.model,
                 "ip_address": dev_inf_json.ip_address,
