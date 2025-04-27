@@ -83,13 +83,6 @@ var Bind_MGR = function (){
             var exist = false;
             const db_query = { $or: [ { 'user': user, 'source_device_ID': source_device_ID, 'source_device_endpoint': source_device_endpoint }, { 'user': 'everyone', 'source_device_ID': source_device_ID, 'source_device_endpoint': source_device_endpoint } ] };
 
-            success = await database.Database_EnsureIndex(Bind_MGR_DB_Name, device_Type, "source_device_ID", true);
-            if(success==false)
-            {
-                await database.DataBase_Close(Bind_MGR_DB_Name);
-                return false;
-            }
-
             var bind_doc = await database.Database_Find(Bind_MGR_DB_Name, device_Type, db_query, null);
             if(bind_doc!=null && bind_doc.length>0)
             {

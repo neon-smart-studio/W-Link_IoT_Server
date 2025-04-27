@@ -86,7 +86,7 @@ var Lighting_API_Integrate = function () {
         }
     };
 
-    self.Integrate_Light_Toggle_OnOff = async function (address_ID) {
+    self.Integrate_Light_Toggle_OnOff = async function (target_type, target_protocol, address_ID) {
         try {
             if(target_type=="Device")
             {

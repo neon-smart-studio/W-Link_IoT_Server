@@ -115,6 +115,41 @@ var Devices_WebSocket = function (){
                                         device_list: colored_light_dev_lst_array.concat(ext_color_light_dev_lst_array)
                                     }
                                     break;
+                                case "Lighting":
+                                    let all_onoff_light_dev_lst = await device_mgr.Get_Device_List_Specific_User("OnOff Light", username);
+                                    let all_dimmable_light_dev_lst = await device_mgr.Get_Device_List_Specific_User("Dimmable Light", username);
+                                    let all_colored_light_dev_lst = await device_mgr.Get_Device_List_Specific_User("Colored Light", username);
+                                    let all_ext_color_light_dev_lst = await device_mgr.Get_Device_List_Specific_User("Extended Color Light", username);
+                                    let all_color_temp_light_dev_lst = await device_mgr.Get_Device_List_Specific_User("Color Temperature Light", username);
+                                    let all_onoff_light_dev_lst_array = [];
+                                    if(all_onoff_light_dev_lst!=null)
+                                    {
+                                        all_onoff_light_dev_lst_array = all_onoff_light_dev_lst.device_list;
+                                    }
+                                    let all_dimmable_light_dev_lst_array = [];
+                                    if(all_dimmable_light_dev_lst!=null)
+                                    {
+                                        all_dimmable_light_dev_lst_array = all_dimmable_light_dev_lst.device_list;
+                                    }
+                                    let all_colored_light_dev_lst_array = [];
+                                    if(all_colored_light_dev_lst!=null)
+                                    {
+                                        all_colored_light_dev_lst_array = all_colored_light_dev_lst.device_list;
+                                    }
+                                    let all_ext_color_light_dev_lst_array = [];
+                                    if(all_ext_color_light_dev_lst!=null)
+                                    {
+                                        all_ext_color_light_dev_lst_array = all_ext_color_light_dev_lst.device_list;
+                                    }
+                                    let all_color_temp_light_dev_lst_array = [];
+                                    if(all_color_temp_light_dev_lst!=null)
+                                    {
+                                        all_color_temp_light_dev_lst_array = all_color_temp_light_dev_lst.device_list;
+                                    }
+                                    rsp_json = {
+                                        device_list: all_onoff_light_dev_lst_array.concat(all_dimmable_light_dev_lst_array, all_colored_light_dev_lst_array, all_ext_color_light_dev_lst_array, all_color_temp_light_dev_lst_array)
+                                    }
+                                    break;
                                 default:
                                     rsp_json = await device_mgr.Get_Device_List_Specific_User(get_device_json_data.device_type, username);
                                     break;

@@ -58,6 +58,7 @@ var Toggle_Switch_Zigbee = function () {
                         case "lumi.sensor_swit":
                         case "lumi.sensor_86sw1":
                         case "lumi.remote.b186acn01":
+                        case "lumi.remote.b286acn02":
                             if(attribute_report_resolved_json_data==null) { return null; }
                             if(attribute_report_resolved_json_data.click!=null){switch_state = attribute_report_resolved_json_data.click;}
                             if(attribute_report_resolved_json_data.action!=null){switch_state = attribute_report_resolved_json_data.action;}

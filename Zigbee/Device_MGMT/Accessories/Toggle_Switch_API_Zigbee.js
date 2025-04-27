@@ -40,7 +40,11 @@ var Toggle_Switch_API_Zigbee = function () {
                 case "lumi.sensor_switch":
                 case "lumi.sensor_switch.aq2":
                 case "lumi.remote.b1acn01":
-                    actions = ["single", "double", "triple", "quadruple", "hold", "release"];
+                    //actions = ["single", "double", "triple", "quadruple", "hold", "release"];
+                    actions = ["single", "double", "hold", "release"];
+                    break;
+                case "lumi.remote.b286acn02":
+                    actions = ["single_left", "single_right", "single_both", "double_left", "double_right", "double_both", "hold_left", "hold_right", "hold_both"];
                     break;
                 case "lumi.sensor_switch.aq3":
                 case "lumi.sensor_swit":
