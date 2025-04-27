@@ -242,7 +242,7 @@ var Hue_Bridge_API = function () {
         }
     }
 
-    self.Hue_Bridge_Device_Change_Name = async function (username, address_ID, new_name) {
+    self.Rename_Hue_Bridge_Device = async function (username, address_ID, new_name) {
         try {
             var session = await this.Get_Hue_Bridge_Session_By_ID(username, address_ID);
             if(session==null)
@@ -255,11 +255,11 @@ var Hue_Bridge_API = function () {
             return true;
         }
         catch (e) {
-            debug("[Hue_Bridge_API] Hue_Bridge_Device_Change_Name() Error " + e);
+            debug("[Hue_Bridge_API] Rename_Hue_Bridge_Device() Error " + e);
         }
     }
 
-    self.Hue_Bridge_Remove_Device = async function (username, address_ID) {
+    self.Remove_Hue_Bridge_Device = async function (username, address_ID) {
         try {
             var session = await this.Get_Hue_Bridge_Session_By_ID(username, address_ID);
             if(session==null)
@@ -271,7 +271,7 @@ var Hue_Bridge_API = function () {
             return true;
         }
         catch (e) {
-            debug("[Hue_Bridge_API] Hue_Bridge_Remove_Device() Error " + e);
+            debug("[Hue_Bridge_API] Remove_Hue_Bridge_Device() Error " + e);
         }
     }
 }

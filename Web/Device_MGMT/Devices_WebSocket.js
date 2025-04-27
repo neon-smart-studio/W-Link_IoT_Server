@@ -7,8 +7,11 @@ var device_mgmt_api = new Device_MGMT_API();
 var Device_MGR = require('../../Util/Device_MGR.js');
 var device_mgr = new Device_MGR();
 
-var Hue_Bridge_Device_API = require('../../Integrate/Hue_Bridge/Hue_Bridge_Device_API.js');
-var hue_bridge_device_api = new Hue_Bridge_Device_API();
+var Address_MGR = require('../../Util/Address_MGR.js');
+var address_mgr = new Address_MGR();
+
+var Device_API_Integrate = require('../../Integrate/Device_API_Integrate.js');
+var device_api_integrate = new Device_API_Integrate();
 
 var Devices_WebSocket = function (){
     var self = this;
@@ -21,26 +24,57 @@ var Devices_WebSocket = function (){
                     switch(post_device_json_data.command){
                         case "Device Change Name":
                             if(post_device_json_data.device_ID!=null && post_device_json_data.device_Name!=null){
-                                await device_mgr.Device_Change_Name(post_device_json_data.device_type, username, post_device_json_data.device_ID, post_device_json_data.device_Name);
-                                
-                                switch(post_device_json_data.device_type)
+                                var address_info = await address_mgr.Read_Address_Info(post_device_json_data.device_ID);
+                                if(address_info.target_type!="Device")
                                 {
-                                    case "Hue Bridge":
-                                        await hue_bridge_device_api.Hue_Bridge_Device_Change_Name(username, post_device_json_data.device_ID, post_device_json_data.device_Name);
-                                        break;
+                                    return;
+                                }
+                    
+                                let integrate_device = false;
+                                if(address_info.target_network=="TCP/IP")
+                                {
+                                    if(address_info.target_protocol!="MQTT")
+                                    {
+                                        integrate_device = true;
+                                    }
+                                }
+                                
+                                if(integrate_device)
+                                {
+                                    await device_api_integrate.Rename_Integrate_Device(address_info.target_network, address_info.target_protocol, username, post_device_json_data.device_ID, post_device_json_data.device_Name);
+                                }
+                                else
+                                {
+                                    await device_mgr.Device_Change_Name(post_device_json_data.device_type, username, post_device_json_data.device_ID, post_device_json_data.device_Name);
                                 }
                             }
                             break;
                         case "Remove One Device":
                             if(post_device_json_data.device_ID!=null){
-                                await device_mgr.Remove_Device(post_device_json_data.device_type, username, post_device_json_data.device_ID);
-                                
-                                switch(post_device_json_data.device_type)
+                                var address_info = await address_mgr.Read_Address_Info(post_device_json_data.device_ID);
+                                if(address_info.target_type!="Device")
                                 {
-                                    case "Hue Bridge":
-                                        await hue_bridge_device_api.Hue_Bridge_Remove_Device(username, post_device_json_data.device_ID);
-                                        break;
+                                    return;
                                 }
+                                
+                                let integrate_device = false;
+                                if(address_info.target_network=="TCP/IP")
+                                {
+                                    if(address_info.target_protocol!="MQTT")
+                                    {
+                                        integrate_device = true;
+                                    }
+                                }
+                                
+                                if(integrate_device)
+                                {
+                                    await device_api_integrate.Remove_Integrate_Device(address_info.target_network, address_info.target_protocol, username, post_device_json_data.device_ID);
+                                }
+                                else
+                                {
+                                    await device_mgr.Remove_Device(post_device_json_data.device_type, username, post_device_json_data.device_ID);
+                                }
+                                
                             }
                             break;
                     }

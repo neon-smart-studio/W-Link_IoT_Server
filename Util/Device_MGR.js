@@ -308,11 +308,6 @@ var Device_MGR = function (){
             
             await database.DataBase_Close(Device_MGR_DB_Name);
 
-            if(success)
-            {
-                await spreadsheet_device_mgr.Device_Change_Owner(device_Type, old_user, device_ID, new_user);
-            }
-
             return success;
         }
         catch(e)
@@ -399,11 +394,6 @@ var Device_MGR = function (){
             }
             
             await database.DataBase_Close(Device_MGR_DB_Name);
-
-            if(success)
-            {
-                await spreadsheet_device_mgr.Device_Change_Name(device_Type, user, device_ID, new_Name);
-            }
 
             return success;
         }
@@ -683,11 +673,6 @@ var Device_MGR = function (){
 
             success = await bind_mgr.Remove_Bind_Action_Info(device_Type, user, device_ID);
 
-            if(success)
-            {
-                await spreadsheet_device_mgr.Remove_Device(device_Type, user, device_ID);
-            }
-
             return success;
         }
         catch(e)
@@ -741,11 +726,6 @@ var Device_MGR = function (){
                     var resolv_entinity = zigbee.Zigbee_ResolveEntity(dev_doc[i].zigbee_device_info.ieeeAddr);
                     resolv_entinity.device.removeFromNetwork();
                 }
-            }
-
-            if(success)
-            {
-                await spreadsheet_device_mgr.Remove_All_Device(device_Type, user);
             }
 
             return success;
