@@ -33,39 +33,39 @@ async function Delete_All_Hue_Bridge_Light(user, bridge_address_ID)
         success = await database.Database_Remove(Device_MGR_DB_Name, "OnOff light", db_query, false);
         if(success==false)
         {
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
             return false;
         }
         
         success = await database.Database_Remove(Device_MGR_DB_Name, "Dimmable Light", db_query, false);
         if(success==false)
         {
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
             return false;
         }
         
         success = await database.Database_Remove(Device_MGR_DB_Name, "Colored Light", db_query, false);
         if(success==false)
         {
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
             return false;
         }
         
         success = await database.Database_Remove(Device_MGR_DB_Name, "Extended Color Light", db_query, false);
         if(success==false)
         {
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
             return false;
         }
         
         success = await database.Database_Remove(Device_MGR_DB_Name, "Color Temperature Light", db_query, false);
         if(success==false)
         {
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
             return false;
         }
         
-        database.DataBase_Close(Device_MGR_DB_Name);
+        await database.DataBase_Close(Device_MGR_DB_Name);
 
         return success;
     }
@@ -93,35 +93,35 @@ var Hue_Bridge_Light_API = function () {
             dev_docs = await database.Database_Find(Device_MGR_DB_Name, "OnOff Light", hue_bridge_db_query, null);
             if(dev_docs!=null && dev_docs.length!=0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return dev_docs[0].device_ID;
             }
             dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Dimmable Light", hue_bridge_db_query, null);
             if(dev_docs!=null && dev_docs.length!=0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return dev_docs[0].device_ID;
             }
             dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Colored Light", hue_bridge_db_query, null);
             if(dev_docs!=null && dev_docs.length!=0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return dev_docs[0].device_ID;
             }
             dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Extended Color Light", hue_bridge_db_query, null);
             if(dev_docs!=null && dev_docs.length!=0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return dev_docs[0].device_ID;
             }
             dev_docs = await database.Database_Find(Device_MGR_DB_Name, "Color Temperature Light", hue_bridge_db_query, null);
             if(dev_docs!=null && dev_docs.length!=0)
             {
-                database.DataBase_Close(Device_MGR_DB_Name);
+                await database.DataBase_Close(Device_MGR_DB_Name);
                 return dev_docs[0].device_ID;
             }
 
-            database.DataBase_Close(Device_MGR_DB_Name);
+            await database.DataBase_Close(Device_MGR_DB_Name);
 
             return null;
         }

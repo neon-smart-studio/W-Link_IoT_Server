@@ -60,7 +60,7 @@ var Lighting_API_Integrate = function () {
         }
     };
 
-    self.Integrate_Light_Turn_On_Off = async function (target_type, target_protocol, address_ID,on_off) {
+    self.Integrate_Light_Turn_On_Off = async function (target_type, target_protocol, address_ID, on_off) {
         try {
             if(target_type=="Device")
             {
@@ -79,6 +79,8 @@ var Lighting_API_Integrate = function () {
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Turn_On_Off(address_ID, on_off);
+                await yeelight_lighting_api.Yeelight_Light_Turn_On_Off(address_ID, on_off);
+                await lifx_lighting_api.Lifx_Light_Turn_On_Off(address_ID, on_off);
             }
         }
         catch (e) {
@@ -105,6 +107,8 @@ var Lighting_API_Integrate = function () {
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Toggle_OnOff(address_ID);
+                await yeelight_lighting_api.Yeelight_Light_Toggle_OnOff(address_ID);
+                await lifx_lighting_api.Lifx_Light_Toggle_OnOff(address_ID);
             }
         }
         catch (e) {
@@ -153,6 +157,8 @@ var Lighting_API_Integrate = function () {
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
+                await yeelight_lighting_api.Yeelight_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
+                await lifx_lighting_api.Lifx_Light_Move_To_Level(address_ID, level, trans_time, with_on_off);
             }
         }
         catch (e) {
@@ -245,6 +251,8 @@ var Lighting_API_Integrate = function () {
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Hue(address_ID, hue, trans_time);
+                await yeelight_lighting_api.Yeelight_Light_Move_To_Hue(address_ID, hue, trans_time);
+                await lifx_lighting_api.Lifx_Light_Move_To_Hue(address_ID, hue, trans_time);
             }
         }
         catch (e) {
@@ -297,6 +305,8 @@ var Lighting_API_Integrate = function () {
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Saturation(address_ID, saturation, trans_time);
+                await yeelight_lighting_api.Yeelight_Light_Move_To_Saturation(address_ID, saturation, trans_time);
+                await lifx_lighting_api.Lifx_Light_Move_To_Saturation(address_ID, saturation, trans_time);
             }
         }
         catch (e) {
@@ -331,6 +341,8 @@ var Lighting_API_Integrate = function () {
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
+                await yeelight_lighting_api.Yeelight_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
+                await lifx_lighting_api.Lifx_Light_Move_To_Hue_And_Saturation(address_ID, hue, saturation, trans_time);
             }
         }
         catch (e) {
@@ -647,6 +659,8 @@ var Lighting_API_Integrate = function () {
             }
             else{
                 hue_bridge_lighting_api.Hue_Bridge_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
+                await yeelight_lighting_api.Yeelight_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
+                await lifx_lighting_api.Lifx_Light_Move_To_Color_Temperature(address_ID, color_temp, trans_time);
             }
         }
         catch (e) {

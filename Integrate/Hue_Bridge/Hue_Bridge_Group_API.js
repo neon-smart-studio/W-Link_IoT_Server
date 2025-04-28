@@ -123,7 +123,7 @@ var Hue_Bridge_Group_API = function () {
                     }
                 }
                     
-                database.DataBase_Close(Group_MGR_DB_Name);
+                await database.DataBase_Close(Group_MGR_DB_Name);
                     
                 if(success==true)
                 {

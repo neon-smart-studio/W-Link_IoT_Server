@@ -39,13 +39,6 @@ async function Get_Light_Address_Info_And_Bridge_Session(address_ID)
     var target_ID_list = [];
     var bridge_session_list = [];
     var target_type = address_info.target_type;
-    let support_dev_types = [
-        "OnOff Light",
-        "Dimmable Light",
-        "Colored Light",
-        "Extended Color Light",
-        "Color Temperature Light",
-    ];
 
     if(target_type=="Device")
     {
@@ -54,6 +47,13 @@ async function Get_Light_Address_Info_And_Bridge_Session(address_ID)
             return null;
         }
         
+        let support_dev_types = [
+            "OnOff Light",
+            "Dimmable Light",
+            "Colored Light",
+            "Extended Color Light",
+            "Color Temperature Light",
+        ];
         light_info = null;
         for(let i = 0; i<support_dev_types.length; i++)
         {
@@ -78,15 +78,7 @@ async function Get_Light_Address_Info_And_Bridge_Session(address_ID)
     }
     else if(target_type=="Group")
     {
-        group_info = null;
-        for(let i = 0; i<support_dev_types.length; i++)
-        {
-            group_info = await group_mgr.Get_Group_Info(support_dev_types[i], null, address_ID);
-            if(group_info!=null)
-            {
-                break;
-            }
-        }
+        group_info = await group_mgr.Get_Group_Info("Lighting", null, address_ID);
         if(group_info==null)
         {
             return null;
@@ -298,10 +290,10 @@ var Hue_Bridge_Lighting_API = function () {
                     {
                         continue;
                     }
-                    if(current_state.on==true){
+                    if(current_state.any_on==true){
                         await session.bridge_session_list[i].groups.setGroupState(session.target_ID_list[i], {on: false});
                     }
-                    if(current_state.on==false){
+                    else{
                         await session.bridge_session_list[i].groups.setGroupState(session.target_ID_list[i], {on: true});
                     }
                 }
