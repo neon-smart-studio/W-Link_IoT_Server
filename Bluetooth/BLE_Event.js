@@ -8,15 +8,6 @@ var ble = new BLE();
 var Device_MGMT_BLE = require('./Device_MGMT/Device_MGMT_BLE');
 var device_mgmt_ble = new Device_MGMT_BLE();
 
-async function Handle_BLE_Discover_Device(device_ID, peripheral_dev_info)
-{
-    try {
-    }
-    catch (e) {
-        debug("[BLE_Event] Handle_BLE_Discover_Device() Error " + e);
-    };
-}
-
 async function Handle_BLE_Device_Connected(device_ID, peripheral_dev_info)
 {
     try {
@@ -51,7 +42,7 @@ var BLE_Event = function () {
 
     self.BLE_Event_Init = async function () {
         try {
-            ble.BLE_Register_Callbacks(Handle_BLE_Discover_Device, Handle_BLE_Device_Connected, Handle_BLE_Device_Disconnected);
+            ble.BLE_Register_Callbacks(Handle_BLE_Device_Connected, Handle_BLE_Device_Disconnected);
         }
         catch (e) {
             debug("[BLE_Event] BLE_Event_Init() Error " + e);

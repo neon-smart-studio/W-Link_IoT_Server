@@ -1,16 +1,15 @@
 
-<link rel="stylesheet" type="text/css" href="../../css/metro-toggle_sw.css">
+<link rel="stylesheet" type="text/css" href="../../css/metro-progressring.css">
 
 <style>
 </style>
 
 <script type="text/javascript" src="Bluetooth/Bluetooth.js"></script>
 <script>
-    var UI_is_updating = false;
+    let scan_interval_timer = null;
 
     function Handle_WebSocket_Init_Done()
     {
-        GET_Bluetooth_Join_State(Update_Join_Status);
     }
     function Handle_WebSocket_POST_Message(in_json)
     {
@@ -30,36 +29,111 @@
         
     }
 
-    function Update_Join_Status(rsp_json)
+    function Update_Discovered_BT_Device_List(bt_dev_list, discover_status)
     {
-        UI_is_updating = true;
+        show_bt_dev_list = [];
 
-        $("#bluetooth_permit_join_sw").prop("checked", rsp_json.permit_join);
-
-        if(rsp_json.permit_join)
+        if(bt_dev_list.num_of_device>0)
         {
-            $("#bluetooth_next_scan_remain_time").html("<div data-role=\"countdown\" data-seconds=\""+rsp_json.remain_time+"\" style=\"font-size: 36px\"></div>");
+            for (let i = 0; i < bt_dev_list.num_of_device; i++) {
+                let bt_dev_info = bt_dev_list.discovered_device_list[i];
+                let display_name = (bt_dev_info.name!="") ? bt_dev_info.name : bt_dev_info.address;
+                show_bt_dev_list.push("<div data-role=\"hint\" class=\"tile-wide <%=current_network_type_page_info.button_background_css%> fg-white\" \
+                                            data-hint-position=\"top\" data-hint-text=\""+display_name+"\">");
+                show_bt_dev_list.push("<h3 class=\"fg-white\" style=\"margin-left: 10px;margin-top: 10px;margin-bottom: 5px;\">"+display_name+"</h3>");
+                if(bt_dev_info.connectable)
+                {
+                    if(bt_dev_info.state=="disconnected")
+                    {
+                        show_bt_dev_list.push("<button data-role=\"hint\" data-hint-text=\"連線\" id=\"\" \
+                                                    class=\"button success square large fg-white\" style=\"position:absolute; bottom:5px; right:5px;\" \
+                                                    onclick=\"onClick_Connect_To_BT_Device_Btn('"+bt_dev_info.address+"');\">");
+                        show_bt_dev_list.push("<span class=\"mif-link\"></span>");
+                        show_bt_dev_list.push("</button>");
+                    }
+                    if(bt_dev_info.state=="connected")
+                    {
+                        show_bt_dev_list.push("<button data-role=\"hint\" data-hint-text=\"已連線\" id=\"\" \
+                                                    class=\"button alert square large fg-white\" style=\"position:absolute; bottom:5px; right:5px;\">");
+                        show_bt_dev_list.push("<span class=\"mif-link\"></span>");
+                        show_bt_dev_list.push("</button>");
+                    }
+                }
+                show_bt_dev_list.push("</div>");
+            }
         }
-        else{
-            $("#bluetooth_next_scan_remain_time").html("");
+        else if(discover_status=="Done" || discover_status=="Idle"){
+            show_bt_dev_list.push("<h2 class=\"fg-red\" style=\"margin-left: 10px;\">沒有找到任何藍芽裝置 :(</h2>");
         }
-
-        UI_is_updating = false;
+        
+        $('#scanned_ble_dev_display_area').html('');
+        $('#scanned_ble_dev_display_area').html(show_bt_dev_list.join(''));
     }
+
+    function onClick_Scan_BT_Device_Btn()
+    {
+        if(!scan_interval_timer)
+        {
+            $('#scanned_ble_dev_display_area').html('');
+
+            var show_scan_progress = [];
+            show_scan_progress.push("<h3 class=\"<%=current_network_type_page_info.page_text_color%>\" style=\"text-align: center;\">搜尋中，這可能會需要一些時間!</h3><br><br>");
+            show_scan_progress.push("<div class=\"progress-ring\" style=\"position: relative;margin: 0 auto\">");
+            show_scan_progress.push("<div class=\"outer\"><div class=\"inner <%=current_network_type_page_info.page_background_color%>\"></div></div>");
+            show_scan_progress.push("<div class=\"outer ball1\"><div class=\"inner <%=current_network_type_page_info.page_background_color%>\"></div></div>");
+            show_scan_progress.push("<div class=\"outer ball2\"><div class=\"inner <%=current_network_type_page_info.page_background_color%>\"></div></div>");
+            show_scan_progress.push("<div class=\"outer ball3\"><div class=\"inner <%=current_network_type_page_info.page_background_color%>\"></div></div>");
+            show_scan_progress.push("<div class=\"outer ball4\"><div class=\"inner <%=current_network_type_page_info.page_background_color%>\"></div></div>");
+            show_scan_progress.push("<div class=\"outer ball5\"><div class=\"inner <%=current_network_type_page_info.page_background_color%>\"></div></div>");
+            show_scan_progress.push("</div>");
+            $('#scanned_ble_statue_display_area').html('');
+            $('#scanned_ble_statue_display_area').html(show_scan_progress.join(''));
+
+            Bluetooth_Discover_Nearby_Device(30000);
+            
+            scan_interval_timer = setInterval(()=>{
+                GET_Discover_Result(function(rsp_json){
+                    let ststus = rsp_json.ststus;
+
+                    if(ststus=="Done" || ststus=="Idle")
+                    {
+                        clearInterval(scan_interval_timer);
+                        scan_interval_timer = null;
+                        Update_Discovered_BT_Device_List(rsp_json, ststus);
+                        $('#scanned_ble_statue_display_area').html('');
+                    }
+                    if(ststus=="Discovering")
+                    {
+                        Update_Discovered_BT_Device_List(rsp_json, ststus);
+                    }
+                });
+            }, 1000);
+        }
+    }
+
 </script>
 
 <div class="row">
-    <h2 class="<%=current_network_type_page_info.page_text_color%>">Bluetooth 網路管理</h2>
+    <div class="cell-md-11">
+        <h2 class="<%=current_network_type_page_info.page_text_color%>">Bluetooth 網路管理</h2>
+    </div>
+    <div class="cell-md-1">
+        <button data-role="hint" data-hint-text="新增藍芽裝置" id="" class="button square large outline <%=current_network_type_page_info.button_text_css%> <%=current_network_type_page_info.button_outline_css%>" onclick='onClick_Scan_BT_Device_Btn()'>
+            <span class="mif-search"></span>
+        </button>
+    </div>
 </div>
 
 <div class="row">
     <div class="cell-md-11">
+        <div id="scanned_ble_statue_display_area"></div>
     </div>
     <div class="cell-md-1"></div>
 </div>
 
 <div class="row">
     <div class="cell-md-11">
+        <div id="scanned_ble_dev_display_area" class="tiles-grid"></div>
     </div>
     <div class="cell-md-1"></div>
 </div>

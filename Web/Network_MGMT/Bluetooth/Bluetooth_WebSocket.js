@@ -43,7 +43,7 @@ var Bluetooth_WebSocket = function (){
             if(get_json_data.command!=null){
                 switch(get_json_data.command){
                     case "Get Discover Result":
-                        rsp_json = ble.BLE_Get_Discover_Result(post_json_data.discover_time);
+                        rsp_json = ble.BLE_Get_Discover_Result();
                         break;
                 }
             }

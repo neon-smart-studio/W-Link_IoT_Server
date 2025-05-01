@@ -35,17 +35,14 @@ async function Handle_Discovered_BLE_Device(peripheral_dev_info)
             device_index = ble_discovered_device_list.length;
             ble_discovered_device_list.push({
                 id: peripheral_dev_info.id,
-                peripheral_info: peripheral_dev_info,
+                address: peripheral_dev_info.address,
+                addressType: peripheral_dev_info.addressType,
+                connectable: peripheral_dev_info.connectable,
+                rssi: peripheral_dev_info.rssi,
+                state: peripheral_dev_info.state,
+                name: peripheral_dev_info.advertisement.localName,
                 characteristics: []
             });
-        }
-        else{
-            ble_discovered_device_list[device_index].peripheral_info = peripheral_dev_info;
-        }
-        
-        if(on_Device_Discovered_Callback!=null)
-        {
-            on_Device_Discovered_Callback(peripheral_dev_info.id, peripheral_dev_info);
         }
     }
     catch (e) {
@@ -59,9 +56,8 @@ var BLE = function () {
     self.GENERIC_ACCESS_UUID    = '1800';
     self.DEVICE_NAME_UUID       = '2a00';
     
-    self.BLE_Register_Callbacks = function(onDeviceDiscoveredCB, onDeviceConnectedCB, onDeviceDisconnectedCB)
+    self.BLE_Register_Callbacks = function(onDeviceConnectedCB, onDeviceDisconnectedCB)
     {
-        on_Device_Discovered_Callback = onDeviceDiscoveredCB;
         on_Device_Connected_Callback = onDeviceConnectedCB;
         on_Device_Disconnected_Callback = onDeviceDisconnectedCB;
     }
@@ -88,19 +84,19 @@ var BLE = function () {
 
     self.BLE_Discover_Device = async function (discover_time_ms) {
         try {
-            if(ble_discover_duration_timer==null)
+            if(ble_discover_duration_timer!=null)
             {
                 return false;
             }
 
             ble_discovered_device_list = [];
             
-            ble_core.BLE_Start_Descovery_Device(Handle_Discovered_BLE_Device);
-
             clearTimeout(ble_discover_duration_timer);
             ble_discover_duration_timer = null;
             clearTimeout(ble_discover_result_keep_timer);
             ble_discover_result_keep_timer = null;
+
+            ble_core.BLE_Start_Descovery_Device(Handle_Discovered_BLE_Device);
 
             ble_discover_duration_timer = setTimeout(function(){
 
@@ -150,6 +146,7 @@ var BLE = function () {
 
             return {
                 ststus: ble_discovering_state,
+                num_of_device: ble_discovered_device_list.length,
                 discovered_device_list: ble_discovered_device_list
             }
         }
