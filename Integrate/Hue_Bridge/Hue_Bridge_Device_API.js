@@ -43,6 +43,20 @@ async function fetchBridgeInfoFromIP(ip) {
     }
 }
 
+function parseSSDPHeaders(raw) {
+    const lines = raw.split(/\r?\n/);
+    const headers = {};
+    for (const line of lines) {
+        const idx = line.indexOf(':');
+        if (idx > 0) {
+            const key = line.substring(0, idx).trim().toLowerCase();
+            const value = line.substring(idx + 1).trim();
+            headers[key] = value;
+        }
+    }
+    return headers;
+}
+
 async function discoverViaSSDP(timeoutMs = 1000) {
     const ssdpClient = new Client();
     const discoveryResults = [];
@@ -53,20 +67,20 @@ async function discoverViaSSDP(timeoutMs = 1000) {
             resolve(discoveryResults);
         }, timeoutMs);
 
-        ssdpClient.on('response', async (headers, statusCode, rinfo) => {
-            if (headers.SERVER?.includes('IpBridge') && headers.LOCATION) {
-                const ip = rinfo.address;
+        ssdpClient.on('response', async (raw_headers, statusCode) => {
+            const raw = raw_headers.toString();
+            const headers = parseSSDPHeaders(raw);
+        
+            const server = headers['server'];
+            const location = headers['location'];
+        
+            if (server?.includes('IpBridge') && location) {
+                const ip = statusCode.address;
                 if (found.has(ip)) return;
                 found.add(ip);
-
-                try {
-                    let bridge_xml_info = await fetchBridgeInfoFromIP(ip);
-                    if (bridge_xml_info!=null) {
-                        discoveryResults.push(bridge_xml_info);
-                    }
-                } catch (e) {
-                    debug("[Hue_Bridge_API] SSDP parse failed: " + e.message);
-                }
+        
+                const info = await fetchBridgeInfoFromIP(ip);
+                if (info) discoveryResults.push(info);
             }
         });
 
@@ -85,7 +99,7 @@ var Hue_Bridge_API = function () {
 
     self.Discover_Nearby_Hue_Bridge = async function () {
         try {
-            const discoveryResults = await discoverViaSSDP(10000);
+            const discoveryResults = await discoverViaSSDP(5000);
             return {
                 num_of_hue_bridge: discoveryResults.length,
                 discovered_hue_bridge_list: discoveryResults
