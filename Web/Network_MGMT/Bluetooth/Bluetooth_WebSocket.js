@@ -24,7 +24,7 @@ var Bluetooth_WebSocket = function (){
                         break;
                     case "Disconnect From Device":
                         if(post_json_data.device_ID!=null){
-                            await ble.BLE_Connect_To_Device(post_json_data.device_ID);
+                            ble.BLE_Disconnect_From_Device(post_json_data.device_ID);
                         }
                         break;
                 }
@@ -44,6 +44,9 @@ var Bluetooth_WebSocket = function (){
                 switch(get_json_data.command){
                     case "Get Discover Result":
                         rsp_json = ble.BLE_Get_Discover_Result();
+                        break;
+                    case "Get Connect Result":
+                        //rsp_json = ble.BLE_Get_Discover_Result();
                         break;
                 }
             }

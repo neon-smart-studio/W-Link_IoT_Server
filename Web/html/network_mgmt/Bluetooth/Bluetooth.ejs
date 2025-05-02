@@ -47,7 +47,7 @@
                     {
                         show_bt_dev_list.push("<button data-role=\"hint\" data-hint-text=\"連線\" id=\"\" \
                                                     class=\"button success square large fg-white\" style=\"position:absolute; bottom:5px; right:5px;\" \
-                                                    onclick=\"onClick_Connect_To_BT_Device_Btn('"+bt_dev_info.address+"');\">");
+                                                    onclick=\"onClick_Connect_To_BT_Device_Btn('"+bt_dev_info.id+"');\">");
                         show_bt_dev_list.push("<span class=\"mif-link\"></span>");
                         show_bt_dev_list.push("</button>");
                     }
@@ -109,6 +109,18 @@
                 });
             }, 1000);
         }
+    }
+
+    function onClick_Connect_To_BT_Device_Btn(device_ID)
+    {
+        //$('#hue_bridge_'+index_str+'_sync_lights_modal_exit_btn').addClass('disabled');
+
+        //Metro.dialog.open('#hue_bridge_'+index_str+'_sync_lights_modal');
+
+        Bluetooth_Connect_To_Device(device_ID);
+
+        //$('#hue_bridge_'+index_str+'_sync_lights_status_display_area').html('');
+        //$('#hue_bridge_'+index_str+'_sync_lights_status_display_area').html('<div data-role="progress" data-type="line"></div>');
     }
 
 </script>

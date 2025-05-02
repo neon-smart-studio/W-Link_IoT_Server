@@ -92,6 +92,7 @@ var OnOff_Socket_Zigbee = function () {
                         case "lumi.plug.maeu01":
                         case "lumi.ctrl_86plug'":
                         case "lumi.ctrl_86plug.aq1":
+                        case "lumi.plug.maus01":
                             if(attribute_report_resolved_json_data==null) { return null; }
                             
                             socket_status_list.push({
@@ -131,6 +132,7 @@ var OnOff_Socket_Zigbee = function () {
                         case "lumi.plug.maeu01":
                         case "lumi.ctrl_86plug'":
                         case "lumi.ctrl_86plug.aq1":
+                        case "lumi.plug.maus01":
                         default:
                             socket_status_list.push({
                                 "socket_index": 0,
