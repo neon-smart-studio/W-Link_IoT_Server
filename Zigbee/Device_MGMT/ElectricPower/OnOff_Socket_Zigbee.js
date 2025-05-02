@@ -21,12 +21,17 @@ var OnOff_Socket_Zigbee = function () {
                     switch(resolv_dev_info.device.modelID)
                     {
                         case "lumi.plug":
+                        case "lumi.plug.aq1":
                         case "lumi.plug.mitw01":
                         case "lumi.plug.mmeu01":
-                        case "lumi.plug.maus01":
                         case "lumi.plug.maeu01":
+                        case "lumi.plug.macn01":
+                        case "lumi.plug.maus01":
                         case "lumi.ctrl_86plug'":
                         case "lumi.ctrl_86plug.aq1":
+                        case "lumi.plug.sacn03":
+                        case "lumi.plug.sacn02":
+                        case "lumi.plug.aeu001":
                             if(attribute_report_resolved_json_data==null) { return null; }
 
                             var on_off_state = false;
@@ -86,13 +91,17 @@ var OnOff_Socket_Zigbee = function () {
                     switch(resolv_dev_info.device.modelID)
                     {
                         case "lumi.plug":
+                        case "lumi.plug.aq1":
                         case "lumi.plug.mitw01":
                         case "lumi.plug.mmeu01":
-                        case "lumi.plug.maus01":
                         case "lumi.plug.maeu01":
+                        case "lumi.plug.macn01":
+                        case "lumi.plug.maus01":
                         case "lumi.ctrl_86plug'":
                         case "lumi.ctrl_86plug.aq1":
-                        case "lumi.plug.maus01":
+                        case "lumi.plug.sacn03":
+                        case "lumi.plug.sacn02":
+                        case "lumi.plug.aeu001":
                             if(attribute_report_resolved_json_data==null) { return null; }
                             
                             socket_status_list.push({
@@ -126,13 +135,17 @@ var OnOff_Socket_Zigbee = function () {
                     {
                         case "ZHA Smart Plug":
                         case "lumi.plug":
+                        case "lumi.plug.aq1":
                         case "lumi.plug.mitw01":
                         case "lumi.plug.mmeu01":
-                        case "lumi.plug.maus01":
                         case "lumi.plug.maeu01":
+                        case "lumi.plug.macn01":
+                        case "lumi.plug.maus01":
                         case "lumi.ctrl_86plug'":
                         case "lumi.ctrl_86plug.aq1":
-                        case "lumi.plug.maus01":
+                        case "lumi.plug.sacn03":
+                        case "lumi.plug.sacn02":
+                        case "lumi.plug.aeu001":
                         default:
                             socket_status_list.push({
                                 "socket_index": 0,
