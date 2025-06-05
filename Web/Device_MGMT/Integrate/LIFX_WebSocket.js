@@ -4,27 +4,27 @@ var debug = require('debug')(require('path').basename(__filename));
 var WebSocket = require('../../WebSocket.js');
 var websocket = new WebSocket();
 
-var Yeelight_Device_API = require('../../../Integrate/Yeelight/Yeelight_Device_API.js');
-var yeelight_device_api = new Yeelight_Device_API();
+var LIFX_Device_API = require('../../../Integrate/LIFX/LIFX_Device_API.js');
+var lifx_device_api = new LIFX_Device_API();
 
-var Yeelight_WebSocket = function (){
+var LIFX_WebSocket = function (){
     var self = this;
     
-    self.Process_Yeelight_WebSocket_POST_Message = async function(username, post_yeelight_json_data)
+    self.Process_LIFX_WebSocket_POST_Message = async function(username, post_lifx_json_data)
     {
         try{
-            if(post_yeelight_json_data.command!=null){
-                switch(post_yeelight_json_data.command){
-                    case "Link To Yeelight":
-                        if(post_yeelight_json_data.ip!=null && post_yeelight_json_data.mac!=null){
-                            var link_status = await yeelight_device_api.Link_To_Lifx_Device(username, post_yeelight_json_data.ip, post_yeelight_json_data.mac);
+            if(post_lifx_json_data.command!=null){
+                switch(post_lifx_json_data.command){
+                    case "Link To LIFX":
+                        if(post_lifx_json_data.ip!=null && post_lifx_json_data.mac!=null){
+                            var link_status = await lifx_device_api.Link_To_Lifx_Device(username, post_lifx_json_data.ip, post_lifx_json_data.mac);
                             if(link_status)
                             {
                                 var ws_report_cmd = {
-                                    "command_type": "Yeelight",
-                                    "command": "Report Yeelight Link Successfully",
-                                    "ip": post_yeelight_json_data.ip,
-                                    "mac": post_yeelight_json_data.mac,
+                                    "command_type": "LIFX",
+                                    "command": "Report LIFX Link Successfully",
+                                    "ip": post_lifx_json_data.ip,
+                                    "mac": post_lifx_json_data.mac,
                                 }
             
                                 websocket.WebSocket_Send_Broadcast_JSON_POST_Message_Specific_User(username, 'Integrate', ws_report_cmd);
@@ -36,18 +36,18 @@ var Yeelight_WebSocket = function (){
         }
         catch(e)
         {
-            debug('[Yeelight_WebSocket] Process_Yeelight_WebSocket_POST_Message() Error ' + e);
+            debug('[LIFX_WebSocket] Process_LIFX_WebSocket_POST_Message() Error ' + e);
         }
     }
 
-    self.Process_Yeelight_WebSocket_GET_Message = async function(username, get_yeelight_json_data)
+    self.Process_LIFX_WebSocket_GET_Message = async function(username, get_lifx_json_data)
     {
         try{
             var rsp_json = null;
-            if(get_yeelight_json_data.command!=null){
-                switch(get_yeelight_json_data.command){
-                    case "Discover Nearby Yeelight":
-                        rsp_json = await yeelight_device_api.Discover_Nearby_Yeelight(username);
+            if(get_lifx_json_data.command!=null){
+                switch(get_lifx_json_data.command){
+                    case "Discover Nearby LIFX":
+                        rsp_json = await lifx_device_api.Discover_Nearby_LIFX(username);
                         break;
                 }
             }
@@ -55,9 +55,9 @@ var Yeelight_WebSocket = function (){
         }
         catch(e)
         {
-            debug('[Yeelight_WebSocket] Process_Yeelight_WebSocket_GET_Message() Error ' + e);
+            debug('[LIFX_WebSocket] Process_LIFX_WebSocket_GET_Message() Error ' + e);
         }
     }
 
 }
-module.exports = Yeelight_WebSocket;
+module.exports = LIFX_WebSocket;
